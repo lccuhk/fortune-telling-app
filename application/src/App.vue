@@ -2022,6 +2022,9 @@ function exportCurrentResult() {
         </div>
       </div>
     </div>
+    
+    <!-- 主应用内容 - 仅在未显示登录页面时显示 -->
+    <div v-else class="main-app-content">
     <div class="header-banner">
       <div class="header-top">
         <h1 class="title galaxy-title">
@@ -2491,6 +2494,7 @@ function exportCurrentResult() {
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <style scoped>

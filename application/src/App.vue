@@ -181,6 +181,37 @@ const showLoginPage = ref(false);
 const authMode = ref('login'); // 'login' or 'register'
 const authLoading = ref(false);
 const authError = ref('');
+const authFieldErrors = ref({
+  loginUsername: '',
+  loginPassword: '',
+  registerUsername: '',
+  registerPassword: '',
+  registerConfirm: ''
+});
+
+// 清除字段错误
+function clearFieldError(field) {
+  if (authFieldErrors.value[field]) {
+    authFieldErrors.value[field] = '';
+  }
+}
+
+// 设置字段错误
+function setFieldError(field, message) {
+  authFieldErrors.value[field] = message;
+}
+
+// 清除所有错误
+function clearAllAuthErrors() {
+  authError.value = '';
+  authFieldErrors.value = {
+    loginUsername: '',
+    loginPassword: '',
+    registerUsername: '',
+    registerPassword: '',
+    registerConfirm: ''
+  };
+}
 
 const questionTypes = ['综合', '事业', '感情', '财运', '健康', '学业', '爱情'];
 // 所有类型（包含塔罗牌占卜，用于筛选）
@@ -471,15 +502,30 @@ window.addEventListener('resize', () => {
 // 用户登录（新）
 function handleAuthLogin() {
   logger.log('🔐 [登录] 开始登录流程');
-  authError.value = '';
+  clearAllAuthErrors();
   authLoading.value = true;
   
   logger.log('📝 [登录] 输入验证 - 用户名:', loginUsername.value, '密码:', loginPassword.value ? '***' : '');
   
   setTimeout(() => {
-    if (!loginUsername.value || !loginPassword.value) {
-      logger.log('❌ [登录] 输入验证失败 - 用户名或密码为空');
-      authError.value = '请填写用户名和密码';
+    let hasError = false;
+    
+    // 字段级别验证
+    if (!loginUsername.value.trim()) {
+      logger.log('❌ [登录] 用户名为空');
+      setFieldError('loginUsername', '请输入用户名');
+      hasError = true;
+    }
+    
+    if (!loginPassword.value) {
+      logger.log('❌ [登录] 密码为空');
+      setFieldError('loginPassword', '请输入密码');
+      hasError = true;
+    }
+    
+    if (hasError) {
+      logger.log('❌ [登录] 输入验证失败');
+      authError.value = '请完善登录信息';
       authLoading.value = false;
       return;
     }
@@ -534,22 +580,48 @@ function handleAuthLogin() {
 // 用户注册（新）
 function handleAuthRegister() {
   logger.log('📝 [注册] 开始注册流程');
-  authError.value = '';
+  clearAllAuthErrors();
   authLoading.value = true;
   
   logger.log('📋 [注册] 输入验证 - 用户名:', registerUsername.value, '密码:', registerPassword.value ? '***' : '');
   
   setTimeout(() => {
-    if (!registerUsername.value || !registerPassword.value) {
-      logger.log('❌ [注册] 输入验证失败 - 用户名或密码为空');
-      authError.value = '请填写用户名和密码';
-      authLoading.value = false;
-      return;
+    let hasError = false;
+    
+    // 字段级别验证
+    if (!registerUsername.value.trim()) {
+      logger.log('❌ [注册] 用户名为空');
+      setFieldError('registerUsername', '请输入用户名');
+      hasError = true;
+    } else if (registerUsername.value.trim().length < 3) {
+      logger.log('❌ [注册] 用户名太短');
+      setFieldError('registerUsername', '用户名至少3个字符');
+      hasError = true;
     }
     
-    if (registerPassword.value !== registerConfirm.value) {
+    if (!registerPassword.value) {
+      logger.log('❌ [注册] 密码为空');
+      setFieldError('registerPassword', '请输入密码');
+      hasError = true;
+    } else if (registerPassword.value.length < 6) {
+      logger.log('❌ [注册] 密码太短');
+      setFieldError('registerPassword', '密码至少6个字符');
+      hasError = true;
+    }
+    
+    if (!registerConfirm.value) {
+      logger.log('❌ [注册] 确认密码为空');
+      setFieldError('registerConfirm', '请确认密码');
+      hasError = true;
+    } else if (registerPassword.value !== registerConfirm.value) {
       logger.log('❌ [注册] 密码验证失败 - 两次密码不一致');
-      authError.value = '两次密码不一致';
+      setFieldError('registerConfirm', '两次密码不一致');
+      hasError = true;
+    }
+    
+    if (hasError) {
+      logger.log('❌ [注册] 输入验证失败');
+      authError.value = '请完善注册信息';
       authLoading.value = false;
       return;
     }
@@ -1908,13 +1980,13 @@ function exportCurrentResult() {
             <div class="auth-tabs">
               <button 
                 :class="['auth-tab', { active: authMode === 'login' }]" 
-                @click="authMode = 'login'; authError = ''"
+                @click="authMode = 'login'; clearAllAuthErrors()"
               >
                 登录
               </button>
               <button 
                 :class="['auth-tab', { active: authMode === 'register' }]" 
-                @click="authMode = 'register'; authError = ''"
+                @click="authMode = 'register'; clearAllAuthErrors()"
               >
                 注册
               </button>
@@ -1922,100 +1994,118 @@ function exportCurrentResult() {
             
             <!-- 登录表单 -->
             <form v-if="authMode === 'login'" class="auth-form" @submit.prevent="handleAuthLogin">
-              <div class="form-group">
+              <div class="form-group" :class="{ 'has-error': authFieldErrors.loginUsername }">
                 <label>用户名</label>
                 <div class="input-wrapper">
                   <span class="input-icon">👤</span>
                   <input 
                     type="text" 
                     v-model="loginUsername" 
-                    class="form-input"
+                    :class="['form-input', { 'input-error': authFieldErrors.loginUsername }]"
                     placeholder="请输入用户名"
+                    @input="clearFieldError('loginUsername')"
                   />
                 </div>
+                <span v-if="authFieldErrors.loginUsername" class="field-error">{{ authFieldErrors.loginUsername }}</span>
               </div>
               
-              <div class="form-group">
+              <div class="form-group" :class="{ 'has-error': authFieldErrors.loginPassword }">
                 <label>密码</label>
                 <div class="input-wrapper">
                   <span class="input-icon">🔒</span>
                   <input 
                     type="password" 
                     v-model="loginPassword" 
-                    class="form-input"
+                    :class="['form-input', { 'input-error': authFieldErrors.loginPassword }]"
                     placeholder="请输入密码"
+                    @input="clearFieldError('loginPassword')"
                   />
                 </div>
+                <span v-if="authFieldErrors.loginPassword" class="field-error">{{ authFieldErrors.loginPassword }}</span>
               </div>
               
-              <div v-if="authError" class="auth-error">
-                ⚠️ {{ authError }}
+              <div v-if="authError" class="auth-error" :class="{ 'shake': authError }">
+                <span class="error-icon">⚠️</span>
+                <span>{{ authError }}</span>
               </div>
               
               <button type="submit" class="auth-btn" :disabled="authLoading">
-                <span v-if="authLoading">登录中...</span>
+                <span v-if="authLoading" class="btn-loading">
+                  <span class="loading-spinner"></span>
+                  登录中...
+                </span>
                 <span v-else>登录</span>
               </button>
               
               <p class="auth-footer">
                 还没有账号？
-                <a @click="authMode = 'register'; authError = ''">立即注册</a>
+                <a @click="authMode = 'register'; clearAllAuthErrors()">立即注册</a>
               </p>
             </form>
             
             <!-- 注册表单 -->
             <form v-if="authMode === 'register'" class="auth-form" @submit.prevent="handleAuthRegister">
-              <div class="form-group">
+              <div class="form-group" :class="{ 'has-error': authFieldErrors.registerUsername }">
                 <label>用户名</label>
                 <div class="input-wrapper">
                   <span class="input-icon">👤</span>
                   <input 
                     type="text" 
                     v-model="registerUsername" 
-                    class="form-input"
-                    placeholder="请输入用户名"
+                    :class="['form-input', { 'input-error': authFieldErrors.registerUsername }]"
+                    placeholder="请输入用户名（至少3个字符）"
+                    @input="clearFieldError('registerUsername')"
                   />
                 </div>
+                <span v-if="authFieldErrors.registerUsername" class="field-error">{{ authFieldErrors.registerUsername }}</span>
               </div>
               
-              <div class="form-group">
+              <div class="form-group" :class="{ 'has-error': authFieldErrors.registerPassword }">
                 <label>密码</label>
                 <div class="input-wrapper">
                   <span class="input-icon">🔒</span>
                   <input 
                     type="password" 
                     v-model="registerPassword" 
-                    class="form-input"
-                    placeholder="请输入密码"
+                    :class="['form-input', { 'input-error': authFieldErrors.registerPassword }]"
+                    placeholder="请输入密码（至少6个字符）"
+                    @input="clearFieldError('registerPassword')"
                   />
                 </div>
+                <span v-if="authFieldErrors.registerPassword" class="field-error">{{ authFieldErrors.registerPassword }}</span>
               </div>
               
-              <div class="form-group">
+              <div class="form-group" :class="{ 'has-error': authFieldErrors.registerConfirm }">
                 <label>确认密码</label>
                 <div class="input-wrapper">
                   <span class="input-icon">🔐</span>
                   <input 
                     type="password" 
                     v-model="registerConfirm" 
-                    class="form-input"
+                    :class="['form-input', { 'input-error': authFieldErrors.registerConfirm }]"
                     placeholder="请再次输入密码"
+                    @input="clearFieldError('registerConfirm')"
                   />
                 </div>
+                <span v-if="authFieldErrors.registerConfirm" class="field-error">{{ authFieldErrors.registerConfirm }}</span>
               </div>
               
-              <div v-if="authError" class="auth-error">
-                ⚠️ {{ authError }}
+              <div v-if="authError" class="auth-error" :class="{ 'shake': authError }">
+                <span class="error-icon">⚠️</span>
+                <span>{{ authError }}</span>
               </div>
               
               <button type="submit" class="auth-btn" :disabled="authLoading">
-                <span v-if="authLoading">注册中...</span>
+                <span v-if="authLoading" class="btn-loading">
+                  <span class="loading-spinner"></span>
+                  注册中...
+                </span>
                 <span v-else>注册</span>
               </button>
               
               <p class="auth-footer">
                 已有账号？
-                <a @click="authMode = 'login'; authError = ''">立即登录</a>
+                <a @click="authMode = 'login'; clearAllAuthErrors()">立即登录</a>
               </p>
             </form>
           </div>
@@ -2500,7 +2590,7 @@ function exportCurrentResult() {
 <style scoped>
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: transparent;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transition: all 0.3s ease;
@@ -2508,7 +2598,7 @@ function exportCurrentResult() {
 
 /* 深色模式样式 */
 .app-container.dark-mode {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: transparent;
 }
 
 .header-banner {
@@ -3457,11 +3547,11 @@ function exportCurrentResult() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: transparent;
 }
 
 .app-container.dark-mode .login-page {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: transparent;
 }
 
 .login-container {
@@ -3705,6 +3795,81 @@ function exportCurrentResult() {
   margin-bottom: 20px;
   font-size: 0.95rem;
   border-left: 4px solid #ff6b6b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.3s ease;
+}
+
+.auth-error.shake {
+  animation: shake 0.5s ease;
+}
+
+.error-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* 字段级别错误样式 */
+.form-group.has-error .input-wrapper {
+  border-color: #ff6b6b;
+  background: rgba(255,107,107,0.05);
+}
+
+.form-group.has-error .input-wrapper:focus-within {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 2px rgba(255,107,107,0.2);
+}
+
+.input-error {
+  color: #ff6b6b;
+}
+
+.field-error {
+  display: block;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  margin-left: 5px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* 加载动画 */
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .auth-btn {

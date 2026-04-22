@@ -232,9 +232,17 @@
 }
 
 /* 深色模式适配 */
+:root {
+  background: transparent !important;
+}
+
 body {
   background: transparent !important;
   color: white !important;
+}
+
+#app {
+  background: transparent !important;
 }
 
 /* 银河背景渐变 */

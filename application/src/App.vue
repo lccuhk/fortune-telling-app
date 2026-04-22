@@ -2041,10 +2041,10 @@ function exportCurrentResult() {
           <button v-if="isLoggedIn" class="theme-toggle galaxy-button" @click="handleLogout">
             👋 退出 {{ currentUser.username }}
           </button>
-          <button v-else class="theme-toggle galaxy-button" @click="showLoginModal = true">
+          <button v-else class="theme-toggle galaxy-button" @click="showLoginPage = true">
             🔑 登录
           </button>
-          <button v-if="!isLoggedIn" class="theme-toggle galaxy-button" @click="showRegisterModal = true">
+          <button v-if="!isLoggedIn" class="theme-toggle galaxy-button" @click="showLoginPage = true; authMode = 'register'">
             📝 注册
           </button>
         </div>

@@ -2,6 +2,7 @@
 import { ref, onMounted, computed, nextTick, watch, onUnmounted } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import FortuneForm from './components/FortuneForm.vue';
+import ShareCard from './components/ShareCard.vue';
 import './styles/3d-galaxy.css';
 
 // 日志开关 - 设置为 false 可以关闭所有日志
@@ -369,6 +370,9 @@ const isPushEnabled = ref(false);
 const pushTime = ref('08:00');
 const pushTimer = ref(null);
 const showSettingsModal = ref(false);
+
+// 分享卡片相关
+const showShareCard = ref(false);
 
 // 登录页面相关
 const showLoginPage = ref(false);
@@ -2084,14 +2088,32 @@ function shareWeibo() {
   window.open(`https://service.weibo.com/share/share.php?url=${shareUrl}&content=${content}`, '_blank');
 }
 
-// 生成图片分享 (简单实现)
+// 生成图片分享
 function generateShareImage() {
   if (!result.value) {
     logger.warn('🖼️ [图片分享] 没有可分享的结果');
     return;
   }
-  logger.log('🖼️ [图片分享] 尝试生成分享图片...');
-  alert('图片分享功能即将上线，敬请期待！');
+  logger.log('🖼️ [图片分享] 打开分享卡片弹窗');
+  showShareCard.value = true;
+}
+
+// 关闭分享卡片
+function closeShareCard() {
+  logger.log('🖼️ [图片分享] 关闭分享卡片');
+  showShareCard.value = false;
+}
+
+// 获取当前算命类型名称
+function getCurrentFortuneType() {
+  if (result.value?.isBazi) return '八字算命';
+  if (result.value?.isZiwei) return '紫微斗数';
+  if (result.value?.isShengxiao) return '生肖运势';
+  if (result.value?.isXingzuo) return '星座运势';
+  if (result.value?.isXingming) return '姓名学';
+  if (result.value?.isJiemeng) return '周公解梦';
+  if (drawnTarot.value) return '塔罗牌占卜';
+  return '传统算命';
 }
 
 // 导出为JSON
@@ -3260,6 +3282,15 @@ function exportCurrentResult() {
     </div>
   </div>
 </div>
+
+<!-- 分享卡片组件 -->
+<ShareCard
+  :show="showShareCard"
+  :result="result"
+  :user-name="currentUserName || name"
+  :fortune-type="getCurrentFortuneType()"
+  @close="closeShareCard"
+/>
 </template>
 
 <style scoped>

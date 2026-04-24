@@ -1527,6 +1527,286 @@ async function handleGetZiwei(data) {
   await getZiweiFromData(data.name, data.birthDate, data.birthTime, data.gender, data.questionType);
 }
 
+// 生肖运势处理
+async function handleGetShengxiao(data) {
+  logger.log('🐲 [组件事件] 收到 FortuneForm 组件的 get-shengxiao 事件');
+  logger.log('🐲 [组件事件] 数据:', data);
+  await getShengxiaoFromData(data.name, data.birthDate, data.questionType);
+}
+
+async function getShengxiaoFromData(userName, userBirthDate, userQuestionType) {
+  logger.log('🐲 [生肖] 生肖运势请求初始化...');
+  logger.log(`🐲 [生肖] 参数: ${JSON.stringify({ name: userName, birthDate: userBirthDate, questionType: userQuestionType })}`);
+
+  error.value = '';
+  loading.value = true;
+  name.value = userName;
+  birthDate.value = userBirthDate;
+  questionType.value = `生肖-${userQuestionType}`;
+
+  try {
+    logger.log('🐲 [生肖] 发送请求到后端...');
+    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/shengxiao', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userName,
+        birth_date: userBirthDate,
+        question_type: userQuestionType
+      })
+    });
+
+    logger.log(`🐲 [生肖] 收到响应，状态码: ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error('请求失败');
+    }
+
+    const data = await response.json();
+    logger.log('🐲 [生肖] 成功获取生肖运势');
+
+    // 格式化生肖运势结果显示
+    result.value = {
+      prediction: data.title,
+      advice: data.content,
+      zodiac_sign: data.shengxiao,
+      chinese_zodiac: `运势指数: ${data.fortune_index}/100`,
+      record_id: data.record_id,
+      isShengxiao: true,
+      shengxiao: data.shengxiao,
+      fortuneIndex: data.fortune_index
+    };
+
+    // 更新当前用户姓名
+    currentUserName.value = userName;
+
+    // 重新从服务器加载历史记录
+    logger.log('🐲 [生肖] 重新加载历史记录...');
+    await loadHistoryFromServer();
+
+  } catch (err) {
+    error.value = '获取生肖运势失败，请稍后重试';
+    logger.error('🐲 [生肖] 请求失败:', err);
+  } finally {
+    loading.value = false;
+    logger.log('🐲 [生肖] 请求流程结束');
+  }
+}
+
+// 星座运势处理
+async function handleGetXingzuo(data) {
+  logger.log('♈ [组件事件] 收到 FortuneForm 组件的 get-xingzuo 事件');
+  logger.log('♈ [组件事件] 数据:', data);
+  await getXingzuoFromData(data.name, data.birthDate, data.questionType);
+}
+
+async function getXingzuoFromData(userName, userBirthDate, userQuestionType) {
+  logger.log('♈ [星座] 星座运势请求初始化...');
+  logger.log(`♈ [星座] 参数: ${JSON.stringify({ name: userName, birthDate: userBirthDate, questionType: userQuestionType })}`);
+
+  error.value = '';
+  loading.value = true;
+  name.value = userName;
+  birthDate.value = userBirthDate;
+  questionType.value = `星座-${userQuestionType}`;
+
+  try {
+    logger.log('♈ [星座] 发送请求到后端...');
+    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/xingzuo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userName,
+        birth_date: userBirthDate,
+        question_type: userQuestionType
+      })
+    });
+
+    logger.log(`♈ [星座] 收到响应，状态码: ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error('请求失败');
+    }
+
+    const data = await response.json();
+    logger.log('♈ [星座] 成功获取星座运势');
+
+    // 格式化星座运势结果显示
+    result.value = {
+      prediction: data.title,
+      advice: data.content,
+      zodiac_sign: data.xingzuo,
+      chinese_zodiac: `幸运指数: ${data.lucky_index}/100`,
+      record_id: data.record_id,
+      isXingzuo: true,
+      xingzuo: data.xingzuo,
+      luckyIndex: data.lucky_index,
+      luckyColor: data.lucky_color,
+      luckyNumber: data.lucky_number
+    };
+
+    // 更新当前用户姓名
+    currentUserName.value = userName;
+
+    // 重新从服务器加载历史记录
+    logger.log('♈ [星座] 重新加载历史记录...');
+    await loadHistoryFromServer();
+
+  } catch (err) {
+    error.value = '获取星座运势失败，请稍后重试';
+    logger.error('♈ [星座] 请求失败:', err);
+  } finally {
+    loading.value = false;
+    logger.log('♈ [星座] 请求流程结束');
+  }
+}
+
+// 姓名学处理
+async function handleGetXingming(data) {
+  logger.log('📝 [组件事件] 收到 FortuneForm 组件的 get-xingming 事件');
+  logger.log('📝 [组件事件] 数据:', data);
+  await getXingmingFromData(data.name, data.birthDate, data.questionType);
+}
+
+async function getXingmingFromData(userName, userBirthDate, userQuestionType) {
+  logger.log('📝 [姓名] 姓名学分析请求初始化...');
+  logger.log(`📝 [姓名] 参数: ${JSON.stringify({ name: userName, birthDate: userBirthDate, questionType: userQuestionType })}`);
+
+  error.value = '';
+  loading.value = true;
+  name.value = userName;
+  birthDate.value = userBirthDate;
+  questionType.value = `姓名-${userQuestionType}`;
+
+  try {
+    logger.log('📝 [姓名] 发送请求到后端...');
+    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/xingming', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userName,
+        birth_date: userBirthDate,
+        question_type: userQuestionType
+      })
+    });
+
+    logger.log(`📝 [姓名] 收到响应，状态码: ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error('请求失败');
+    }
+
+    const data = await response.json();
+    logger.log('📝 [姓名] 成功获取姓名学分析');
+
+    // 格式化姓名学结果显示
+    result.value = {
+      prediction: data.title,
+      advice: data.content,
+      zodiac_sign: `五格评分: ${data.wuge_score}/100`,
+      chinese_zodiac: `五行属性: ${data.wuxing}`,
+      record_id: data.record_id,
+      isXingming: true,
+      wugeScore: data.wuge_score,
+      wuxing: data.wuxing,
+      tianGe: data.tian_ge,
+      diGe: data.di_ge,
+      renGe: data.ren_ge,
+      waiGe: data.wai_ge,
+      zongGe: data.zong_ge
+    };
+
+    // 更新当前用户姓名
+    currentUserName.value = userName;
+
+    // 重新从服务器加载历史记录
+    logger.log('📝 [姓名] 重新加载历史记录...');
+    await loadHistoryFromServer();
+
+  } catch (err) {
+    error.value = '获取姓名学分析失败，请稍后重试';
+    logger.error('📝 [姓名] 请求失败:', err);
+  } finally {
+    loading.value = false;
+    logger.log('📝 [姓名] 请求流程结束');
+  }
+}
+
+// 周公解梦处理
+async function handleGetJiemeng(data) {
+  logger.log('💭 [组件事件] 收到 FortuneForm 组件的 get-jiemeng 事件');
+  logger.log('💭 [组件事件] 数据:', data);
+  await getJiemengFromData(data.name, data.dream, data.questionType);
+}
+
+async function getJiemengFromData(userName, userDream, userQuestionType) {
+  logger.log('💭 [解梦] 周公解梦分析请求初始化...');
+  logger.log(`💭 [解梦] 参数: ${JSON.stringify({ name: userName, dreamType: userQuestionType })}`);
+
+  error.value = '';
+  loading.value = true;
+  name.value = userName;
+  question.value = userDream;
+  questionType.value = `解梦-${userQuestionType}`;
+
+  try {
+    logger.log('💭 [解梦] 发送请求到后端...');
+    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/jiemeng', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userName,
+        dream: userDream,
+        dream_type: userQuestionType
+      })
+    });
+
+    logger.log(`💭 [解梦] 收到响应，状态码: ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error('请求失败');
+    }
+
+    const data = await response.json();
+    logger.log('💭 [解梦] 成功获取解梦结果');
+
+    // 格式化解梦结果显示
+    result.value = {
+      prediction: data.title,
+      advice: data.content,
+      zodiac_sign: `梦境类型: ${userQuestionType}`,
+      chinese_zodiac: `吉凶指数: ${data.luck_index}/100`,
+      record_id: data.record_id,
+      isJiemeng: true,
+      dreamType: userQuestionType,
+      luckIndex: data.luck_index,
+      interpretation: data.interpretation
+    };
+
+    // 更新当前用户姓名
+    currentUserName.value = userName;
+
+    // 重新从服务器加载历史记录
+    logger.log('💭 [解梦] 重新加载历史记录...');
+    await loadHistoryFromServer();
+
+  } catch (err) {
+    error.value = '获取解梦结果失败，请稍后重试';
+    logger.error('💭 [解梦] 请求失败:', err);
+  } finally {
+    loading.value = false;
+    logger.log('💭 [解梦] 请求流程结束');
+  }
+}
+
 async function getZiweiFromData(userName, userBirthDate, userBirthTime, userGender, userQuestionType) {
   logger.log('⭐ [紫微] 紫微斗数请求初始化...');
   logger.log(`⭐ [紫微] 参数: ${JSON.stringify({ name: userName, birthDate: userBirthDate, birthTime: userBirthTime, gender: userGender, questionType: userQuestionType })}`);
@@ -2568,13 +2848,17 @@ function exportCurrentResult() {
     <Transition :name="tabTransition" mode="out-in">
       <div v-if="activeTab === 'fortune'" class="tab-content active" key="fortune">
         <!-- 使用新的 FortuneForm 组件 -->
-        <FortuneForm 
+        <FortuneForm
           :loading="loading"
           :isTarotMode="isTarotMode"
-          @get-fortune="handleGetFortune" 
+          @get-fortune="handleGetFortune"
           @draw-tarot="handleDrawTarot"
           @get-bazi="handleGetBazi"
           @get-ziwei="handleGetZiwei"
+          @get-shengxiao="handleGetShengxiao"
+          @get-xingzuo="handleGetXingzuo"
+          @get-xingming="handleGetXingming"
+          @get-jiemeng="handleGetJiemeng"
           @change-mode="handleChangeMode"
         />
       

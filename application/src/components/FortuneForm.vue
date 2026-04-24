@@ -58,7 +58,7 @@ watch(() => props.isTarotMode, (newVal) => {
   isSyncingFromProp = false;
 });
 
-const emit = defineEmits(['get-fortune', 'draw-tarot', 'get-bazi', 'get-ziwei', 'change-mode'])
+const emit = defineEmits(['get-fortune', 'draw-tarot', 'get-bazi', 'get-ziwei', 'get-shengxiao', 'get-xingzuo', 'get-xingming', 'get-jiemeng', 'change-mode'])
 
 // 表单数据 - 初始值从 prop 来
 const fortuneMode = ref(props.isTarotMode ? 'tarot' : 'fortune')
@@ -89,6 +89,10 @@ watch(fortuneMode, (newMode) => {
 const questionTypes = ['综合', '事业', '感情', '财运', '健康', '学业', '爱情']
 const baziQuestionTypes = ['综合', '事业', '财运', '感情', '健康', '性格']
 const ziweiQuestionTypes = ['综合', '事业', '财运', '感情', '健康']
+const shengxiaoQuestionTypes = ['年度运势', '财运', '感情', '事业', '健康', '贵人运']
+const xingzuoQuestionTypes = ['今日运势', '本周运势', '本月运势', '年度运势', '爱情', '事业']
+const xingmingQuestionTypes = ['五格分析', '性格分析', '事业运', '财运', '健康运', '人际关系']
+const jiemengQuestionTypes = ['情感类', '事业类', '财运类', '健康类', '人际关系', '其他']
 
 // 塔罗牌相关
 const cardImage = ref('')
@@ -234,13 +238,81 @@ function handleDrawTarot() {
   console.log('=== 🔔 draw-tarot 事件已发出！ ===');
 }
 
+// 生肖运势提交
+function handleGetShengxiao() {
+  logger.log('🐲 [生肖] 开始生肖运势分析');
+  if (!name.value.trim() || !birthDate.value) {
+    logger.warn('🔍 [验证] 验证失败 - 姓名或出生日期为空');
+    error.value = '请填写姓名和出生日期！';
+    return;
+  }
+  logger.log(`🐲 [生肖] 验证通过 - 姓名: ${name.value}, 日期: ${birthDate.value}`);
+  emit('get-shengxiao', {
+    name: name.value,
+    birthDate: birthDate.value,
+    questionType: questionType.value
+  });
+}
+
+// 星座运势提交
+function handleGetXingzuo() {
+  logger.log('⭐ [星座] 开始星座运势分析');
+  if (!name.value.trim() || !birthDate.value) {
+    logger.warn('🔍 [验证] 验证失败 - 姓名或出生日期为空');
+    error.value = '请填写姓名和出生日期！';
+    return;
+  }
+  logger.log(`⭐ [星座] 验证通过 - 姓名: ${name.value}, 日期: ${birthDate.value}`);
+  emit('get-xingzuo', {
+    name: name.value,
+    birthDate: birthDate.value,
+    questionType: questionType.value
+  });
+}
+
+// 姓名学提交
+function handleGetXingming() {
+  logger.log('📝 [姓名] 开始姓名学分析');
+  if (!name.value.trim()) {
+    logger.warn('🔍 [验证] 验证失败 - 姓名为空');
+    error.value = '请填写姓名！';
+    return;
+  }
+  logger.log(`📝 [姓名] 验证通过 - 姓名: ${name.value}`);
+  emit('get-xingming', {
+    name: name.value,
+    birthDate: birthDate.value,
+    questionType: questionType.value
+  });
+}
+
+// 周公解梦提交
+function handleGetJiemeng() {
+  logger.log('💭 [解梦] 开始周公解梦分析');
+  if (!question.value.trim()) {
+    logger.warn('🔍 [验证] 验证失败 - 梦境内容为空');
+    error.value = '请描述您的梦境！';
+    return;
+  }
+  logger.log(`💭 [解梦] 验证通过 - 梦境: ${question.value}`);
+  emit('get-jiemeng', {
+    name: name.value,
+    dream: question.value,
+    questionType: questionType.value
+  });
+}
+
 // 监听模式切换
 watch(fortuneMode, (newMode, oldMode) => {
-  const modeNames = { 
-    'fortune': '传统算命', 
+  const modeNames = {
+    'fortune': '传统算命',
     'tarot': '塔罗牌占卜',
     'bazi': '八字算命',
-    'ziwei': '紫微斗数'
+    'ziwei': '紫微斗数',
+    'shengxiao': '生肖运势',
+    'xingzuo': '星座运势',
+    'xingming': '姓名学',
+    'jiemeng': '周公解梦'
   };
   logger.log(`🔄 [模式] 表单模式切换 - 从 ${modeNames[oldMode]} 切换到 ${modeNames[newMode]}`);
   // 切换模式时重置问题类型
@@ -258,25 +330,49 @@ watch(questionType, (newType, oldType) => {
   <div class="fortune-form-container">
     <!-- 模式选择 -->
     <div class="mode-selector">
-      <button 
+      <button
         :class="['mode-btn', { active: fortuneMode === 'fortune' }]"
         @click="fortuneMode = 'fortune'"
       >
         🔮 传统算命
       </button>
-      <button 
+      <button
         :class="['mode-btn', { active: fortuneMode === 'bazi' }]"
         @click="fortuneMode = 'bazi'"
       >
         🎯 八字算命
       </button>
-      <button 
+      <button
         :class="['mode-btn', { active: fortuneMode === 'ziwei' }]"
         @click="fortuneMode = 'ziwei'"
       >
         ⭐ 紫微斗数
       </button>
-      <button 
+      <button
+        :class="['mode-btn', { active: fortuneMode === 'shengxiao' }]"
+        @click="fortuneMode = 'shengxiao'"
+      >
+        🐲 生肖运势
+      </button>
+      <button
+        :class="['mode-btn', { active: fortuneMode === 'xingzuo' }]"
+        @click="fortuneMode = 'xingzuo'"
+      >
+        ♈ 星座运势
+      </button>
+      <button
+        :class="['mode-btn', { active: fortuneMode === 'xingming' }]"
+        @click="fortuneMode = 'xingming'"
+      >
+        📝 姓名学
+      </button>
+      <button
+        :class="['mode-btn', { active: fortuneMode === 'jiemeng' }]"
+        @click="fortuneMode = 'jiemeng'"
+      >
+        💭 周公解梦
+      </button>
+      <button
         :class="['mode-btn', { active: fortuneMode === 'tarot' }]"
         @click="fortuneMode = 'tarot'"
       >
@@ -515,39 +611,285 @@ watch(questionType, (newType, oldType) => {
       </div>
     </div>
 
-    <!-- 塔罗牌模式 -->
-    <div v-else class="form-container">
-      <h2 class="section-title">🃏 塔罗牌占卜</h2>
-      
+    <!-- 生肖运势模式 -->
+    <div v-else-if="fortuneMode === 'shengxiao'" class="form-container">
+      <h2 class="section-title">🐲 生肖运势</h2>
+      <p class="form-subtitle">基于中国传统生肖的年度运势分析</p>
+
       <div v-if="error" class="error-message">
         ⚠️ {{ error }}
       </div>
-      
+
       <div class="form-content-wrapper">
         <div class="form-group">
-          <label for="tarotName">👤 姓名：</label>
-          <input 
-            type="text" 
-            id="tarotName" 
+          <label for="shengxiaoName">👤 姓名：</label>
+          <input
+            type="text"
+            id="shengxiaoName"
             v-model="name"
             placeholder="请输入您的姓名"
             class="form-input"
           />
         </div>
-        
+
         <div class="form-group">
-          <label for="tarotBirthDate">🎂 出生日期：</label>
-          <input 
-            type="date" 
-            id="tarotBirthDate" 
+          <label for="shengxiaoBirthDate">🎂 出生日期：</label>
+          <input
+            type="date"
+            id="shengxiaoBirthDate"
             v-model="birthDate"
             class="form-input"
           />
         </div>
-        
+
+        <div class="form-group">
+          <label>🎯 运势类型：</label>
+          <div class="question-types">
+            <button
+              v-for="type in shengxiaoQuestionTypes"
+              :key="type"
+              :class="['type-btn', { active: questionType === type }]"
+              @click="questionType = type"
+            >
+              {{ type }}
+            </button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button
+            class="btn-primary shengxiao-btn"
+            @click="handleGetShengxiao"
+            :disabled="props.loading"
+            style="background: linear-gradient(135deg, #FF6B6B 0%, #EE5A6F 100%);"
+          >
+            {{ props.loading ? '✨ 正在分析...' : '🐲 查看生肖运势' }}
+          </button>
+          <button class="btn-secondary" @click="resetForm">
+            🔄 重置
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 星座运势模式 -->
+    <div v-else-if="fortuneMode === 'xingzuo'" class="form-container">
+      <h2 class="section-title">♈ 星座运势</h2>
+      <p class="form-subtitle">基于西方占星学的运势分析</p>
+
+      <div v-if="error" class="error-message">
+        ⚠️ {{ error }}
+      </div>
+
+      <div class="form-content-wrapper">
+        <div class="form-group">
+          <label for="xingzuoName">👤 姓名：</label>
+          <input
+            type="text"
+            id="xingzuoName"
+            v-model="name"
+            placeholder="请输入您的姓名"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="xingzuoBirthDate">🎂 出生日期：</label>
+          <input
+            type="date"
+            id="xingzuoBirthDate"
+            v-model="birthDate"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>🎯 运势类型：</label>
+          <div class="question-types">
+            <button
+              v-for="type in xingzuoQuestionTypes"
+              :key="type"
+              :class="['type-btn', { active: questionType === type }]"
+              @click="questionType = type"
+            >
+              {{ type }}
+            </button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button
+            class="btn-primary xingzuo-btn"
+            @click="handleGetXingzuo"
+            :disabled="props.loading"
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+          >
+            {{ props.loading ? '✨ 正在分析...' : '♈ 查看星座运势' }}
+          </button>
+          <button class="btn-secondary" @click="resetForm">
+            🔄 重置
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 姓名学模式 -->
+    <div v-else-if="fortuneMode === 'xingming'" class="form-container">
+      <h2 class="section-title">📝 姓名学</h2>
+      <p class="form-subtitle">基于姓名笔画和五格剖象法的命理分析</p>
+
+      <div v-if="error" class="error-message">
+        ⚠️ {{ error }}
+      </div>
+
+      <div class="form-content-wrapper">
+        <div class="form-group">
+          <label for="xingmingName">👤 姓名：</label>
+          <input
+            type="text"
+            id="xingmingName"
+            v-model="name"
+            placeholder="请输入您的姓名（2-4个汉字）"
+            class="form-input"
+            maxlength="4"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="xingmingBirthDate">🎂 出生日期（可选）：</label>
+          <input
+            type="date"
+            id="xingmingBirthDate"
+            v-model="birthDate"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>🎯 分析类型：</label>
+          <div class="question-types">
+            <button
+              v-for="type in xingmingQuestionTypes"
+              :key="type"
+              :class="['type-btn', { active: questionType === type }]"
+              @click="questionType = type"
+            >
+              {{ type }}
+            </button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button
+            class="btn-primary xingming-btn"
+            @click="handleGetXingming"
+            :disabled="props.loading"
+            style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);"
+          >
+            {{ props.loading ? '✨ 正在分析...' : '📝 姓名分析' }}
+          </button>
+          <button class="btn-secondary" @click="resetForm">
+            🔄 重置
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 周公解梦模式 -->
+    <div v-else-if="fortuneMode === 'jiemeng'" class="form-container">
+      <h2 class="section-title">💭 周公解梦</h2>
+      <p class="form-subtitle">解读梦境背后的含义</p>
+
+      <div v-if="error" class="error-message">
+        ⚠️ {{ error }}
+      </div>
+
+      <div class="form-content-wrapper">
+        <div class="form-group">
+          <label for="jiemengName">👤 姓名（可选）：</label>
+          <input
+            type="text"
+            id="jiemengName"
+            v-model="name"
+            placeholder="请输入您的姓名"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>🎯 梦境类型：</label>
+          <div class="question-types">
+            <button
+              v-for="type in jiemengQuestionTypes"
+              :key="type"
+              :class="['type-btn', { active: questionType === type }]"
+              @click="questionType = type"
+            >
+              {{ type }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="jiemengDream">💭 梦境描述：</label>
+          <textarea
+            id="jiemengDream"
+            v-model="question"
+            placeholder="请详细描述您的梦境..."
+            class="form-input"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="button-group">
+          <button
+            class="btn-primary jiemeng-btn"
+            @click="handleGetJiemeng"
+            :disabled="props.loading"
+            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"
+          >
+            {{ props.loading ? '✨ 正在解梦...' : '💭 开始解梦' }}
+          </button>
+          <button class="btn-secondary" @click="resetForm">
+            🔄 重置
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 塔罗牌模式 -->
+    <div v-else class="form-container">
+      <h2 class="section-title">🃏 塔罗牌占卜</h2>
+
+      <div v-if="error" class="error-message">
+        ⚠️ {{ error }}
+      </div>
+
+      <div class="form-content-wrapper">
+        <div class="form-group">
+          <label for="tarotName">👤 姓名：</label>
+          <input
+            type="text"
+            id="tarotName"
+            v-model="name"
+            placeholder="请输入您的姓名"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="tarotBirthDate">🎂 出生日期：</label>
+          <input
+            type="date"
+            id="tarotBirthDate"
+            v-model="birthDate"
+            class="form-input"
+          />
+        </div>
+
         <div class="form-group">
           <label for="tarotQuestion">💭 问题：</label>
-          <textarea 
+          <textarea
             id="tarotQuestion"
             v-model="question"
             placeholder="请输入您想问的问题..."
@@ -555,10 +897,10 @@ watch(questionType, (newType, oldType) => {
             rows="3"
           ></textarea>
         </div>
-        
+
         <div class="button-group">
-          <button 
-            class="btn-primary tarot-btn" 
+          <button
+            class="btn-primary tarot-btn"
             @click="handleDrawTarot"
             :disabled="props.loading"
           >
@@ -744,6 +1086,42 @@ watch(questionType, (newType, oldType) => {
 
 .ziwei-btn:hover:not(:disabled) {
   box-shadow: 0 8px 25px rgba(75, 0, 130, 0.4) !important;
+}
+
+/* 生肖运势按钮样式 */
+.shengxiao-btn {
+  background: linear-gradient(135deg, #FF6B6B 0%, #EE5A6F 100%) !important;
+}
+
+.shengxiao-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4) !important;
+}
+
+/* 星座运势按钮样式 */
+.xingzuo-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.xingzuo-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* 姓名学按钮样式 */
+.xingming-btn {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.xingming-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4) !important;
+}
+
+/* 周公解梦按钮样式 */
+.jiemeng-btn {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+.jiemeng-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4) !important;
 }
 
 /* 表单副标题 */

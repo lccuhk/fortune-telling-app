@@ -16,6 +16,35 @@ const logger = {
   debug: (...args) => ENABLE_LOGS && console.debug(...args)
 };
 
+// Toast 提示函数
+function showToast(message, type = 'info', duration = 3000) {
+  logger.log(`🍞 [Toast] ${type}: ${message}`);
+  
+  // 创建 toast 元素
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+    <span class="toast-message">${message}</span>
+  `;
+  
+  // 添加到页面
+  document.body.appendChild(toast);
+  
+  // 触发动画
+  nextTick(() => {
+    toast.classList.add('show');
+  });
+  
+  // 自动移除
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 300);
+  }, duration);
+}
+
 // 生成基于当前用户的 localStorage key
 function getUserStorageKey(keyName) {
   const username = currentUser.value?.username || 'guest';
@@ -166,9 +195,174 @@ const showLoginModal = ref(false);
 const showRegisterModal = ref(false);
 const loginUsername = ref('');
 const loginPassword = ref('');
+const rememberMe = ref(false);
+
+// 从 localStorage 加载记住的登录信息
+function loadRememberedLogin() {
+  const remembered = localStorage.getItem('rememberedLogin');
+  if (remembered) {
+    try {
+      const data = JSON.parse(remembered);
+      loginUsername.value = data.username || '';
+      loginPassword.value = data.password || '';
+      rememberMe.value = true;
+      logger.log('📦 [记住密码] 已加载保存的登录信息');
+    } catch (e) {
+      logger.error('❌ [记住密码] 加载保存的登录信息失败', e);
+    }
+  }
+}
+
+// 保存登录信息到 localStorage
+function saveRememberedLogin() {
+  if (rememberMe.value && loginUsername.value && loginPassword.value) {
+    const data = {
+      username: loginUsername.value,
+      password: loginPassword.value,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('rememberedLogin', JSON.stringify(data));
+    logger.log('💾 [记住密码] 已保存登录信息');
+  } else {
+    localStorage.removeItem('rememberedLogin');
+    logger.log('🗑️ [记住密码] 已清除保存的登录信息');
+  }
+}
+
+// 清除记住的登录信息
+function clearRememberedLogin() {
+  localStorage.removeItem('rememberedLogin');
+  rememberMe.value = false;
+  logger.log('🗑️ [记住密码] 已清除保存的登录信息');
+}
+
+// 计算密码强度
+function calculatePasswordStrength(password) {
+  if (!password) return { score: 0, level: 'none', label: '未输入' };
+  
+  let score = 0;
+  
+  // 长度评分
+  if (password.length >= 6) score += 1;
+  if (password.length >= 10) score += 1;
+  if (password.length >= 14) score += 1;
+  
+  // 复杂度评分
+  if (/[a-z]/.test(password)) score += 1; // 小写字母
+  if (/[A-Z]/.test(password)) score += 1; // 大写字母
+  if (/[0-9]/.test(password)) score += 1; // 数字
+  if (/[^a-zA-Z0-9]/.test(password)) score += 1; // 特殊字符
+  
+  // 根据分数确定强度等级
+  let level, label, color;
+  if (score <= 2) {
+    level = 'weak';
+    label = '弱';
+    color = '#ff6b6b';
+  } else if (score <= 4) {
+    level = 'medium';
+    label = '中';
+    color = '#ffd93d';
+  } else if (score <= 6) {
+    level = 'strong';
+    label = '强';
+    color = '#6bcf7f';
+  } else {
+    level = 'very-strong';
+    label = '非常强';
+    color = '#4ecdc4';
+  }
+  
+  return { score, level, label, color, maxScore: 8 };
+}
+
+// 密码强度响应式计算
+const passwordStrength = computed(() => calculatePasswordStrength(registerPassword.value));
 const registerUsername = ref('');
 const registerPassword = ref('');
 const registerConfirm = ref('');
+
+// 验证码相关
+const captchaCode = ref('');
+const captchaInput = ref('');
+const captchaCanvas = ref(null);
+
+// 生成随机验证码
+function generateCaptcha() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  captchaCode.value = code;
+  drawCaptcha();
+  logger.log('🔐 [验证码] 生成新验证码:', code);
+  return code;
+}
+
+// 绘制验证码图片
+function drawCaptcha() {
+  if (!captchaCanvas.value) return;
+  
+  const canvas = captchaCanvas.value;
+  const ctx = canvas.getContext('2d');
+  const width = 120;
+  const height = 40;
+  
+  canvas.width = width;
+  canvas.height = height;
+  
+  // 填充背景
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(0, 0, width, height);
+  
+  // 绘制干扰线
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * width, Math.random() * height);
+    ctx.lineTo(Math.random() * width, Math.random() * height);
+    ctx.strokeStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.5)`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  
+  // 绘制干扰点
+  for (let i = 0; i < 30; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * width, Math.random() * height, 1, 0, 2 * Math.PI);
+    ctx.fillStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.5)`;
+    ctx.fill();
+  }
+  
+  // 绘制文字
+  const code = captchaCode.value;
+  for (let i = 0; i < code.length; i++) {
+    ctx.save();
+    ctx.font = 'bold 24px Arial';
+    ctx.fillStyle = `rgb(${Math.random() * 100 + 50}, ${Math.random() * 100 + 50}, ${Math.random() * 100 + 50})`;
+    ctx.translate(20 + i * 25, 28);
+    ctx.rotate((Math.random() - 0.5) * 0.4);
+    ctx.fillText(code[i], 0, 0);
+    ctx.restore();
+  }
+}
+
+// 验证验证码
+function validateCaptcha() {
+  if (!captchaInput.value) {
+    return { valid: false, message: '请输入验证码' };
+  }
+  if (captchaInput.value.toLowerCase() !== captchaCode.value.toLowerCase()) {
+    return { valid: false, message: '验证码错误' };
+  }
+  return { valid: true, message: '' };
+}
+
+// 刷新验证码
+function refreshCaptcha() {
+  captchaInput.value = '';
+  generateCaptcha();
+}
 
 // 每日运势推送相关
 const isPushEnabled = ref(false);
@@ -411,6 +605,8 @@ onMounted(() => {
     logger.log('  - 登录状态:', isLoggedIn.value);
   } else {
     logger.log('❌ [初始化] 未找到登录用户');
+    // 加载记住的登录信息
+    loadRememberedLogin();
     logger.log('🚪 [初始化] 显示登录页面');
     showLoginPage.value = true;
   }
@@ -488,6 +684,16 @@ watch(activeTab, (newTab, oldTab) => {
   }
 });
 
+// 监听登录页面显示，生成验证码
+watch(showLoginPage, (newVal) => {
+  if (newVal) {
+    logger.log('🔐 [登录页面] 显示登录页面，生成验证码');
+    nextTick(() => {
+      generateCaptcha();
+    });
+  }
+});
+
 // 监听窗口大小变化，自动重绘图表
 let resizeTimer;
 window.addEventListener('resize', () => {
@@ -520,6 +726,14 @@ function handleAuthLogin() {
     if (!loginPassword.value) {
       logger.log('❌ [登录] 密码为空');
       setFieldError('loginPassword', '请输入密码');
+      hasError = true;
+    }
+    
+    // 验证码验证
+    const captchaResult = validateCaptcha();
+    if (!captchaResult.valid) {
+      logger.log('❌ [登录] 验证码验证失败:', captchaResult.message);
+      setFieldError('captcha', captchaResult.message);
       hasError = true;
     }
     
@@ -568,7 +782,12 @@ function handleAuthLogin() {
       authLoading.value = false;
       
       logger.log('🎉 [登录] 登录流程完成！');
-      alert(`欢迎回来，${user.username}！`);
+      
+      // 保存记住密码
+      saveRememberedLogin();
+      
+      // 使用 toast 提示替代 alert
+      showToast(`欢迎回来，${user.username}！`, 'success');
     } else {
       logger.log('❌ [登录] 用户验证失败 - 找不到匹配的用户');
       authError.value = '用户名或密码错误';
@@ -2024,6 +2243,43 @@ function exportCurrentResult() {
                 <span v-if="authFieldErrors.loginPassword" class="field-error">{{ authFieldErrors.loginPassword }}</span>
               </div>
               
+              <!-- 验证码 -->
+              <div class="form-group" :class="{ 'has-error': authFieldErrors.captcha }">
+                <label>验证码</label>
+                <div class="captcha-wrapper">
+                  <div class="input-wrapper captcha-input-wrapper">
+                    <span class="input-icon">🔐</span>
+                    <input 
+                      type="text" 
+                      v-model="captchaInput" 
+                      :class="['form-input', { 'input-error': authFieldErrors.captcha }]"
+                      placeholder="请输入验证码"
+                      maxlength="4"
+                      @input="clearFieldError('captcha')"
+                    />
+                  </div>
+                  <canvas 
+                    ref="captchaCanvas" 
+                    class="captcha-canvas" 
+                    @click="refreshCaptcha"
+                    title="点击刷新验证码"
+                  ></canvas>
+                </div>
+                <span v-if="authFieldErrors.captcha" class="field-error">{{ authFieldErrors.captcha }}</span>
+              </div>
+              
+              <!-- 记住密码 -->
+              <div class="form-group remember-me-wrapper">
+                <label class="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    v-model="rememberMe" 
+                    class="checkbox-input"
+                  />
+                  <span class="checkbox-text">记住密码</span>
+                </label>
+              </div>
+              
               <div v-if="authError" class="auth-error" :class="{ 'shake': authError }">
                 <span class="error-icon">⚠️</span>
                 <span>{{ authError }}</span>
@@ -2071,6 +2327,28 @@ function exportCurrentResult() {
                     placeholder="请输入密码（至少6个字符）"
                     @input="clearFieldError('registerPassword')"
                   />
+                </div>
+                <!-- 密码强度指示器 -->
+                <div v-if="registerPassword" class="password-strength">
+                  <div class="strength-bar">
+                    <div 
+                      class="strength-fill" 
+                      :style="{ 
+                        width: (passwordStrength.score / passwordStrength.maxScore * 100) + '%',
+                        backgroundColor: passwordStrength.color 
+                      }"
+                    ></div>
+                  </div>
+                  <span class="strength-label" :style="{ color: passwordStrength.color }">
+                    密码强度：{{ passwordStrength.label }}
+                  </span>
+                  <div class="strength-tips">
+                    <span :class="{ 'met': registerPassword.length >= 6 }">✓ 至少6位</span>
+                    <span :class="{ 'met': /[a-z]/.test(registerPassword) }">✓ 小写字母</span>
+                    <span :class="{ 'met': /[A-Z]/.test(registerPassword) }">✓ 大写字母</span>
+                    <span :class="{ 'met': /[0-9]/.test(registerPassword) }">✓ 数字</span>
+                    <span :class="{ 'met': /[^a-zA-Z0-9]/.test(registerPassword) }">✓ 特殊字符</span>
+                  </div>
                 </div>
                 <span v-if="authFieldErrors.registerPassword" class="field-error">{{ authFieldErrors.registerPassword }}</span>
               </div>
@@ -3916,6 +4194,176 @@ function exportCurrentResult() {
 
 .auth-footer a:hover {
   text-decoration: underline;
+}
+
+/* === 记住密码复选框样式 === */
+.remember-me-wrapper {
+  margin-bottom: 15px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.checkbox-text {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.app-container.dark-mode .checkbox-text {
+  color: #94a3b8;
+}
+
+/* === 验证码样式 === */
+.captcha-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.captcha-input-wrapper {
+  flex: 1;
+}
+
+.captcha-canvas {
+  width: 120px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.captcha-canvas:hover {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.app-container.dark-mode .captcha-canvas {
+  border-color: #334155;
+}
+
+/* === 密码强度指示器样式 === */
+.password-strength {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+}
+
+.strength-bar {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.app-container.dark-mode .strength-bar {
+  background: #334155;
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.strength-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.strength-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.strength-tips span {
+  color: #999;
+  transition: all 0.3s ease;
+}
+
+.strength-tips span.met {
+  color: #6bcf7f;
+  font-weight: 600;
+}
+
+.app-container.dark-mode .strength-tips span {
+  color: #64748b;
+}
+
+.app-container.dark-mode .strength-tips span.met {
+  color: #6bcf7f;
+}
+
+/* === Toast 提示样式 === */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #6bcf7f, #4ecdc4);
+  color: white;
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+}
+
+.toast-warning {
+  background: linear-gradient(135deg, #ffd93d, #ff9a9e);
+  color: #333;
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.toast-icon {
+  font-size: 1.2rem;
+}
+
+.toast-message {
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 /* === 移动端响应式优化 === */

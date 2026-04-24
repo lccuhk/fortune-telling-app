@@ -1549,50 +1549,59 @@ async function getShengxiaoFromData(userName, userBirthDate, userQuestionType) {
   questionType.value = `生肖-${userQuestionType}`;
 
   try {
-    logger.log('🐲 [生肖] 发送请求到后端...');
-    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/shengxiao', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: userName,
-        birth_date: userBirthDate,
-        question_type: userQuestionType
-      })
-    });
-
-    logger.log(`🐲 [生肖] 收到响应，状态码: ${response.status}`);
-
-    if (!response.ok) {
-      throw new Error('请求失败');
-    }
-
-    const data = await response.json();
-    logger.log('🐲 [生肖] 成功获取生肖运势');
-
+    logger.log('🐲 [生肖] 使用前端模拟数据生成生肖运势...');
+    
+    // 根据出生日期计算生肖
+    const birthYear = new Date(userBirthDate).getFullYear();
+    const shengxiaoList = ['猴', '鸡', '狗', '猪', '鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊'];
+    const shengxiao = shengxiaoList[birthYear % 12];
+    
+    // 生成模拟数据
+    const fortuneIndex = Math.floor(Math.random() * 30) + 70; // 70-100
+    const shengxiaoFortunes = {
+      '年度运势': `${shengxiao}年生肖的朋友，今年整体运势稳中有升。事业上会有新的机遇，建议把握时机，勇于尝试。财运方面需要谨慎理财，避免冲动消费。感情生活较为平稳，单身者有望遇到心仪对象。`,
+      '财运': `今年${shengxiao}生肖的财运呈现先抑后扬的趋势。上半年宜保守理财，下半年可适当投资。注意开源节流，避免不必要的开支。偏财运一般，不宜参与高风险投资。`,
+      '感情': `${shengxiao}年生肖在感情方面今年桃花运较旺。单身者有机会通过朋友介绍认识合适的对象，已婚者要注意维护感情，多沟通交流。建议多参加社交活动，扩大交际圈。`,
+      '事业': `今年${shengxiao}生肖的事业运势较为顺遂。工作中会得到贵人相助，有机会获得晋升或加薪。建议保持积极的工作态度，主动承担责任。创业者要谨慎决策，稳扎稳打。`,
+      '健康': `${shengxiao}年生肖今年健康运势总体良好，但要注意劳逸结合。建议保持规律的作息时间，适当运动锻炼。饮食方面要注意营养均衡，避免暴饮暴食。定期体检，预防胜于治疗。`,
+      '贵人运': `今年${shengxiao}生肖的贵人运较旺，会在关键时刻得到他人的帮助。建议多结交良师益友，保持良好的人际关系。在工作中要虚心请教，在生活中要乐于助人，善缘会带来好运。`
+    };
+    
+    const content = shengxiaoFortunes[userQuestionType] || shengxiaoFortunes['年度运势'];
+    
+    // 模拟延迟
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     // 格式化生肖运势结果显示
     result.value = {
-      prediction: data.title,
-      advice: data.content,
-      zodiac_sign: data.shengxiao,
-      chinese_zodiac: `运势指数: ${data.fortune_index}/100`,
-      record_id: data.record_id,
+      prediction: `【${shengxiao}】${userQuestionType}分析`,
+      advice: content,
+      zodiac_sign: shengxiao,
+      chinese_zodiac: `运势指数: ${fortuneIndex}/100`,
+      record_id: Date.now(),
       isShengxiao: true,
-      shengxiao: data.shengxiao,
-      fortuneIndex: data.fortune_index
+      shengxiao: shengxiao,
+      fortuneIndex: fortuneIndex
     };
 
     // 更新当前用户姓名
     currentUserName.value = userName;
+    
+    // 保存到历史记录
+    saveFortuneRecord({
+      user_name: userName,
+      question_type: `生肖-${userQuestionType}`,
+      zodiac_sign: shengxiao,
+      chinese_zodiac: `运势指数: ${fortuneIndex}/100`,
+      prediction: result.value.prediction,
+      advice: content
+    });
 
-    // 重新从服务器加载历史记录
-    logger.log('🐲 [生肖] 重新加载历史记录...');
-    await loadHistoryFromServer();
+    logger.log('🐲 [生肖] 成功生成生肖运势');
 
   } catch (err) {
     error.value = '获取生肖运势失败，请稍后重试';
-    logger.error('🐲 [生肖] 请求失败:', err);
+    logger.error('🐲 [生肖] 生成失败:', err);
   } finally {
     loading.value = false;
     logger.log('🐲 [生肖] 请求流程结束');
@@ -1617,52 +1626,87 @@ async function getXingzuoFromData(userName, userBirthDate, userQuestionType) {
   questionType.value = `星座-${userQuestionType}`;
 
   try {
-    logger.log('♈ [星座] 发送请求到后端...');
-    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/xingzuo', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: userName,
-        birth_date: userBirthDate,
-        question_type: userQuestionType
-      })
-    });
-
-    logger.log(`♈ [星座] 收到响应，状态码: ${response.status}`);
-
-    if (!response.ok) {
-      throw new Error('请求失败');
-    }
-
-    const data = await response.json();
-    logger.log('♈ [星座] 成功获取星座运势');
-
+    logger.log('♈ [星座] 使用前端模拟数据生成星座运势...');
+    
+    // 根据出生日期计算星座
+    const date = new Date(userBirthDate);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    
+    const zodiacSigns = [
+      { name: '摩羯座', start: [1, 1], end: [1, 19] },
+      { name: '水瓶座', start: [1, 20], end: [2, 18] },
+      { name: '双鱼座', start: [2, 19], end: [3, 20] },
+      { name: '白羊座', start: [3, 21], end: [4, 19] },
+      { name: '金牛座', start: [4, 20], end: [5, 20] },
+      { name: '双子座', start: [5, 21], end: [6, 21] },
+      { name: '巨蟹座', start: [6, 22], end: [7, 22] },
+      { name: '狮子座', start: [7, 23], end: [8, 22] },
+      { name: '处女座', start: [8, 23], end: [9, 22] },
+      { name: '天秤座', start: [9, 23], end: [10, 23] },
+      { name: '天蝎座', start: [10, 24], end: [11, 22] },
+      { name: '射手座', start: [11, 23], end: [12, 21] },
+      { name: '摩羯座', start: [12, 22], end: [12, 31] }
+    ];
+    
+    const xingzuo = zodiacSigns.find(z => {
+      if (month === z.start[0] && day >= z.start[1]) return true;
+      if (month === z.end[0] && day <= z.end[1]) return true;
+      return false;
+    })?.name || '摩羯座';
+    
+    // 生成模拟数据
+    const luckyIndex = Math.floor(Math.random() * 30) + 70;
+    const luckyColors = ['红色', '蓝色', '绿色', '紫色', '金色', '粉色', '白色', '黑色'];
+    const luckyColor = luckyColors[Math.floor(Math.random() * luckyColors.length)];
+    const luckyNumber = Math.floor(Math.random() * 9) + 1;
+    
+    const xingzuoFortunes = {
+      '今日运势': `今日${xingzuo}整体运势不错，适合处理重要事务。工作上可能会有新的灵感，建议及时记录下来。人际关系方面较为和谐，适合与朋友聚会交流。`,
+      '本周运势': `本周${xingzuo}运势呈现上升趋势。周初可能会遇到一些小挑战，但周末会有好消息传来。工作上要保持耐心，不要急于求成。感情方面需要多关心对方。`,
+      '本月运势': `${xingzuo}本月运势总体向好。事业上有机会展现自己的才能，财运方面会有意外收获。健康方面要注意休息，避免过度劳累。建议多参加户外活动，放松身心。`,
+      '年度运势': `${xingzuo}今年整体运势较为平稳，是积累实力的一年。事业上会有新的发展机会，财运呈现稳步增长趋势。感情方面可能会有新的突破，单身者有望脱单。健康方面要注意饮食均衡。`,
+      '爱情': `${xingzuo}在感情方面今年桃花运较旺。单身者有机会遇到心仪的对象，建议主动出击。已有伴侣者感情稳定，适合计划未来。要注意沟通方式，避免因小事产生误会。`,
+      '事业': `${xingzuo}今年事业运势较为顺遂。工作中会得到上司的认可，有机会承担更重要的项目。建议保持积极的工作态度，不断提升自己的专业能力。创业者要谨慎决策，稳扎稳打。`
+    };
+    
+    const content = xingzuoFortunes[userQuestionType] || xingzuoFortunes['今日运势'];
+    
+    // 模拟延迟
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     // 格式化星座运势结果显示
     result.value = {
-      prediction: data.title,
-      advice: data.content,
-      zodiac_sign: data.xingzuo,
-      chinese_zodiac: `幸运指数: ${data.lucky_index}/100`,
-      record_id: data.record_id,
+      prediction: `【${xingzuo}】${userQuestionType}`,
+      advice: content,
+      zodiac_sign: xingzuo,
+      chinese_zodiac: `幸运指数: ${luckyIndex}/100`,
+      record_id: Date.now(),
       isXingzuo: true,
-      xingzuo: data.xingzuo,
-      luckyIndex: data.lucky_index,
-      luckyColor: data.lucky_color,
-      luckyNumber: data.lucky_number
+      xingzuo: xingzuo,
+      luckyIndex: luckyIndex,
+      luckyColor: luckyColor,
+      luckyNumber: luckyNumber
     };
 
     // 更新当前用户姓名
     currentUserName.value = userName;
+    
+    // 保存到历史记录
+    saveFortuneRecord({
+      user_name: userName,
+      question_type: `星座-${userQuestionType}`,
+      zodiac_sign: xingzuo,
+      chinese_zodiac: `幸运指数: ${luckyIndex}/100`,
+      prediction: result.value.prediction,
+      advice: content
+    });
 
-    // 重新从服务器加载历史记录
-    logger.log('♈ [星座] 重新加载历史记录...');
-    await loadHistoryFromServer();
+    logger.log('♈ [星座] 成功生成星座运势');
 
   } catch (err) {
     error.value = '获取星座运势失败，请稍后重试';
-    logger.error('♈ [星座] 请求失败:', err);
+    logger.error('♈ [星座] 生成失败:', err);
   } finally {
     loading.value = false;
     logger.log('♈ [星座] 请求流程结束');
@@ -1687,51 +1731,82 @@ async function getXingmingFromData(userName, userBirthDate, userQuestionType) {
   questionType.value = `姓名-${userQuestionType}`;
 
   try {
-    logger.log('📝 [姓名] 发送请求到后端...');
-    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/xingming', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: userName,
-        birth_date: userBirthDate,
-        question_type: userQuestionType
-      })
-    });
-
-    logger.log(`📝 [姓名] 收到响应，状态码: ${response.status}`);
-
-    if (!response.ok) {
-      throw new Error('请求失败');
-    }
-
-    const data = await response.json();
-    logger.log('📝 [姓名] 成功获取姓名学分析');
-
+    logger.log('📝 [姓名] 使用前端模拟数据生成姓名学分析...');
+    
+    // 计算姓名笔画（简化版）
+    const calculateStrokes = (char) => {
+      // 简化的笔画计算，实际应该使用完整的康熙字典笔画表
+      const strokeMap = {
+        '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+        '王': 4, '李': 7, '张': 7, '刘': 6, '陈': 7, '杨': 7, '黄': 11, '赵': 9, '吴': 7, '周': 8,
+        '徐': 10, '孙': 6, '马': 3, '朱': 6, '胡': 9, '郭': 10, '何': 7, '高': 10, '林': 8, '罗': 8
+      };
+      return strokeMap[char] || Math.floor(Math.random() * 10) + 1;
+    };
+    
+    const chars = userName.split('');
+    const strokes = chars.map(calculateStrokes);
+    
+    // 计算五格
+    const tianGe = strokes[0] + 1; // 天格 = 姓氏笔画 + 1
+    const renGe = strokes[0] + (strokes[1] || 0); // 人格 = 姓 + 名第一字
+    const diGe = (strokes[1] || 0) + (strokes[2] || 0); // 地格 = 名字笔画总和
+    const waiGe = tianGe + diGe - renGe; // 外格 = 天格 + 地格 - 人格
+    const zongGe = strokes.reduce((a, b) => a + b, 0); // 总格 = 姓名总笔画
+    
+    // 五行属性
+    const wuxingList = ['金', '木', '水', '火', '土'];
+    const wuxing = wuxingList[zongGe % 5];
+    
+    // 五格评分
+    const wugeScore = Math.min(95, Math.max(70, 75 + (zongGe % 20)));
+    
+    // 根据分析类型生成内容
+    const xingmingAnalysis = {
+      '五格分析': `根据姓名学五格剖象法分析，您的姓名五格配置如下：天格${tianGe}、人格${renGe}、地格${diGe}、外格${waiGe}、总格${zongGe}。总格${zongGe}数暗示着您具有坚韧不拔的性格，做事有条理，能够坚持到底。五格配置整体较为和谐，有利于事业发展和人际关系。`,
+      '性格分析': `从姓名笔画分析，您的性格特点是：做事认真负责，有较强的责任心和使命感。为人诚实守信，重视承诺。思维缜密，善于分析问题。有时会过于追求完美，给自己带来压力。建议适当放松心态，学会享受生活的乐趣。`,
+      '事业运': `姓名显示您的事业运势较为顺遂。适合从事需要耐心和细心的工作，如管理、策划、教育等领域。工作中会得到贵人相助，有机会获得晋升。建议保持积极的工作态度，不断提升专业能力。创业方面要谨慎决策，稳扎稳打。`,
+      '财运': `从姓名分析，您的财运呈现稳中有升的趋势。正财收入稳定，偏财方面需要谨慎。理财方面建议采取稳健策略，避免高风险投资。适合从事与金融、管理相关的工作。注意开源节流，合理规划财务。`,
+      '健康运': `姓名显示您的健康状况总体良好，但要注意劳逸结合。容易出现因工作压力大而导致的身体不适。建议保持规律的作息时间，适当运动锻炼。饮食方面要注意营养均衡，避免暴饮暴食。定期体检，预防胜于治疗。`,
+      '人际关系': `从姓名分析，您在人际关系方面较为顺利。为人真诚友善，容易获得他人的信任。适合建立长期的合作关系。建议多参加社交活动，扩大交际圈。在人际交往中要保持真诚，避免过于功利。良缘会为您带来好运。`
+    };
+    
+    const content = xingmingAnalysis[userQuestionType] || xingmingAnalysis['五格分析'];
+    
+    // 模拟延迟
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     // 格式化姓名学结果显示
     result.value = {
-      prediction: data.title,
-      advice: data.content,
-      zodiac_sign: `五格评分: ${data.wuge_score}/100`,
-      chinese_zodiac: `五行属性: ${data.wuxing}`,
-      record_id: data.record_id,
+      prediction: `【${userName}】${userQuestionType}`,
+      advice: content,
+      zodiac_sign: `五格评分: ${wugeScore}/100`,
+      chinese_zodiac: `五行属性: ${wuxing}`,
+      record_id: Date.now(),
       isXingming: true,
-      wugeScore: data.wuge_score,
-      wuxing: data.wuxing,
-      tianGe: data.tian_ge,
-      diGe: data.di_ge,
-      renGe: data.ren_ge,
-      waiGe: data.wai_ge,
-      zongGe: data.zong_ge
+      wugeScore: wugeScore,
+      wuxing: wuxing,
+      tianGe: tianGe,
+      diGe: diGe,
+      renGe: renGe,
+      waiGe: waiGe,
+      zongGe: zongGe
     };
 
     // 更新当前用户姓名
     currentUserName.value = userName;
-
-    // 重新从服务器加载历史记录
-    logger.log('📝 [姓名] 重新加载历史记录...');
-    await loadHistoryFromServer();
+    
+    // 保存到历史记录
+    saveFortuneRecord({
+      user_name: userName,
+      question_type: `姓名-${userQuestionType}`,
+      zodiac_sign: `五格评分: ${wugeScore}/100`,
+      chinese_zodiac: `五行属性: ${wuxing}`,
+      prediction: result.value.prediction,
+      advice: content
+    });
+    
+    logger.log('📝 [姓名] 成功生成姓名学分析');
 
   } catch (err) {
     error.value = '获取姓名学分析失败，请稍后重试';
@@ -1760,47 +1835,105 @@ async function getJiemengFromData(userName, userDream, userQuestionType) {
   questionType.value = `解梦-${userQuestionType}`;
 
   try {
-    logger.log('💭 [解梦] 发送请求到后端...');
-    const response = await fetch('https://fortune-telling-app-production.up.railway.app/api/jiemeng', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    logger.log('💭 [解梦] 使用前端模拟数据生成解梦结果...');
+    
+    // 分析梦境关键词
+    const dreamKeywords = {
+      '水': '财运',
+      '火': '热情',
+      '山': '事业',
+      '海': '机遇',
+      '飞': '自由',
+      '跑': '压力',
+      '钱': '财富',
+      '人': '人际',
+      '家': '家庭',
+      '车': '前进',
+      '考试': '压力',
+      '结婚': '承诺',
+      '死亡': '转变',
+      '孩子': '新生',
+      '动物': '本能',
+      '掉牙': '焦虑',
+      '追赶': '逃避',
+      '坠落': '失控',
+      '飞翔': '自由',
+      '迷路': '迷茫'
+    };
+    
+    // 查找梦境中的关键词
+    const foundKeywords = Object.keys(dreamKeywords).filter(keyword => 
+      userDream.includes(keyword)
+    );
+    
+    // 生成吉凶指数
+    const luckIndex = Math.floor(Math.random() * 40) + 60; // 60-100
+    const isGood = luckIndex >= 70;
+    
+    // 根据梦境类型和关键词生成解读
+    const jiemengInterpretations = {
+      '情感类': {
+        good: '这个梦境预示着您的感情生活将迎来积极的变化。梦中的意象显示您内心渴望更深层次的情感连接。建议您敞开心扉，主动表达自己的感受。单身者有望遇到心仪对象，已有伴侣者感情会更加稳固。',
+        bad: '这个梦境反映了您在情感方面的一些担忧和不安。可能是近期感情生活中遇到了一些小波折。建议您冷静思考，与伴侣多沟通交流，共同解决问题。不要过度解读梦境，保持平和的心态。'
       },
-      body: JSON.stringify({
-        name: userName,
-        dream: userDream,
-        dream_type: userQuestionType
-      })
-    });
-
-    logger.log(`💭 [解梦] 收到响应，状态码: ${response.status}`);
-
-    if (!response.ok) {
-      throw new Error('请求失败');
-    }
-
-    const data = await response.json();
-    logger.log('💭 [解梦] 成功获取解梦结果');
-
+      '事业类': {
+        good: '这个梦境预示着您的事业将会有所突破。梦中的意象象征着机遇和成功。建议您把握当前的机会，勇于接受新的挑战。工作中会得到贵人相助，努力将会得到回报。保持积极的工作态度。',
+        bad: '这个梦境反映了您对工作压力的一些担忧。可能是近期工作任务较重，让您感到疲惫。建议您适当调整工作节奏，学会 delegation。不要给自己太大压力，适当休息才能走得更远。'
+      },
+      '财运类': {
+        good: '这个梦境预示着财运亨通，可能会有意外之财。梦中的意象象征着财富和丰收。建议您把握机会，但也要注意理性投资。正财稳定，偏财可期。注意开源节流，合理规划财务。',
+        bad: '这个梦境提醒您要注意财务管理，避免不必要的开支。可能是近期消费较多，让您产生了一些担忧。建议您制定合理的预算计划，避免冲动消费。谨慎投资，稳扎稳打才是长久之计。'
+      },
+      '健康类': {
+        good: '这个梦境预示着您的身体状况良好，精力充沛。梦中的意象象征着活力和健康。建议您保持良好的生活习惯，适当运动锻炼。定期体检，预防胜于治疗。保持乐观的心态对健康有益。',
+        bad: '这个梦境提醒您要关注自己的健康状况。可能是近期工作压力较大，身体有些疲劳。建议您调整作息时间，保证充足的睡眠。适当放松心情，必要时可以做个体检。健康是最重要的财富。'
+      },
+      '人际关系': {
+        good: '这个梦境预示着您的人际关系将会有所改善。梦中的意象象征着和谐与友谊。建议您多参加社交活动，扩大交际圈。真诚待人，会收获真挚的友谊。贵人运较旺，会在关键时刻得到帮助。',
+        bad: '这个梦境反映了您在人际交往中的一些困扰。可能是近期与他人产生了一些误会。建议您主动沟通，化解矛盾。保持宽容的心态，学会换位思考。良好的人际关系需要双方共同维护。'
+      },
+      '其他': {
+        good: '这个梦境整体来说是吉兆，预示着近期运势向好。梦中的意象显示您的潜意识正在积极处理生活中的各种信息。建议您保持乐观的心态，相信一切都会向好的方向发展。',
+        bad: '这个梦境可能反映了您潜意识中的一些担忧。不过不必过于担心，梦境只是潜意识的表达，不代表现实。建议您放松心情，适当减压。保持积极的生活态度，困难总会过去。'
+      }
+    };
+    
+    const interpretationType = jiemengInterpretations[userQuestionType] || jiemengInterpretations['其他'];
+    const interpretation = isGood ? interpretationType.good : interpretationType.bad;
+    
+    // 提取梦境摘要（前20字）
+    const dreamSummary = userDream.substring(0, 20) + (userDream.length > 20 ? '...' : '');
+    
+    // 模拟延迟
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     // 格式化解梦结果显示
     result.value = {
-      prediction: data.title,
-      advice: data.content,
+      prediction: `【${userQuestionType}】${dreamSummary}`,
+      advice: interpretation,
       zodiac_sign: `梦境类型: ${userQuestionType}`,
-      chinese_zodiac: `吉凶指数: ${data.luck_index}/100`,
-      record_id: data.record_id,
+      chinese_zodiac: `吉凶指数: ${luckIndex}/100`,
+      record_id: Date.now(),
       isJiemeng: true,
       dreamType: userQuestionType,
-      luckIndex: data.luck_index,
-      interpretation: data.interpretation
+      luckIndex: luckIndex,
+      interpretation: interpretation
     };
 
     // 更新当前用户姓名
     currentUserName.value = userName;
-
-    // 重新从服务器加载历史记录
-    logger.log('💭 [解梦] 重新加载历史记录...');
-    await loadHistoryFromServer();
+    
+    // 保存到历史记录
+    saveFortuneRecord({
+      user_name: userName,
+      question_type: `解梦-${userQuestionType}`,
+      zodiac_sign: `梦境类型: ${userQuestionType}`,
+      chinese_zodiac: `吉凶指数: ${luckIndex}/100`,
+      prediction: result.value.prediction,
+      advice: interpretation
+    });
+    
+    logger.log('💭 [解梦] 成功生成解梦结果');
 
   } catch (err) {
     error.value = '获取解梦结果失败，请稍后重试';

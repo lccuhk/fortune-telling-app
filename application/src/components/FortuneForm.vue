@@ -328,56 +328,92 @@ watch(questionType, (newType, oldType) => {
 
 <template>
   <div class="fortune-form-container">
-    <!-- 模式选择 -->
-    <div class="mode-selector">
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'fortune' }]"
-        @click="fortuneMode = 'fortune'"
-      >
-        🔮 传统算命
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'bazi' }]"
-        @click="fortuneMode = 'bazi'"
-      >
-        🎯 八字算命
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'ziwei' }]"
-        @click="fortuneMode = 'ziwei'"
-      >
-        ⭐ 紫微斗数
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'shengxiao' }]"
-        @click="fortuneMode = 'shengxiao'"
-      >
-        🐲 生肖运势
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'xingzuo' }]"
-        @click="fortuneMode = 'xingzuo'"
-      >
-        ♈ 星座运势
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'xingming' }]"
-        @click="fortuneMode = 'xingming'"
-      >
-        📝 姓名学
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'jiemeng' }]"
-        @click="fortuneMode = 'jiemeng'"
-      >
-        💭 周公解梦
-      </button>
-      <button
-        :class="['mode-btn', { active: fortuneMode === 'tarot' }]"
-        @click="fortuneMode = 'tarot'"
-      >
-        🃏 塔罗牌
-      </button>
+    <!-- 模式选择 - 重新设计为分组式 -->
+    <div class="mode-selector-container">
+      <!-- 中国传统命理组 -->
+      <div class="mode-group">
+        <div class="group-label">🇨🇳 中国传统</div>
+        <div class="mode-buttons">
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'fortune' }]"
+            @click="fortuneMode = 'fortune'"
+            title="传统算命"
+          >
+            <span class="mode-icon">🔮</span>
+            <span class="mode-text">传统</span>
+          </button>
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'bazi' }]"
+            @click="fortuneMode = 'bazi'"
+            title="八字算命"
+          >
+            <span class="mode-icon">🎯</span>
+            <span class="mode-text">八字</span>
+          </button>
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'ziwei' }]"
+            @click="fortuneMode = 'ziwei'"
+            title="紫微斗数"
+          >
+            <span class="mode-icon">⭐</span>
+            <span class="mode-text">紫微</span>
+          </button>
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'shengxiao' }]"
+            @click="fortuneMode = 'shengxiao'"
+            title="生肖运势"
+          >
+            <span class="mode-icon">🐲</span>
+            <span class="mode-text">生肖</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 西方占星组 -->
+      <div class="mode-group">
+        <div class="group-label">🌟 西方占星</div>
+        <div class="mode-buttons">
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'xingzuo' }]"
+            @click="fortuneMode = 'xingzuo'"
+            title="星座运势"
+          >
+            <span class="mode-icon">♈</span>
+            <span class="mode-text">星座</span>
+          </button>
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'tarot' }]"
+            @click="fortuneMode = 'tarot'"
+            title="塔罗牌占卜"
+          >
+            <span class="mode-icon">🃏</span>
+            <span class="mode-text">塔罗</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 其他占卜组 -->
+      <div class="mode-group">
+        <div class="group-label">✨ 其他占卜</div>
+        <div class="mode-buttons">
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'xingming' }]"
+            @click="fortuneMode = 'xingming'"
+            title="姓名学"
+          >
+            <span class="mode-icon">�</span>
+            <span class="mode-text">姓名</span>
+          </button>
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'jiemeng' }]"
+            @click="fortuneMode = 'jiemeng'"
+            title="周公解梦"
+          >
+            <span class="mode-icon">💭</span>
+            <span class="mode-text">解梦</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 传统算命模式 -->
@@ -921,33 +957,96 @@ watch(questionType, (newType, oldType) => {
   width: 100%;
 }
 
-/* 模式选择器 */
-.mode-selector {
+/* 模式选择器容器 */
+.mode-selector-container {
   display: flex;
-  justify-content: center;
-  gap: 15px;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.mode-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  cursor: pointer;
-  background: rgba(255,255,255,0.1);
-  color: white;
+/* 模式分组 */
+.mode-group {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
+.mode-group:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 分组标签 */
+.group-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 模式按钮容器 */
+.mode-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* 模式按钮 */
+.mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  min-width: 70px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
 .mode-btn:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .mode-btn.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.mode-btn.active .mode-icon {
+  transform: scale(1.1);
+}
+
+.mode-icon {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.mode-text {
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* 表单容器 */
@@ -1186,18 +1285,34 @@ watch(questionType, (newType, oldType) => {
   .form-container {
     padding: 20px;
   }
-  
+
   .form-content-wrapper {
     max-width: 100%;
   }
-  
+
   .question-types {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
+  .mode-selector-container {
+    gap: 15px;
+  }
+
+  .mode-group {
+    padding: 12px 16px;
+  }
+
   .mode-btn {
-    font-size: 0.9rem;
-    padding: 10px 18px;
+    min-width: 60px;
+    padding: 10px 12px;
+  }
+
+  .mode-icon {
+    font-size: 1.3rem;
+  }
+
+  .mode-text {
+    font-size: 0.7rem;
   }
 }
 
@@ -1205,9 +1320,41 @@ watch(questionType, (newType, oldType) => {
   .button-group {
     flex-direction: column;
   }
-  
+
   .btn-primary, .btn-secondary {
     width: 100%;
+  }
+
+  .mode-selector-container {
+    gap: 12px;
+  }
+
+  .mode-group {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .group-label {
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+  }
+
+  .mode-buttons {
+    gap: 8px;
+  }
+
+  .mode-btn {
+    min-width: 55px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .mode-icon {
+    font-size: 1.2rem;
+  }
+
+  .mode-text {
+    font-size: 0.65rem;
   }
 }
 </style>

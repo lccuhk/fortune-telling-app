@@ -7,6 +7,8 @@ import './styles/3d-galaxy.css';
 
 // 日志开关 - 设置为 false 可以关闭所有日志
 const ENABLE_LOGS = true;
+// 部署版本标记 - 用于强制刷新缓存
+const DEPLOY_VERSION = '20250424-001';
 
 // 日志工具函数
 const logger = {

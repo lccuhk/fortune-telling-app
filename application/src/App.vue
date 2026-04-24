@@ -383,6 +383,56 @@ const authFieldErrors = ref({
   registerConfirm: ''
 });
 
+// 页面过渡动画相关
+const tabTransition = ref('slide-left');
+const isPageTransitioning = ref(false);
+
+// 切换标签页带过渡动画
+function switchTabWithTransition(newTab) {
+  if (newTab === activeTab.value) return;
+
+  // 确定过渡方向
+  const tabs = ['fortune', 'history', 'favorites', 'stats'];
+  const currentIndex = tabs.indexOf(activeTab.value);
+  const newIndex = tabs.indexOf(newTab);
+  tabTransition.value = newIndex > currentIndex ? 'slide-left' : 'slide-right';
+
+  // 触发过渡
+  isPageTransitioning.value = true;
+  setTimeout(() => {
+    activeTab.value = newTab;
+    isPageTransitioning.value = false;
+  }, 50);
+}
+
+// 骨架屏显示控制
+const showSkeleton = ref(false);
+const skeletonType = ref('fortune'); // fortune, history, favorites, stats
+
+// 显示骨架屏
+function showSkeletonScreen(type) {
+  skeletonType.value = type;
+  showSkeleton.value = true;
+}
+
+// 隐藏骨架屏
+function hideSkeletonScreen() {
+  showSkeleton.value = false;
+}
+
+// 带骨架屏的数据加载
+async function loadDataWithSkeleton(type, loadFunction) {
+  showSkeletonScreen(type);
+  try {
+    await loadFunction();
+  } finally {
+    // 最小显示时间，避免闪烁
+    setTimeout(() => {
+      hideSkeletonScreen();
+    }, 300);
+  }
+}
+
 // 清除字段错误
 function clearFieldError(field) {
   if (authFieldErrors.value[field]) {
@@ -591,7 +641,22 @@ onMounted(() => {
   if (savedTheme) {
     isDarkMode.value = savedTheme === 'dark';
     logger.log('  - 主题已恢复:', isDarkMode.value ? '深色模式' : '浅色模式');
+  } else {
+    // 如果没有保存的主题，检测系统主题偏好
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    isDarkMode.value = prefersDark;
+    logger.log('  - 检测到系统主题偏好:', prefersDark ? '深色模式' : '浅色模式');
   }
+  
+  // 监听系统主题变化
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', (e) => {
+    // 只有在用户没有手动设置主题时才自动切换
+    if (!localStorage.getItem('theme')) {
+      isDarkMode.value = e.matches;
+      logger.log('🎨 [主题] 系统主题变化，自动切换到:', e.matches ? '深色模式' : '浅色模式');
+    }
+  });
   
   // 加载登录状态
   logger.log('🔐 [初始化] 检查登录状态');
@@ -2429,41 +2494,89 @@ function exportCurrentResult() {
     <div class="tabs">
       <button 
         :class="['tab-btn', 'galaxy-tab', { active: activeTab === 'fortune' }]" 
-        @click="activeTab = 'fortune'"
+        @click="switchTabWithTransition('fortune')"
       >
         🔮 算命
       </button>
       <button 
         :class="['tab-btn', 'galaxy-tab', { active: activeTab === 'history' }]" 
-        @click="activeTab = 'history'"
+        @click="switchTabWithTransition('history')"
       >
         📜 历史
       </button>
       <button 
         :class="['tab-btn', 'galaxy-tab', { active: activeTab === 'favorites' }]" 
-        @click="activeTab = 'favorites'"
+        @click="switchTabWithTransition('favorites')"
       >
         ⭐ 收藏 {{ favorites.length > 0 ? `(${favorites.length})` : '' }}
       </button>
       <button 
         :class="['tab-btn', 'galaxy-tab', { active: activeTab === 'stats' }]" 
-        @click="activeTab = 'stats'"
+        @click="switchTabWithTransition('stats')"
       >
         📊 统计
       </button>
     </div>
 
-    <div v-if="activeTab === 'fortune'" class="tab-content active">
-      <!-- 使用新的 FortuneForm 组件 -->
-      <FortuneForm 
-        :loading="loading"
-        :isTarotMode="isTarotMode"
-        @get-fortune="handleGetFortune" 
-        @draw-tarot="handleDrawTarot"
-        @get-bazi="handleGetBazi"
-        @get-ziwei="handleGetZiwei"
-        @change-mode="handleChangeMode"
-      />
+    <!-- 骨架屏 -->
+    <Transition name="skeleton">
+      <div v-if="showSkeleton" class="skeleton-container">
+        <!-- 算命页面骨架屏 -->
+        <div v-if="skeletonType === 'fortune'" class="skeleton-fortune">
+          <div class="skeleton-header">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-subtitle"></div>
+          </div>
+          <div class="skeleton-form">
+            <div class="skeleton-input" v-for="i in 4" :key="i"></div>
+            <div class="skeleton-button"></div>
+          </div>
+        </div>
+        
+        <!-- 历史记录骨架屏 -->
+        <div v-if="skeletonType === 'history'" class="skeleton-history">
+          <div class="skeleton-item" v-for="i in 5" :key="i">
+            <div class="skeleton-avatar"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 收藏页面骨架屏 -->
+        <div v-if="skeletonType === 'favorites'" class="skeleton-favorites">
+          <div class="skeleton-item" v-for="i in 4" :key="i">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 统计页面骨架屏 -->
+        <div v-if="skeletonType === 'stats'" class="skeleton-stats">
+          <div class="skeleton-cards">
+            <div class="skeleton-card" v-for="i in 3" :key="i"></div>
+          </div>
+          <div class="skeleton-chart"></div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition :name="tabTransition" mode="out-in">
+      <div v-if="activeTab === 'fortune'" class="tab-content active" key="fortune">
+        <!-- 使用新的 FortuneForm 组件 -->
+        <FortuneForm 
+          :loading="loading"
+          :isTarotMode="isTarotMode"
+          @get-fortune="handleGetFortune" 
+          @draw-tarot="handleDrawTarot"
+          @get-bazi="handleGetBazi"
+          @get-ziwei="handleGetZiwei"
+          @change-mode="handleChangeMode"
+        />
       
       <!-- 塔罗牌结果 -->
       <div v-if="drawnTarot" class="result-container" style="margin-top: 20px;">
@@ -2529,9 +2642,9 @@ function exportCurrentResult() {
           </div>
         </div>
       </div>
-    </div>
+    </div></Transition>
 
-    <div v-if="activeTab === 'history'" class="tab-content active">
+    <Transition :name="tabTransition" mode="out-in"><div v-if="activeTab === 'history'" class="tab-content active" key="history">
       <div v-if="history.length > 0">
         <div class="history-header">
           <h2 class="section-title">📜 历史记录</h2>
@@ -2624,7 +2737,7 @@ function exportCurrentResult() {
     </div>
 
     <!-- 收藏标签页 -->
-    <div v-if="activeTab === 'favorites'" class="tab-content active">
+    <div v-if="activeTab === 'favorites'" class="tab-content active" key="favorites">
       <div v-if="favorites.length > 0">
         <div class="history-header">
           <h2 class="section-title">⭐ 我的收藏</h2>
@@ -2718,7 +2831,7 @@ function exportCurrentResult() {
     </div>
     
     <!-- 统计标签页 -->
-    <div v-if="activeTab === 'stats'" class="tab-content active">
+    <div v-if="activeTab === 'stats'" class="tab-content active" key="stats">
       <div class="stats-container">
         <h2 class="section-title">📊 运势统计分析</h2>
         
@@ -2764,7 +2877,7 @@ function exportCurrentResult() {
           </button>
         </div>
       </div>
-    </div>
+    </div></Transition>
     
     <!-- 旧的登录注册模态框已隐藏，使用新的登录页面 -->
     
@@ -4586,6 +4699,236 @@ function exportCurrentResult() {
   .type-btn {
     min-width: 100%;
     font-size: 0.85rem;
+  }
+}
+
+/* === 页面过渡动画 === */
+/* 向左滑动 */
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+/* 向右滑动 */
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* === 骨架屏样式 === */
+.skeleton-container {
+  padding: 20px;
+  animation: skeleton-fade-in 0.3s ease;
+}
+
+@keyframes skeleton-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.skeleton-fortune,
+.skeleton-history,
+.skeleton-favorites,
+.skeleton-stats {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 骨架屏基础元素 */
+.skeleton-title,
+.skeleton-subtitle,
+.skeleton-input,
+.skeleton-button,
+.skeleton-avatar,
+.skeleton-icon,
+.skeleton-line,
+.skeleton-card,
+.skeleton-chart {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f0f0f0 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 8px;
+}
+
+.app-container.dark-mode .skeleton-title,
+.app-container.dark-mode .skeleton-subtitle,
+.app-container.dark-mode .skeleton-input,
+.app-container.dark-mode .skeleton-button,
+.app-container.dark-mode .skeleton-avatar,
+.app-container.dark-mode .skeleton-icon,
+.app-container.dark-mode .skeleton-line,
+.app-container.dark-mode .skeleton-card,
+.app-container.dark-mode .skeleton-chart {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 算命页面骨架屏 */
+.skeleton-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.skeleton-title {
+  width: 200px;
+  height: 32px;
+  margin: 0 auto 15px;
+  border-radius: 16px;
+}
+
+.skeleton-subtitle {
+  width: 150px;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+.skeleton-form {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.app-container.dark-mode .skeleton-form {
+  background: rgba(30, 41, 59, 0.9);
+}
+
+.skeleton-input {
+  width: 100%;
+  height: 50px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.skeleton-button {
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+/* 历史记录和收藏骨架屏 */
+.skeleton-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.app-container.dark-mode .skeleton-item {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.skeleton-avatar,
+.skeleton-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+/* 统计页面骨架屏 */
+.skeleton-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.skeleton-card {
+  height: 120px;
+  border-radius: 16px;
+}
+
+.skeleton-chart {
+  width: 100%;
+  height: 300px;
+  border-radius: 16px;
+}
+
+/* 骨架屏过渡动画 */
+.skeleton-enter-active,
+.skeleton-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.skeleton-enter-from,
+.skeleton-leave-to {
+  opacity: 0;
+}
+
+/* 深色模式自动切换提示 */
+.theme-auto-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  z-index: 1000;
+  animation: slide-up 0.3s ease;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

@@ -2818,110 +2818,225 @@ const favoritesWithFolders = ref({});
 
 // 加载收藏夹数据
 function loadFavoriteFolders() {
+  logger.log('📁 [收藏夹] 开始加载收藏夹数据...');
+  
+  // 加载收藏夹列表
   const saved = localStorage.getItem('favoriteFolders');
   if (saved) {
-    favoriteFolders.value = JSON.parse(saved);
+    try {
+      favoriteFolders.value = JSON.parse(saved);
+      logger.log('📁 [收藏夹] 从 localStorage 加载收藏夹列表:', favoriteFolders.value.length, '个');
+      logger.log('📁 [收藏夹] 收藏夹详情:', JSON.stringify(favoriteFolders.value.map(f => ({ id: f.id, name: f.name }))));
+    } catch (e) {
+      logger.error('📁 [收藏夹] 解析收藏夹列表失败:', e);
+    }
+  } else {
+    logger.log('📁 [收藏夹] localStorage 中没有收藏夹列表，使用默认收藏夹');
+    logger.log('📁 [收藏夹] 默认收藏夹:', JSON.stringify(favoriteFolders.value.map(f => ({ id: f.id, name: f.name }))));
   }
   
+  // 加载收藏数据
   const savedFavorites = localStorage.getItem('favoritesWithFolders');
   if (savedFavorites) {
-    favoritesWithFolders.value = JSON.parse(savedFavorites);
+    try {
+      favoritesWithFolders.value = JSON.parse(savedFavorites);
+      const folderIds = Object.keys(favoritesWithFolders.value);
+      const totalItems = folderIds.reduce((sum, id) => sum + (favoritesWithFolders.value[id]?.length || 0), 0);
+      logger.log('📁 [收藏夹] 从 localStorage 加载收藏数据:', folderIds.length, '个收藏夹,', totalItems, '条收藏');
+      folderIds.forEach(id => {
+        const folder = favoriteFolders.value.find(f => f.id === id);
+        const folderName = folder ? folder.name : '未知';
+        logger.log(`  - ${folderName}(${id}): ${favoritesWithFolders.value[id]?.length || 0} 条`);
+      });
+    } catch (e) {
+      logger.error('📁 [收藏夹] 解析收藏数据失败:', e);
+    }
   } else {
+    logger.log('📁 [收藏夹] localStorage 中没有收藏夹数据，需要迁移旧数据');
     // 迁移旧数据
     migrateOldFavorites();
   }
   
-  logger.log('📁 [收藏夹] 已加载收藏夹数据');
+  logger.log('📁 [收藏夹] 收藏夹数据加载完成');
 }
 
 // 迁移旧收藏数据
 function migrateOldFavorites() {
+  logger.log('📁 [收藏夹] 开始迁移旧收藏数据...');
   const oldFavorites = favorites.value;
+  logger.log('📁 [收藏夹] 找到旧收藏数据:', oldFavorites.length, '条');
+  
+  if (oldFavorites.length > 0) {
+    logger.log('📁 [收藏夹] 旧收藏详情:', JSON.stringify(oldFavorites.map(f => ({ 
+      id: f.id, 
+      type: f.question_type, 
+      user: f.user_name 
+    }))));
+  }
+  
   favoritesWithFolders.value = {
     default: oldFavorites.map(f => ({ ...f, folderId: 'default' }))
   };
+  logger.log('📁 [收藏夹] 已将旧数据迁移到新结构，默认收藏夹包含:', favoritesWithFolders.value.default.length, '条');
+  
   saveFavoritesWithFolders();
-  logger.log('📁 [收藏夹] 已迁移旧收藏数据');
+  logger.log('📁 [收藏夹] 旧收藏数据迁移完成并已保存');
 }
 
 // 保存收藏夹数据
 function saveFavoritesWithFolders() {
-  localStorage.setItem('favoritesWithFolders', JSON.stringify(favoritesWithFolders.value));
-  localStorage.setItem('favoriteFolders', JSON.stringify(favoriteFolders.value));
+  logger.log('📁 [收藏夹] 开始保存收藏夹数据...');
+  
+  try {
+    const foldersJson = JSON.stringify(favoriteFolders.value);
+    localStorage.setItem('favoriteFolders', foldersJson);
+    logger.log('📁 [收藏夹] 收藏夹列表已保存:', favoriteFolders.value.length, '个');
+    
+    const favoritesJson = JSON.stringify(favoritesWithFolders.value);
+    localStorage.setItem('favoritesWithFolders', favoritesJson);
+    const folderIds = Object.keys(favoritesWithFolders.value);
+    const totalItems = folderIds.reduce((sum, id) => sum + (favoritesWithFolders.value[id]?.length || 0), 0);
+    logger.log('📁 [收藏夹] 收藏数据已保存:', folderIds.length, '个收藏夹,', totalItems, '条收藏');
+    
+    // 验证保存
+    const savedFolders = localStorage.getItem('favoriteFolders');
+    const savedFavorites = localStorage.getItem('favoritesWithFolders');
+    if (savedFolders === foldersJson && savedFavorites === favoritesJson) {
+      logger.log('📁 [收藏夹] 验证成功：数据已正确保存到 localStorage');
+    } else {
+      logger.warn('📁 [收藏夹] 验证警告：保存的数据可能不完整');
+    }
+  } catch (e) {
+    logger.error('📁 [收藏夹] 保存收藏夹数据失败:', e);
+  }
 }
 
 // 添加新收藏夹
 function addFavoriteFolder(name, icon = '⭐', color = '#FFD700') {
+  logger.log('📁 [收藏夹] 开始创建新收藏夹...');
+  logger.log('📁 [收藏夹] 新收藏夹信息:', { name, icon, color });
+  
   const id = 'folder_' + Date.now();
-  favoriteFolders.value.push({ id, name, icon, color });
+  logger.log('📁 [收藏夹] 生成新收藏夹 ID:', id);
+  
+  const newFolder = { id, name, icon, color };
+  favoriteFolders.value.push(newFolder);
+  logger.log('📁 [收藏夹] 新收藏夹已添加到列表，当前共:', favoriteFolders.value.length, '个');
+  
   favoritesWithFolders.value[id] = [];
+  logger.log('📁 [收藏夹] 已为新收藏夹创建空数组');
+  
   saveFavoritesWithFolders();
-  logger.log('📁 [收藏夹] 创建新收藏夹:', name);
+  logger.log('📁 [收藏夹] 新收藏夹已保存:', name, '(', id, ')');
+  
   showToast(`收藏夹「${name}」创建成功`, 'success');
   return id;
 }
 
 // 删除收藏夹
 function deleteFavoriteFolder(folderId) {
+  logger.log('📁 [收藏夹] 开始删除收藏夹:', folderId);
+  
   if (folderId === 'default') {
+    logger.warn('📁 [收藏夹] 尝试删除默认收藏夹，操作被拒绝');
     showToast('默认收藏夹不能删除', 'warning');
     return;
   }
   
+  const folder = favoriteFolders.value.find(f => f.id === folderId);
+  const folderName = folder ? folder.name : '未知';
+  logger.log('📁 [收藏夹] 要删除的收藏夹:', folderName, '(', folderId, ')');
+  
   // 将收藏夹中的项目移到默认收藏夹
   const items = favoritesWithFolders.value[folderId] || [];
-  favoritesWithFolders.value.default = [...favoritesWithFolders.value.default, ...items];
+  logger.log('📁 [收藏夹] 该收藏夹包含:', items.length, '条收藏，将移至默认收藏夹');
+  
+  if (items.length > 0) {
+    favoritesWithFolders.value.default = [...favoritesWithFolders.value.default, ...items];
+    logger.log('📁 [收藏夹] 已移动', items.length, '条收藏到默认收藏夹，默认收藏夹现在有:', favoritesWithFolders.value.default.length, '条');
+  }
   
   delete favoritesWithFolders.value[folderId];
+  logger.log('📁 [收藏夹] 已从 favoritesWithFolders 中删除收藏夹数据');
+  
+  const beforeCount = favoriteFolders.value.length;
   favoriteFolders.value = favoriteFolders.value.filter(f => f.id !== folderId);
+  logger.log('📁 [收藏夹] 已从 favoriteFolders 列表中移除，之前:', beforeCount, '个，现在:', favoriteFolders.value.length, '个');
   
   if (currentFolderId.value === folderId) {
+    logger.log('📁 [收藏夹] 当前选中的是被删除的收藏夹，切换到默认收藏夹');
     currentFolderId.value = 'default';
   }
   
   saveFavoritesWithFolders();
-  logger.log('📁 [收藏夹] 删除收藏夹:', folderId);
+  logger.log('📁 [收藏夹] 收藏夹删除完成:', folderName);
   showToast('收藏夹已删除，项目已移至默认收藏夹', 'success');
 }
 
 // 将收藏移动到指定收藏夹
 function moveFavoriteToFolder(favoriteId, targetFolderId) {
+  logger.log('📁 [收藏夹] 开始移动收藏:', favoriteId, '到收藏夹:', targetFolderId);
+  
   // 找到收藏项
   let foundItem = null;
   let sourceFolderId = null;
+  let foundIndex = -1;
   
   for (const [folderId, items] of Object.entries(favoritesWithFolders.value)) {
     const index = items.findIndex(item => item.id === favoriteId);
     if (index >= 0) {
       foundItem = items[index];
       sourceFolderId = folderId;
+      foundIndex = index;
       items.splice(index, 1);
       break;
     }
   }
   
   if (foundItem) {
+    const sourceFolder = favoriteFolders.value.find(f => f.id === sourceFolderId);
+    const targetFolder = favoriteFolders.value.find(f => f.id === targetFolderId);
+    logger.log('📁 [收藏夹] 找到收藏项:', foundItem.user_name, '-', foundItem.question_type);
+    logger.log('📁 [收藏夹] 从', sourceFolder?.name || '未知', '移动到', targetFolder?.name || '未知');
+    
     foundItem.folderId = targetFolderId;
     if (!favoritesWithFolders.value[targetFolderId]) {
       favoritesWithFolders.value[targetFolderId] = [];
+      logger.log('📁 [收藏夹] 目标收藏夹不存在，已创建空数组');
     }
     favoritesWithFolders.value[targetFolderId].push(foundItem);
+    logger.log('📁 [收藏夹] 收藏已添加到目标收藏夹，现在目标收藏夹有:', favoritesWithFolders.value[targetFolderId].length, '条');
+    
     saveFavoritesWithFolders();
-    logger.log('📁 [收藏夹] 移动收藏到:', targetFolderId);
+    logger.log('📁 [收藏夹] 收藏移动完成并保存');
     showToast('已移动到指定收藏夹', 'success');
+  } else {
+    logger.warn('📁 [收藏夹] 未找到要移动的收藏:', favoriteId);
   }
 }
 
 // 获取当前收藏夹的收藏
 const currentFolderFavorites = computed(() => {
-  return favoritesWithFolders.value[currentFolderId.value] || [];
+  const folderId = currentFolderId.value;
+  const items = favoritesWithFolders.value[folderId] || [];
+  const folder = favoriteFolders.value.find(f => f.id === folderId);
+  
+  // 只在开发环境或需要时打印，避免频繁计算导致日志过多
+  if (ENABLE_LOGS && items.length > 0) {
+    logger.log('📁 [收藏夹] 计算当前收藏夹收藏:', folder?.name || '未知', '(', folderId, '),', items.length, '条');
+  }
+  
+  return items;
 });
 
 // 修改原有的 toggleFavorite 函数以支持收藏夹
 function toggleFavoriteWithFolder(folderId = 'default') {
+  logger.log('📁 [收藏夹] 开始切换收藏状态，目标收藏夹:', folderId);
+  
   let favoriteItem;
   
   if (isTarotMode.value && drawnTarot.value) {
+    logger.log('📁 [收藏夹] 创建塔罗牌收藏项');
     favoriteItem = {
       id: Date.now(),
       user_name: name.value,
@@ -2938,6 +3053,7 @@ function toggleFavoriteWithFolder(folderId = 'default') {
       created_at: new Date().toISOString()
     };
   } else if (result.value) {
+    logger.log('📁 [收藏夹] 创建传统算命收藏项');
     favoriteItem = {
       id: Date.now(),
       user_name: name.value,
@@ -2952,9 +3068,17 @@ function toggleFavoriteWithFolder(folderId = 'default') {
       created_at: new Date().toISOString()
     };
   } else {
+    logger.warn('📁 [收藏夹] 没有可收藏的结果');
     showToast('没有可收藏的结果', 'warning');
     return;
   }
+  
+  logger.log('📁 [收藏夹] 收藏项信息:', { 
+    id: favoriteItem.id, 
+    user: favoriteItem.user_name, 
+    type: favoriteItem.question_type,
+    folder: favoriteItem.folderId 
+  });
   
   // 检查是否已收藏
   let existingFolderId = null;
@@ -2971,14 +3095,20 @@ function toggleFavoriteWithFolder(folderId = 'default') {
   
   if (existingIndex >= 0) {
     // 取消收藏
+    const folder = favoriteFolders.value.find(f => f.id === existingFolderId);
+    logger.log('📁 [收藏夹] 找到已存在的收藏，位于:', folder?.name || '未知', '，执行取消收藏');
     favoritesWithFolders.value[existingFolderId].splice(existingIndex, 1);
+    logger.log('📁 [收藏夹] 已取消收藏，该收藏夹剩余:', favoritesWithFolders.value[existingFolderId].length, '条');
     showToast('已取消收藏', 'info');
   } else {
     // 添加到指定收藏夹
+    logger.log('📁 [收藏夹] 未找到现有收藏，添加到收藏夹:', folderId);
     if (!favoritesWithFolders.value[folderId]) {
       favoritesWithFolders.value[folderId] = [];
+      logger.log('📁 [收藏夹] 目标收藏夹不存在，已创建空数组');
     }
     favoritesWithFolders.value[folderId].unshift(favoriteItem);
+    logger.log('📁 [收藏夹] 已添加收藏，当前收藏夹有:', favoritesWithFolders.value[folderId].length, '条');
     showToast('已添加到收藏夹', 'success');
   }
   
@@ -2988,6 +3118,7 @@ function toggleFavoriteWithFolder(folderId = 'default') {
   favorites.value = Object.values(favoritesWithFolders.value).flat();
   const favoritesKey = getUserStorageKey('fortuneFavorites');
   localStorage.setItem(favoritesKey, JSON.stringify(favorites.value));
+  logger.log('📁 [收藏夹] 收藏状态切换完成，同步到旧格式，共:', favorites.value.length, '条');
 }
 
 // ==================== 算命结果对比功能 ====================
@@ -3065,38 +3196,97 @@ const presetThemes = [
 
 // 加载主题设置
 function loadCustomTheme() {
+  logger.log('🎨 [主题] 开始加载自定义主题设置...');
   const saved = localStorage.getItem('customTheme');
   if (saved) {
-    customTheme.value = JSON.parse(saved);
-    applyCustomTheme();
-    logger.log('🎨 [主题] 已加载自定义主题');
+    try {
+      const parsed = JSON.parse(saved);
+      logger.log('🎨 [主题] 从 localStorage 读取到主题数据:', JSON.stringify(parsed));
+      customTheme.value = parsed;
+      logger.log('🎨 [主题] 主题数据已赋值到 customTheme:', {
+        primary: customTheme.value.primaryColor,
+        secondary: customTheme.value.secondaryColor,
+        accent: customTheme.value.accentColor,
+        bg: customTheme.value.backgroundColor,
+        text: customTheme.value.textColor
+      });
+      applyCustomTheme();
+      logger.log('🎨 [主题] 自定义主题加载并应用成功');
+    } catch (e) {
+      logger.error('🎨 [主题] 解析主题数据失败:', e);
+    }
+  } else {
+    logger.log('🎨 [主题] localStorage 中没有保存的主题，使用默认主题');
+    logger.log('🎨 [主题] 默认主题值:', JSON.stringify(customTheme.value));
   }
 }
 
 // 应用自定义主题
 function applyCustomTheme() {
+  logger.log('🎨 [主题] 开始应用自定义主题到 DOM...');
   const root = document.documentElement;
+  
+  logger.log('🎨 [主题] 设置 CSS 变量:');
+  logger.log('  --primary-color:', customTheme.value.primaryColor);
   root.style.setProperty('--primary-color', customTheme.value.primaryColor);
+  
+  logger.log('  --secondary-color:', customTheme.value.secondaryColor);
   root.style.setProperty('--secondary-color', customTheme.value.secondaryColor);
+  
+  logger.log('  --accent-color:', customTheme.value.accentColor);
   root.style.setProperty('--accent-color', customTheme.value.accentColor);
+  
+  logger.log('  --bg-color:', customTheme.value.backgroundColor);
   root.style.setProperty('--bg-color', customTheme.value.backgroundColor);
+  
+  logger.log('  --text-color:', customTheme.value.textColor);
   root.style.setProperty('--text-color', customTheme.value.textColor);
+  
+  logger.log('  --font-family:', customTheme.value.fontFamily);
   root.style.setProperty('--font-family', customTheme.value.fontFamily);
+  
+  logger.log('🎨 [主题] 所有 CSS 变量已应用到 document.documentElement');
 }
 
 // 保存主题设置
 function saveCustomTheme() {
-  localStorage.setItem('customTheme', JSON.stringify(customTheme.value));
-  applyCustomTheme();
-  logger.log('🎨 [主题] 已保存自定义主题');
-  showToast('主题设置已保存', 'success');
+  logger.log('🎨 [主题] 开始保存自定义主题设置...');
+  logger.log('🎨 [主题] 当前主题数据:', JSON.stringify(customTheme.value));
+  
+  try {
+    const themeJson = JSON.stringify(customTheme.value);
+    localStorage.setItem('customTheme', themeJson);
+    logger.log('🎨 [主题] 主题数据已保存到 localStorage');
+    
+    // 验证保存是否成功
+    const saved = localStorage.getItem('customTheme');
+    if (saved === themeJson) {
+      logger.log('🎨 [主题] 验证成功：localStorage 中的数据与保存的数据一致');
+    } else {
+      logger.warn('🎨 [主题] 验证警告：保存的数据可能与 localStorage 中的不一致');
+    }
+    
+    applyCustomTheme();
+    logger.log('🎨 [主题] 主题已应用并保存成功');
+    showToast('主题设置已保存', 'success');
+  } catch (e) {
+    logger.error('🎨 [主题] 保存主题失败:', e);
+    showToast('保存主题失败', 'error');
+  }
 }
 
 // 应用预设主题
 function applyPresetTheme(theme) {
+  logger.log('🎨 [主题] 开始应用预设主题:', theme.name);
+  logger.log('🎨 [主题] 预设主题数据:', JSON.stringify(theme));
+  logger.log('🎨 [主题] 应用前的当前主题:', JSON.stringify(customTheme.value));
+  
   customTheme.value = { ...customTheme.value, ...theme };
+  logger.log('🎨 [主题] 合并后的主题数据:', JSON.stringify(customTheme.value));
+  
   applyCustomTheme();
   saveCustomTheme();
+  logger.log('🎨 [主题] 预设主题「' + theme.name + '」应用完成');
 }
 
 // ==================== PWA 支持 ====================

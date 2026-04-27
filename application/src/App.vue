@@ -708,6 +708,26 @@ onMounted(() => {
   logger.log('📚 [初始化] 加载历史记录');
   loadHistoryFromServer();
   
+  // 初始化语音播报设置
+  logger.log('🔊 [初始化] 加载语音设置');
+  loadSpeechSettings();
+  
+  // 初始化收藏夹
+  logger.log('📁 [初始化] 加载收藏夹');
+  loadFavoriteFolders();
+  
+  // 初始化自定义主题
+  logger.log('🎨 [初始化] 加载自定义主题');
+  loadCustomTheme();
+  
+  // 初始化 PWA
+  logger.log('📱 [初始化] 设置 PWA');
+  setupPWA();
+  
+  // 检查分享链接
+  logger.log('🔗 [初始化] 检查分享链接');
+  loadFromShareLink();
+  
   logger.log('🎉 [初始化] 应用加载完成！');
 });
 
@@ -2666,6 +2686,598 @@ function exportCurrentResult() {
   exportToJSON([data], 'fortune-result');
   logger.log('📥 [导出] 导出流程完成');
 }
+
+// ==================== 语音播报功能 ====================
+
+// 语音合成状态
+const isSpeaking = ref(false);
+const speechSynthesis = window.speechSynthesis;
+let currentUtterance = null;
+
+// 语音设置
+const speechSettings = ref({
+  rate: 1, // 语速
+  pitch: 1, // 音调
+  volume: 1, // 音量
+  voice: null // 语音
+});
+
+// 加载语音设置
+function loadSpeechSettings() {
+  const saved = localStorage.getItem('speechSettings');
+  if (saved) {
+    speechSettings.value = JSON.parse(saved);
+    logger.log('🔊 [语音] 已加载语音设置');
+  }
+}
+
+// 保存语音设置
+function saveSpeechSettings() {
+  localStorage.setItem('speechSettings', JSON.stringify(speechSettings.value));
+  logger.log('🔊 [语音] 已保存语音设置');
+}
+
+// 获取可用的语音列表
+function getAvailableVoices() {
+  return speechSynthesis.getVoices().filter(voice => voice.lang.includes('zh'));
+}
+
+// 播报算命结果
+function speakFortuneResult() {
+  if (!result.value && !drawnTarot.value) {
+    logger.warn('🔊 [语音] 没有可播报的内容');
+    showToast('请先进行算命', 'warning');
+    return;
+  }
+  
+  // 如果正在播报，则停止
+  if (isSpeaking.value) {
+    stopSpeaking();
+    return;
+  }
+  
+  let text = '';
+  if (isTarotMode.value && drawnTarot.value) {
+    text = `${name.value}的塔罗牌占卜结果。你抽到了${drawnTarot.value.name}牌。含义是：${drawnTarot.value.meaning}`;
+  } else if (result.value) {
+    text = `${name.value}的${questionType.value}运势预测。${result.value.prediction}。建议：${result.value.advice}`;
+  }
+  
+  speakText(text);
+}
+
+// 播报文本
+function speakText(text) {
+  if (!speechSynthesis) {
+    logger.error('🔊 [语音] 浏览器不支持语音合成');
+    showToast('您的浏览器不支持语音播报', 'error');
+    return;
+  }
+  
+  // 取消之前的播报
+  speechSynthesis.cancel();
+  
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.rate = speechSettings.value.rate;
+  currentUtterance.pitch = speechSettings.value.pitch;
+  currentUtterance.volume = speechSettings.value.volume;
+  
+  // 设置中文语音
+  const voices = getAvailableVoices();
+  if (voices.length > 0) {
+    currentUtterance.voice = speechSettings.value.voice || voices[0];
+  }
+  
+  currentUtterance.onstart = () => {
+    isSpeaking.value = true;
+    logger.log('🔊 [语音] 开始播报');
+  };
+  
+  currentUtterance.onend = () => {
+    isSpeaking.value = false;
+    currentUtterance = null;
+    logger.log('🔊 [语音] 播报结束');
+  };
+  
+  currentUtterance.onerror = (event) => {
+    isSpeaking.value = false;
+    currentUtterance = null;
+    logger.error('🔊 [语音] 播报出错:', event.error);
+    showToast('语音播报失败', 'error');
+  };
+  
+  speechSynthesis.speak(currentUtterance);
+}
+
+// 停止播报
+function stopSpeaking() {
+  if (speechSynthesis) {
+    speechSynthesis.cancel();
+    isSpeaking.value = false;
+    currentUtterance = null;
+    logger.log('🔊 [语音] 停止播报');
+  }
+}
+
+// ==================== 收藏夹分类管理 ====================
+
+// 收藏夹列表
+const favoriteFolders = ref([
+  { id: 'default', name: '默认收藏', icon: '⭐', color: '#FFD700' },
+  { id: 'career', name: '事业相关', icon: '💼', color: '#4facfe' },
+  { id: 'love', name: '感情运势', icon: '💕', color: '#ff6b6b' },
+  { id: 'wealth', name: '财运相关', icon: '💰', color: '#43e97b' },
+  { id: 'health', name: '健康养生', icon: '💪', color: '#fa709a' }
+]);
+
+// 当前选中的收藏夹
+const currentFolderId = ref('default');
+
+// 带收藏夹的收藏数据
+const favoritesWithFolders = ref({});
+
+// 加载收藏夹数据
+function loadFavoriteFolders() {
+  const saved = localStorage.getItem('favoriteFolders');
+  if (saved) {
+    favoriteFolders.value = JSON.parse(saved);
+  }
+  
+  const savedFavorites = localStorage.getItem('favoritesWithFolders');
+  if (savedFavorites) {
+    favoritesWithFolders.value = JSON.parse(savedFavorites);
+  } else {
+    // 迁移旧数据
+    migrateOldFavorites();
+  }
+  
+  logger.log('📁 [收藏夹] 已加载收藏夹数据');
+}
+
+// 迁移旧收藏数据
+function migrateOldFavorites() {
+  const oldFavorites = favorites.value;
+  favoritesWithFolders.value = {
+    default: oldFavorites.map(f => ({ ...f, folderId: 'default' }))
+  };
+  saveFavoritesWithFolders();
+  logger.log('📁 [收藏夹] 已迁移旧收藏数据');
+}
+
+// 保存收藏夹数据
+function saveFavoritesWithFolders() {
+  localStorage.setItem('favoritesWithFolders', JSON.stringify(favoritesWithFolders.value));
+  localStorage.setItem('favoriteFolders', JSON.stringify(favoriteFolders.value));
+}
+
+// 添加新收藏夹
+function addFavoriteFolder(name, icon = '⭐', color = '#FFD700') {
+  const id = 'folder_' + Date.now();
+  favoriteFolders.value.push({ id, name, icon, color });
+  favoritesWithFolders.value[id] = [];
+  saveFavoritesWithFolders();
+  logger.log('📁 [收藏夹] 创建新收藏夹:', name);
+  showToast(`收藏夹「${name}」创建成功`, 'success');
+  return id;
+}
+
+// 删除收藏夹
+function deleteFavoriteFolder(folderId) {
+  if (folderId === 'default') {
+    showToast('默认收藏夹不能删除', 'warning');
+    return;
+  }
+  
+  // 将收藏夹中的项目移到默认收藏夹
+  const items = favoritesWithFolders.value[folderId] || [];
+  favoritesWithFolders.value.default = [...favoritesWithFolders.value.default, ...items];
+  
+  delete favoritesWithFolders.value[folderId];
+  favoriteFolders.value = favoriteFolders.value.filter(f => f.id !== folderId);
+  
+  if (currentFolderId.value === folderId) {
+    currentFolderId.value = 'default';
+  }
+  
+  saveFavoritesWithFolders();
+  logger.log('📁 [收藏夹] 删除收藏夹:', folderId);
+  showToast('收藏夹已删除，项目已移至默认收藏夹', 'success');
+}
+
+// 将收藏移动到指定收藏夹
+function moveFavoriteToFolder(favoriteId, targetFolderId) {
+  // 找到收藏项
+  let foundItem = null;
+  let sourceFolderId = null;
+  
+  for (const [folderId, items] of Object.entries(favoritesWithFolders.value)) {
+    const index = items.findIndex(item => item.id === favoriteId);
+    if (index >= 0) {
+      foundItem = items[index];
+      sourceFolderId = folderId;
+      items.splice(index, 1);
+      break;
+    }
+  }
+  
+  if (foundItem) {
+    foundItem.folderId = targetFolderId;
+    if (!favoritesWithFolders.value[targetFolderId]) {
+      favoritesWithFolders.value[targetFolderId] = [];
+    }
+    favoritesWithFolders.value[targetFolderId].push(foundItem);
+    saveFavoritesWithFolders();
+    logger.log('📁 [收藏夹] 移动收藏到:', targetFolderId);
+    showToast('已移动到指定收藏夹', 'success');
+  }
+}
+
+// 获取当前收藏夹的收藏
+const currentFolderFavorites = computed(() => {
+  return favoritesWithFolders.value[currentFolderId.value] || [];
+});
+
+// 修改原有的 toggleFavorite 函数以支持收藏夹
+function toggleFavoriteWithFolder(folderId = 'default') {
+  let favoriteItem;
+  
+  if (isTarotMode.value && drawnTarot.value) {
+    favoriteItem = {
+      id: Date.now(),
+      user_name: name.value,
+      birth_date: birthDate.value,
+      question_type: '塔罗牌占卜',
+      zodiac_sign: null,
+      chinese_zodiac: null,
+      prediction: `抽到了【${drawnTarot.value.name}】牌`,
+      advice: drawnTarot.value.meaning,
+      isTarot: true,
+      tarotName: drawnTarot.value.name,
+      tarotMeaning: drawnTarot.value.meaning,
+      folderId: folderId,
+      created_at: new Date().toISOString()
+    };
+  } else if (result.value) {
+    favoriteItem = {
+      id: Date.now(),
+      user_name: name.value,
+      birth_date: birthDate.value,
+      question_type: questionType.value,
+      zodiac_sign: result.value.zodiac_sign,
+      chinese_zodiac: result.value.chinese_zodiac,
+      prediction: result.value.prediction,
+      advice: result.value.advice,
+      isTarot: false,
+      folderId: folderId,
+      created_at: new Date().toISOString()
+    };
+  } else {
+    showToast('没有可收藏的结果', 'warning');
+    return;
+  }
+  
+  // 检查是否已收藏
+  let existingFolderId = null;
+  let existingIndex = -1;
+  
+  for (const [fid, items] of Object.entries(favoritesWithFolders.value)) {
+    const idx = items.findIndex(f => f.prediction === favoriteItem.prediction && f.user_name === favoriteItem.user_name);
+    if (idx >= 0) {
+      existingFolderId = fid;
+      existingIndex = idx;
+      break;
+    }
+  }
+  
+  if (existingIndex >= 0) {
+    // 取消收藏
+    favoritesWithFolders.value[existingFolderId].splice(existingIndex, 1);
+    showToast('已取消收藏', 'info');
+  } else {
+    // 添加到指定收藏夹
+    if (!favoritesWithFolders.value[folderId]) {
+      favoritesWithFolders.value[folderId] = [];
+    }
+    favoritesWithFolders.value[folderId].unshift(favoriteItem);
+    showToast('已添加到收藏夹', 'success');
+  }
+  
+  saveFavoritesWithFolders();
+  
+  // 同步到旧的 favorites 数组以保持兼容性
+  favorites.value = Object.values(favoritesWithFolders.value).flat();
+  const favoritesKey = getUserStorageKey('fortuneFavorites');
+  localStorage.setItem(favoritesKey, JSON.stringify(favorites.value));
+}
+
+// ==================== 算命结果对比功能 ====================
+
+// 对比模式状态
+const compareMode = ref(false);
+const selectedForCompare = ref([]);
+const compareResults = ref([]);
+
+// 切换对比模式
+function toggleCompareMode() {
+  compareMode.value = !compareMode.value;
+  if (!compareMode.value) {
+    selectedForCompare.value = [];
+    compareResults.value = [];
+  }
+  logger.log('⚖️ [对比] 对比模式:', compareMode.value ? '开启' : '关闭');
+}
+
+// 选择/取消选择对比项
+function toggleCompareSelection(item) {
+  const index = selectedForCompare.value.findIndex(s => s.id === item.id);
+  if (index >= 0) {
+    selectedForCompare.value.splice(index, 1);
+  } else {
+    if (selectedForCompare.value.length >= 3) {
+      showToast('最多只能选择3个结果进行对比', 'warning');
+      return;
+    }
+    selectedForCompare.value.push(item);
+  }
+}
+
+// 是否已选择
+function isSelectedForCompare(item) {
+  return selectedForCompare.value.some(s => s.id === item.id);
+}
+
+// 执行对比
+function executeCompare() {
+  if (selectedForCompare.value.length < 2) {
+    showToast('请至少选择2个结果进行对比', 'warning');
+    return;
+  }
+  
+  compareResults.value = selectedForCompare.value.map(item => ({
+    ...item,
+    fortuneScore: calculateFortuneScore(item.prediction + item.advice)
+  }));
+  
+  logger.log('⚖️ [对比] 执行对比:', compareResults.value.length, '个结果');
+  showToast('对比结果已生成', 'success');
+}
+
+// ==================== 主题定制功能 ====================
+
+// 自定义主题
+const customTheme = ref({
+  primaryColor: '#667eea',
+  secondaryColor: '#764ba2',
+  accentColor: '#f093fb',
+  backgroundColor: '#f5f7fa',
+  textColor: '#2c3e50',
+  fontFamily: 'system-ui'
+});
+
+// 预设主题
+const presetThemes = [
+  { name: '默认紫', primaryColor: '#667eea', secondaryColor: '#764ba2', accentColor: '#f093fb' },
+  { name: '海洋蓝', primaryColor: '#4facfe', secondaryColor: '#00f2fe', accentColor: '#43e97b' },
+  { name: '热情红', primaryColor: '#ff6b6b', secondaryColor: '#feca57', accentColor: '#ff9ff3' },
+  { name: '森林绿', primaryColor: '#10b981', secondaryColor: '#059669', accentColor: '#34d399' },
+  { name: '暗夜黑', primaryColor: '#1f2937', secondaryColor: '#374151', accentColor: '#6b7280' }
+];
+
+// 加载主题设置
+function loadCustomTheme() {
+  const saved = localStorage.getItem('customTheme');
+  if (saved) {
+    customTheme.value = JSON.parse(saved);
+    applyCustomTheme();
+    logger.log('🎨 [主题] 已加载自定义主题');
+  }
+}
+
+// 应用自定义主题
+function applyCustomTheme() {
+  const root = document.documentElement;
+  root.style.setProperty('--primary-color', customTheme.value.primaryColor);
+  root.style.setProperty('--secondary-color', customTheme.value.secondaryColor);
+  root.style.setProperty('--accent-color', customTheme.value.accentColor);
+  root.style.setProperty('--bg-color', customTheme.value.backgroundColor);
+  root.style.setProperty('--text-color', customTheme.value.textColor);
+  root.style.setProperty('--font-family', customTheme.value.fontFamily);
+}
+
+// 保存主题设置
+function saveCustomTheme() {
+  localStorage.setItem('customTheme', JSON.stringify(customTheme.value));
+  applyCustomTheme();
+  logger.log('🎨 [主题] 已保存自定义主题');
+  showToast('主题设置已保存', 'success');
+}
+
+// 应用预设主题
+function applyPresetTheme(theme) {
+  customTheme.value = { ...customTheme.value, ...theme };
+  applyCustomTheme();
+  saveCustomTheme();
+}
+
+// ==================== PWA 支持 ====================
+
+// PWA 安装提示
+const showInstallPrompt = ref(false);
+let deferredPrompt = null;
+
+// 监听 PWA 安装事件
+function setupPWA() {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallPrompt.value = true;
+    logger.log('📱 [PWA] 显示安装提示');
+  });
+  
+  window.addEventListener('appinstalled', () => {
+    showInstallPrompt.value = false;
+    deferredPrompt = null;
+    logger.log('📱 [PWA] 应用已安装');
+    showToast('应用已安装到桌面', 'success');
+  });
+}
+
+// 安装 PWA
+async function installPWA() {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  
+  if (outcome === 'accepted') {
+    logger.log('📱 [PWA] 用户接受安装');
+  } else {
+    logger.log('📱 [PWA] 用户拒绝安装');
+  }
+  
+  deferredPrompt = null;
+  showInstallPrompt.value = false;
+}
+
+// 检查是否已安装
+function isPWAInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         window.navigator.standalone === true;
+}
+
+// ==================== 数据导出增强 ====================
+
+// 导出为 PDF（使用浏览器打印功能）
+function exportToPDF(data, filename = 'fortune-report') {
+  logger.log(`📄 [PDF导出] 开始导出 PDF - 文件名: ${filename}`);
+  
+  // 创建打印窗口
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    showToast('请允许弹出窗口以导出PDF', 'warning');
+    return;
+  }
+  
+  // 生成 HTML 内容
+  const htmlContent = generatePDFContent(data);
+  
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+  
+  // 等待内容加载完成后打印
+  printWindow.onload = () => {
+    printWindow.print();
+    logger.log('📄 [PDF导出] PDF 导出完成');
+  };
+}
+
+// 生成 PDF 内容
+function generatePDFContent(data) {
+  const items = Array.isArray(data) ? data : [data];
+  
+  const itemsHtml = items.map(item => `
+    <div class="fortune-item">
+      <h3>${item.user_name || '未知用户'} - ${item.question_type || '综合'}</h3>
+      <p><strong>出生日期:</strong> ${item.birth_date || '未知'}</p>
+      <p><strong>星座:</strong> ${item.zodiac_sign || '未知'} | <strong>生肖:</strong> ${item.chinese_zodiac || '未知'}</p>
+      <div class="prediction">
+        <h4>运势预测</h4>
+        <p>${item.prediction || '无'}</p>
+      </div>
+      <div class="advice">
+        <h4>建议指引</h4>
+        <p>${item.advice || '无'}</p>
+      </div>
+      <p class="timestamp">生成时间: ${new Date(item.created_at).toLocaleString('zh-CN')}</p>
+    </div>
+  `).join('');
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>算命报告</title>
+      <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 20px; }
+        .fortune-item { margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        .fortune-item h3 { color: #764ba2; margin-top: 0; }
+        .prediction, .advice { margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .prediction h4, .advice h4 { margin-top: 0; color: #667eea; }
+        .timestamp { color: #999; font-size: 12px; text-align: right; }
+        @media print { body { padding: 20px; } }
+      </style>
+    </head>
+    <body>
+      <h1>🔮 命运占卜报告</h1>
+      <p style="text-align: center; color: #666;">生成时间: ${new Date().toLocaleString('zh-CN')}</p>
+      ${itemsHtml}
+    </body>
+    </html>
+  `;
+}
+
+// 分享为链接
+function shareAsLink(item) {
+  // 生成分享数据
+  const shareData = {
+    type: item.isTarot ? 'tarot' : 'fortune',
+    data: item
+  };
+  
+  // 编码为 base64
+  const encoded = btoa(JSON.stringify(shareData));
+  const shareUrl = `${window.location.origin}${window.location.pathname}?share=${encoded}`;
+  
+  // 复制到剪贴板
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    showToast('分享链接已复制到剪贴板', 'success');
+    logger.log('🔗 [分享] 生成分享链接');
+  }).catch(() => {
+    showToast('复制失败，请手动复制', 'error');
+  });
+}
+
+// 从分享链接加载数据
+function loadFromShareLink() {
+  const params = new URLSearchParams(window.location.search);
+  const shareData = params.get('share');
+  
+  if (shareData) {
+    try {
+      const decoded = JSON.parse(atob(shareData));
+      logger.log('🔗 [分享] 从分享链接加载数据');
+      
+      if (decoded.type === 'tarot') {
+        isTarotMode.value = true;
+        drawnTarot.value = {
+          name: decoded.data.tarotName,
+          meaning: decoded.data.tarotMeaning
+        };
+      } else {
+        isTarotMode.value = false;
+        result.value = {
+          prediction: decoded.data.prediction,
+          advice: decoded.data.advice,
+          zodiac_sign: decoded.data.zodiac_sign,
+          chinese_zodiac: decoded.data.chinese_zodiac
+        };
+      }
+      
+      name.value = decoded.data.user_name;
+      birthDate.value = decoded.data.birth_date;
+      activeTab.value = 'fortune';
+      
+      showToast('已加载分享的内容', 'success');
+      
+      // 清除 URL 参数
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch (e) {
+      logger.error('🔗 [分享] 解析分享链接失败:', e);
+    }
+  }
+}
 </script>
 
 <template>
@@ -3062,6 +3674,12 @@ function exportCurrentResult() {
                 </button>
                 <button class="share-option" @click="exportCurrentResult">
                   📥 导出结果
+                </button>
+                <button class="share-option" @click="speakFortuneResult">
+                  {{ isSpeaking ? '🔇 停止播报' : '🔊 语音播报' }}
+                </button>
+                <button class="share-option" @click="exportToPDF(result)">
+                  📄 导出PDF
                 </button>
               </div>
             </div>

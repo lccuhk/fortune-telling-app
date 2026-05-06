@@ -25,21 +25,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: ./application/package-lock.json
 
       - name: Install dependencies
-        working-directory: ./application
-        run: npm ci
+        run: |
+          cd application
+          npm ci
 
       - name: Build
-        working-directory: ./application
-        run: npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          enablement: true
+        run: |
+          cd application
+          npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

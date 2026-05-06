@@ -58,7 +58,7 @@ watch(() => props.isTarotMode, (newVal) => {
   isSyncingFromProp = false;
 });
 
-const emit = defineEmits(['get-fortune', 'draw-tarot', 'get-bazi', 'get-ziwei', 'get-shengxiao', 'get-xingzuo', 'get-xingming', 'get-jiemeng', 'change-mode'])
+const emit = defineEmits(['get-fortune', 'draw-tarot', 'get-bazi', 'get-ziwei', 'get-shengxiao', 'get-xingzuo', 'get-xingming', 'get-jiemeng', 'change-mode', 'get-hepan'])
 
 // 表单数据 - 初始值从 prop 来
 const fortuneMode = ref(props.isTarotMode ? 'tarot' : 'fortune')
@@ -401,7 +401,7 @@ watch(questionType, (newType, oldType) => {
             @click="fortuneMode = 'xingming'"
             title="姓名学"
           >
-            <span class="mode-icon">�</span>
+            <span class="mode-icon">✏️</span>
             <span class="mode-text">姓名</span>
           </button>
           <button
@@ -411,6 +411,21 @@ watch(questionType, (newType, oldType) => {
           >
             <span class="mode-icon">💭</span>
             <span class="mode-text">解梦</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 高级功能组 -->
+      <div class="mode-group">
+        <div class="group-label">🔥 高级功能</div>
+        <div class="mode-buttons">
+          <button
+            :class="['mode-btn', { active: fortuneMode === 'hepan' }]"
+            @click="fortuneMode = 'hepan'"
+            title="多人合盘"
+          >
+            <span class="mode-icon">💑</span>
+            <span class="mode-text">合盘</span>
           </button>
         </div>
       </div>
@@ -893,6 +908,26 @@ watch(questionType, (newType, oldType) => {
       </div>
     </div>
 
+    <!-- 多人合盘模式 -->
+    <div v-else-if="fortuneMode === 'hepan'" class="form-container">
+      <h2 class="section-title">💑 多人合盘</h2>
+      <p class="form-subtitle">分析两人的命理匹配度，包括婚姻、合伙、财运等</p>
+      
+      <div class="hepan-placeholder">
+        <div class="hepan-icon">💑</div>
+        <h3 class="hepan-title">多人合盘功能</h3>
+        <p class="hepan-desc">
+          通过分析两人的生辰八字，预测婚姻匹配度、合伙事业前景、财运相合程度等
+        </p>
+        <button 
+          class="btn-primary hepan-btn" 
+          @click="emit('get-hepan')"
+        >
+          💑 开始合盘分析
+        </button>
+      </div>
+    </div>
+
     <!-- 塔罗牌模式 -->
     <div v-else class="form-container">
       <h2 class="section-title">🃏 塔罗牌占卜</h2>
@@ -970,30 +1005,47 @@ watch(questionType, (newType, oldType) => {
 
 /* 模式分组 */
 .mode-group {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 16px;
   padding: 16px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
+:global(.dark) .mode-group,
+:global(.dark-mode) .mode-group {
+  background: rgba(40, 40, 60, 0.7);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
 .mode-group:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+:global(.dark) .mode-group:hover,
+:global(.dark-mode) .mode-group:hover {
+  background: rgba(50, 50, 75, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 /* 分组标签 */
 .group-label {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #4b5563;
   margin-bottom: 12px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+:global(.dark) .group-label,
+:global(.dark-mode) .group-label {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* 模式按钮容器 */
@@ -1012,27 +1064,40 @@ watch(questionType, (newType, oldType) => {
   gap: 6px;
   padding: 12px 16px;
   min-width: 70px;
-  border: none;
+  border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 0.75rem;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: #ffffff;
+  color: #4b5563;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid transparent;
+}
+
+:global(.dark) .mode-btn,
+:global(.dark-mode) .mode-btn {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #d1d5db;
 }
 
 .mode-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f3f4f6;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+:global(.dark) .mode-btn:hover,
+:global(.dark-mode) .mode-btn:hover {
+  background: rgba(50, 50, 70, 0.95);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .mode-btn.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: transparent;
 }
 
 .mode-btn.active .mode-icon {
@@ -1051,11 +1116,18 @@ watch(questionType, (newType, oldType) => {
 
 /* 表单容器 */
 .form-container {
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.98);
   border-radius: 20px;
   padding: 30px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
   backdrop-filter: blur(10px);
+}
+
+/* 深色模式下的表单容器 - 通过父元素的 dark 类来设置 */
+:global(.dark) .form-container,
+:global(.dark-mode) .form-container {
+  background: rgba(40, 40, 60, 0.98);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
 }
 
 .form-content-wrapper {
@@ -1071,6 +1143,11 @@ watch(questionType, (newType, oldType) => {
   text-align: center;
 }
 
+:global(.dark) .section-title,
+:global(.dark-mode) .section-title {
+  color: #a5b4fc;
+}
+
 .error-message {
   background-color: #fee2e2;
   border: 1px solid #fecaca;
@@ -1082,6 +1159,13 @@ watch(questionType, (newType, oldType) => {
   font-weight: 600;
 }
 
+:global(.dark) .error-message,
+:global(.dark-mode) .error-message {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -1089,25 +1173,50 @@ watch(questionType, (newType, oldType) => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: #374151;
   font-weight: 600;
+}
+
+:global(.dark) .form-group label,
+:global(.dark-mode) .form-group label {
+  color: #e5e7eb;
 }
 
 .form-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
   font-size: 16px;
-  background: #fafafa;
+  background: #ffffff;
+  color: #1f2937;
   transition: all 0.3s ease;
+}
+
+:global(.dark) .form-input,
+:global(.dark-mode) .form-input {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f3f4f6;
 }
 
 .form-input:focus {
   border-color: #667eea;
   background: #ffffff;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(102,126,234,0.1);
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+}
+
+:global(.dark) .form-input:focus,
+:global(.dark-mode) .form-input:focus {
+  background: rgba(40, 40, 55, 0.95);
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+:global(.dark) .form-input::placeholder,
+:global(.dark-mode) .form-input::placeholder {
+  color: #9ca3af;
 }
 
 .question-types {
@@ -1118,19 +1227,33 @@ watch(questionType, (newType, oldType) => {
 
 .type-btn {
   padding: 8px 16px;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   border-radius: 20px;
   font-size: 0.9rem;
   cursor: pointer;
-  background: #fafafa;
+  background: #ffffff;
   transition: all 0.3s ease;
   color: #4b5563;
+  font-weight: 500;
+}
+
+:global(.dark) .type-btn,
+:global(.dark-mode) .type-btn {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #d1d5db;
 }
 
 .type-btn:hover {
   background: #f3f4f6;
   transform: translateY(-1px);
   border-color: #d1d5db;
+}
+
+:global(.dark) .type-btn:hover,
+:global(.dark-mode) .type-btn:hover {
+  background: rgba(50, 50, 70, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .type-btn.active {
@@ -1226,10 +1349,15 @@ watch(questionType, (newType, oldType) => {
 /* 表单副标题 */
 .form-subtitle {
   text-align: center;
-  color: #666;
+  color: #6b7280;
   font-size: 0.95rem;
   margin-top: -15px;
   margin-bottom: 20px;
+}
+
+:global(.dark) .form-subtitle,
+:global(.dark-mode) .form-subtitle {
+  color: #9ca3af;
 }
 
 /* 性别选择器 */
@@ -1241,18 +1369,31 @@ watch(questionType, (newType, oldType) => {
 .gender-btn {
   flex: 1;
   padding: 12px;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
-  background: #fafafa;
+  background: #ffffff;
   transition: all 0.3s ease;
   color: #4b5563;
+}
+
+:global(.dark) .gender-btn,
+:global(.dark-mode) .gender-btn {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #d1d5db;
 }
 
 .gender-btn:hover {
   background: #f3f4f6;
   border-color: #d1d5db;
+}
+
+:global(.dark) .gender-btn:hover,
+:global(.dark-mode) .gender-btn:hover {
+  background: rgba(50, 50, 70, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .gender-btn.active {
@@ -1265,19 +1406,79 @@ watch(questionType, (newType, oldType) => {
 .btn-secondary {
   flex: 1;
   padding: 14px;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
   font-size: 1.1rem;
   font-weight: 600;
-  background: #fafafa;
+  background: #ffffff;
   color: #4b5563;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
+:global(.dark) .btn-secondary,
+:global(.dark-mode) .btn-secondary {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #d1d5db;
+}
+
 .btn-secondary:hover {
   background: #f3f4f6;
   border-color: #d1d5db;
+}
+
+:global(.dark) .btn-secondary:hover,
+:global(.dark-mode) .btn-secondary:hover {
+  background: rgba(50, 50, 70, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 合盘占位符样式 */
+.hepan-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.hepan-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.hepan-title {
+  color: #1f2937;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+:global(.dark) .hepan-title,
+:global(.dark-mode) .hepan-title {
+  color: #f3f4f6;
+}
+
+.hepan-desc {
+  color: #6b7280;
+  margin-bottom: 25px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+:global(.dark) .hepan-desc,
+:global(.dark-mode) .hepan-desc {
+  color: #9ca3af;
+}
+
+.hepan-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  padding: 14px 32px !important;
+  font-size: 1.05rem !important;
+}
+
+.hepan-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4) !important;
 }
 
 /* 响应式设计 */

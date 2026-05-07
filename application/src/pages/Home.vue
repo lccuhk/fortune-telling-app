@@ -137,8 +137,11 @@ function closeSettings() {
 
 // 退出登录
 function logout() {
+  if (!confirm('确定要退出登录吗？')) return
   userInfo.value.isLoggedIn = false
-  alert('已退出登录')
+  localStorage.removeItem('isLoggedIn')
+  localStorage.removeItem('userInfo')
+  router.push('/login')
 }
 
 // 导航到功能页面

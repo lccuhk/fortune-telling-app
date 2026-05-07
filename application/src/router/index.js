@@ -9,12 +9,23 @@ import XingzuoPage from '../pages/XingzuoPage.vue'
 import XingmingPage from '../pages/XingmingPage.vue'
 import JiemengPage from '../pages/JiemengPage.vue'
 import TarotPage from '../pages/TarotPage.vue'
+import LoginPage from '../pages/LoginPage.vue'
 
 const routes = [
   {
+    path: '/login',
+    name: 'Login',
+    component: LoginPage,
+    meta: {
+      title: '登录',
+      requiresAuth: false
+    }
+  },
+  {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: { requiresAuth: true }
   },
   {
     path: '/fortune',
@@ -112,6 +123,20 @@ router.beforeEach((to, from, next) => {
   } else {
     document.title = '命运之轮 - 探索你的专属命运指引'
   }
+
+  // 登录守卫
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+
+  if (to.meta.requiresAuth !== false && !isLoggedIn && to.name !== 'Login') {
+    next({ name: 'Login' })
+    return
+  }
+
+  if (to.name === 'Login' && isLoggedIn) {
+    next({ name: 'Home' })
+    return
+  }
+
   next()
 })
 

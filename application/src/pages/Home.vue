@@ -621,14 +621,22 @@ function navigateTo(path) {
   flex-direction: column;
   align-items: center;
   padding: 30px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
+}
+
+.dark-mode .feature-card {
+  background: rgba(30, 30, 45, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .feature-card::before {
@@ -640,12 +648,17 @@ function navigateTo(path) {
   height: 4px;
   background: var(--feature-color);
   transform: scaleX(0);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
+  transform-origin: left;
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .feature-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--feature-color);
 }
 
 .feature-card:hover::before {
@@ -655,11 +668,11 @@ function navigateTo(path) {
 .feature-icon {
   font-size: 3rem;
   margin-bottom: 12px;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .feature-card:hover .feature-icon {
-  transform: scale(1.1);
+  transform: scale(1.2) rotate(5deg);
 }
 
 .feature-name {
@@ -667,12 +680,25 @@ function navigateTo(path) {
   font-weight: 700;
   color: #1f2937;
   margin-bottom: 6px;
+  transition: color 0.3s ease;
+}
+
+.dark-mode .feature-name {
+  color: #f3f4f6;
+}
+
+.feature-card:hover .feature-name {
+  color: var(--feature-color);
 }
 
 .feature-desc {
   font-size: 0.85rem;
   color: #6b7280;
   text-align: center;
+}
+
+.dark-mode .feature-desc {
+  color: #9ca3af;
 }
 
 /* 设置弹窗 */

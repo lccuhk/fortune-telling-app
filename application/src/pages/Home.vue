@@ -247,6 +247,23 @@ function navigateTo(path) {
       </button>
     </nav>
 
+    <!-- 页脚 (Footer) -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <span class="logo-icon">☸️</span>
+          <span class="logo-text">命运之轮</span>
+        </div>
+        <p class="disclaimer">⚠️ 声明：本应用所提供的所有占卜、算命及运势解析内容仅供娱乐参考，切勿过度迷信。请以科学、积极的态度面对生活，您的命运掌握在自己手中。</p>
+        <div class="social-links">
+          <a href="https://github.com" target="_blank" title="GitHub" class="social-icon">🐙</a>
+          <a href="#" title="WeChat" class="social-icon">💬</a>
+          <a href="#" title="Weibo" class="social-icon">🌐</a>
+        </div>
+        <p class="copyright">&copy; {{ new Date().getFullYear() }} 命运之轮 All Rights Reserved.</p>
+      </div>
+    </footer>
+
     <!-- 设置弹窗 -->
     <Teleport to="body">
       <Transition name="modal">
@@ -811,6 +828,79 @@ function navigateTo(path) {
 .modal-enter-from .settings-modal,
 .modal-leave-to .settings-modal {
   transform: scale(0.9);
+}
+
+/* 页脚样式 */
+.app-footer {
+  margin-top: 60px;
+  padding: 40px 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.dark-mode .app-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-mode .footer-content {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.disclaimer {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.dark-mode .disclaimer {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.social-icon {
+  font-size: 1.5rem;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.social-icon:hover {
+  transform: scale(1.2) translateY(-3px);
+}
+
+.copyright {
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
 
 /* 响应式 */

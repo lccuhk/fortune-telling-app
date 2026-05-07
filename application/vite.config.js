@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/',
+  base: '/fortune-telling-app/',
   plugins: [vue()],
   server: {
     strictPort: false,

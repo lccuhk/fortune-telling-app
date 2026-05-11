@@ -92,10 +92,18 @@ async function handleGetXingzuo() {
       await new Promise(resolve => setTimeout(resolve, 1000))
       result.value = generateMockData(formData.value.selectedXingzuo, formData.value.timeRange)
     } else {
+      console.log('[Xingzuo] 准备调用 API:', {
+        星座: formData.value.selectedXingzuo.name,
+        时间范围: formData.value.timeRange,
+        时间范围类型: typeof formData.value.timeRange
+      })
+      
       const apiData = await tanshuApi.getConstellationFortune(
         formData.value.selectedXingzuo.name,
         formData.value.timeRange
       )
+      
+      console.log('[Xingzuo] API 返回结果:', apiData)
       
       if (apiData.code === 1 && apiData.data) {
         const transformed = transformConstellationData(apiData, formData.value.timeRange)
@@ -145,10 +153,14 @@ async function handleGetXingzuo() {
     apiError.value = err.message || '获取运势失败，请稍后重试'
     
     if (!useMockData.value) {
-      const useMock = confirm('API 调用失败，是否使用模拟数据？')
+      const useMock = confirm(`${err.message || 'API 调用失败'}，是否使用模拟数据？`)
       if (useMock) {
-        result.value = generateMockData(formData.value.selectedXingzuo, formData.value.timeRange)
-        apiError.value = ''
+        try {
+          result.value = generateMockData(formData.value.selectedXingzuo, formData.value.timeRange)
+          apiError.value = ''
+        } catch (mockErr) {
+          console.error('模拟数据生成失败:', mockErr)
+        }
       }
     }
   } finally {

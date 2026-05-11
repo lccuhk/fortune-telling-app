@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -15,19 +15,6 @@ const userInfo = ref({
 // 应用状态
 const isDarkMode = ref(false)
 const showSettings = ref(false)
-
-// 布局模式：A(1列), B(2列+第9个占整行), C(3列九宫格)
-const layoutMode = ref('C')
-const layoutOptions = [
-  { key: 'A', label: '单列', desc: '1×9' },
-  { key: 'B', label: '双列', desc: '2×4+1' },
-  { key: 'C', label: '九宫', desc: '3×3' }
-]
-
-function setLayout(mode) {
-  layoutMode.value = mode
-  localStorage.setItem('layoutMode', mode)
-}
 
 // 星星数组（用于深色模式）
 const stars = ref([])
@@ -48,16 +35,12 @@ const fortuneFeatures = [
   { name: '多人合盘', icon: '💑', path: '/hepan', desc: '命理匹配分析', color: '#FF8C42' }
 ]
 
-// 初始化时检查本地存储的主题和布局设置
+// 初始化时检查本地存储的主题设置
 onMounted(() => {
   const savedTheme = localStorage.getItem('darkMode')
   if (savedTheme) {
     isDarkMode.value = savedTheme === 'true'
     applyTheme()
-  }
-  const savedLayout = localStorage.getItem('layoutMode')
-  if (savedLayout && ['A', 'B', 'C'].includes(savedLayout)) {
-    layoutMode.value = savedLayout
   }
   initBackgroundEffects()
 })
@@ -154,11 +137,8 @@ function closeSettings() {
 
 // 退出登录
 function logout() {
-  if (!confirm('确定要退出登录吗？')) return
   userInfo.value.isLoggedIn = false
-  localStorage.removeItem('isLoggedIn')
-  localStorage.removeItem('userInfo')
-  router.push('/login')
+  alert('已退出登录')
 }
 
 // 导航到功能页面
@@ -252,25 +232,8 @@ function navigateTo(path) {
       <p class="slogan-text">✨ 探索你的专属命运指引 ✨</p>
     </div>
 
-    <!-- 布局切换 -->
-    <div class="layout-switcher">
-      <span class="layout-label">布局：</span>
-      <div class="layout-buttons">
-        <button
-          v-for="opt in layoutOptions"
-          :key="opt.key"
-          class="layout-btn"
-          :class="{ active: layoutMode === opt.key }"
-          @click="setLayout(opt.key)"
-          :title="opt.desc"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
-    </div>
-
     <!-- 9宫格功能导航 -->
-    <nav class="feature-grid" :class="`layout-${layoutMode}`">
+    <nav class="feature-grid">
       <button
         v-for="feature in fortuneFeatures"
         :key="feature.path"
@@ -457,7 +420,7 @@ function navigateTo(path) {
   }
 }
 
-/* 浅色模式柔和紫粉渐变背景 */
+/* 浅色模式蓝天白云背景 */
 .sky-background {
   position: fixed;
   top: 0;
@@ -467,81 +430,35 @@ function navigateTo(path) {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: linear-gradient(135deg, #fef3ff 0%, #f0e7ff 30%, #e8f4ff 60%, #f0f9ff 100%);
+  background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #B8E6F0 100%);
 }
 
-/* 浅色模式光晕装饰 */
-.sky-background::before,
-.sky-background::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.6;
-  animation: float 25s ease-in-out infinite;
-}
-
-.sky-background::before {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(167, 139, 250, 0.4) 0%, transparent 70%);
-  top: -100px;
-  right: -100px;
-}
-
-.sky-background::after {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(244, 114, 182, 0.3) 0%, transparent 70%);
-  bottom: -50px;
-  left: -50px;
-  animation-delay: -12s;
-}
-
-/* 浅色模式发光水晶球 */
 .sun {
   position: absolute;
-  top: 8%;
-  right: 12%;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #e9d5ff 30%, #c4b5fd 60%, #a78bfa 100%);
+  top: 5%;
+  right: 10%;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #FFD700 0%, #FFA500 70%);
   border-radius: 50%;
-  box-shadow:
-    0 0 60px rgba(167, 139, 250, 0.5),
-    0 0 100px rgba(167, 139, 250, 0.3),
-    inset 0 0 30px rgba(255, 255, 255, 0.8);
-  animation: sunPulse 5s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 165, 0, 0.4);
+  animation: sunPulse 4s ease-in-out infinite;
 }
 
 @keyframes sunPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 60px rgba(167, 139, 250, 0.5),
-      0 0 100px rgba(167, 139, 250, 0.3),
-      inset 0 0 30px rgba(255, 255, 255, 0.8);
-  }
-  50% {
-    transform: scale(1.08);
-    box-shadow:
-      0 0 80px rgba(167, 139, 250, 0.7),
-      0 0 140px rgba(167, 139, 250, 0.4),
-      inset 0 0 40px rgba(255, 255, 255, 0.9);
-  }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 165, 0, 0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 165, 0, 0.5); }
 }
 
 .cloud {
   position: absolute;
   animation: cloudFloat linear infinite;
-  opacity: 0.7;
 }
 
 .cloud-part {
   position: absolute;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(233, 213, 255, 0.8));
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
-  box-shadow: 0 4px 20px rgba(167, 139, 250, 0.15);
 }
 
 .cloud-part-1 {
@@ -592,16 +509,11 @@ function navigateTo(path) {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #581c87;
+  color: white;
   font-size: 1.8rem;
   margin: 0;
-  text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
-  animation: glow 2s ease-in-out infinite alternate;
-}
-
-.dark-mode .galaxy-title {
-  color: white;
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  animation: glow 2s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
@@ -634,40 +546,23 @@ function navigateTo(path) {
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: rgba(167, 139, 250, 0.15);
-  border: 1px solid rgba(167, 139, 250, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 20px;
-  color: #581c87;
+  color: white;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
-.dark-mode .header-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: white;
-}
-
 .header-btn:hover {
-  background: rgba(167, 139, 250, 0.25);
-  border-color: rgba(167, 139, 250, 0.5);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
 }
 
-.dark-mode .header-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
 .header-btn.active {
-  background: rgba(167, 139, 250, 0.35);
-  border-color: rgba(167, 139, 250, 0.6);
-  box-shadow: 0 0 15px rgba(167, 139, 250, 0.3);
-}
-
-.dark-mode .header-btn.active {
   background: rgba(255, 255, 255, 0.45);
   border-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
@@ -708,17 +603,12 @@ function navigateTo(path) {
 }
 
 .slogan-text {
-  color: #581c87;
+  color: rgba(255, 255, 255, 0.95);
   font-size: 1.3rem;
   font-weight: 500;
   letter-spacing: 3px;
-  text-shadow: 0 2px 10px rgba(167, 139, 250, 0.2);
-  animation: fadeInUp 1s ease;
-}
-
-.dark-mode .slogan-text {
-  color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 1s ease;
 }
 
 @keyframes fadeInUp {
@@ -732,72 +622,6 @@ function navigateTo(path) {
   }
 }
 
-/* 布局切换器 */
-.layout-switcher {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  position: relative;
-  z-index: 1;
-}
-
-.layout-label {
-  color: #7c3aed;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-}
-
-.dark-mode .layout-label {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.layout-buttons {
-  display: flex;
-  gap: 6px;
-  padding: 4px;
-  background: rgba(167, 139, 250, 0.15);
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-}
-
-.dark-mode .layout-buttons {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.layout-btn {
-  padding: 6px 14px;
-  font-size: 0.8rem;
-  color: #7c3aed;
-  background: transparent;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 1px;
-}
-
-.dark-mode .layout-btn {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.layout-btn:hover {
-  color: #581c87;
-  background: rgba(167, 139, 250, 0.25);
-}
-
-.dark-mode .layout-btn:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.layout-btn.active {
-  color: white;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
 /* 9宫格功能导航 */
 .feature-grid {
   display: grid;
@@ -807,28 +631,6 @@ function navigateTo(path) {
   margin: 0 auto;
   position: relative;
   z-index: 1;
-  transition: grid-template-columns 0.3s ease;
-}
-
-/* 版本 A：1列布局 */
-.feature-grid.layout-A {
-  grid-template-columns: 1fr;
-  max-width: 400px;
-}
-
-/* 版本 B：2列 + 第9个占整行 */
-.feature-grid.layout-B {
-  grid-template-columns: repeat(2, 1fr);
-  max-width: 600px;
-}
-
-.feature-grid.layout-B .feature-card:nth-child(9) {
-  grid-column: 1 / -1;
-}
-
-/* 版本 C：3列九宫格（默认） */
-.feature-grid.layout-C {
-  grid-template-columns: repeat(3, 1fr);
 }
 
 .feature-card {
@@ -836,39 +638,22 @@ function navigateTo(path) {
   flex-direction: column;
   align-items: center;
   padding: 30px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  outline: none;
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
 }
 
-.feature-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  padding: 1px;
-  background: rgba(203, 213, 225, 0.15);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
 .dark-mode .feature-card {
   background: rgba(30, 30, 45, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.dark-mode .feature-card::after {
-  background: linear-gradient(135deg, rgba(165, 180, 252, 0.4), rgba(196, 181, 253, 0.35), rgba(129, 140, 248, 0.35));
-  padding: 1.5px;
 }
 
 .feature-card::before {
@@ -885,13 +670,12 @@ function navigateTo(path) {
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .dark-mode .feature-card:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--feature-color);
-  background: rgba(30, 30, 45, 0.7);
 }
 
 .feature-card:hover::before {
@@ -911,7 +695,7 @@ function navigateTo(path) {
 .feature-name {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #581c87;
+  color: #1f2937;
   margin-bottom: 6px;
   transition: color 0.3s ease;
 }
@@ -926,14 +710,12 @@ function navigateTo(path) {
 
 .feature-desc {
   font-size: 0.85rem;
-  color: #7c3aed;
+  color: #6b7280;
   text-align: center;
-  opacity: 0.8;
 }
 
 .dark-mode .feature-desc {
   color: #9ca3af;
-  opacity: 1;
 }
 
 /* 设置弹窗 */
@@ -1052,15 +834,20 @@ function navigateTo(path) {
 .app-footer {
   margin-top: 60px;
   padding: 40px 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
   z-index: 1;
+}
+
+.dark-mode .app-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .footer-content {
   max-width: 900px;
   margin: 0 auto;
   text-align: center;
-  color: #581c87;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .dark-mode .footer-content {
@@ -1084,7 +871,7 @@ function navigateTo(path) {
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  background: rgba(167, 139, 250, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   padding: 10px 15px;
   border-radius: 8px;
 }
@@ -1155,42 +942,24 @@ function navigateTo(path) {
   }
 
   .feature-grid {
-    gap: 12px;
-  }
-
-  .feature-grid.layout-A {
-    grid-template-columns: 1fr;
-    max-width: 100%;
-  }
-
-  .feature-grid.layout-B {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 100%;
-  }
-
-  .feature-grid.layout-B .feature-card:nth-child(9) {
-    grid-column: 1 / -1;
-  }
-
-  .feature-grid.layout-C {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 100%;
+    gap: 15px;
   }
 
   .feature-card {
-    padding: 16px 10px;
+    padding: 20px 15px;
   }
 
   .feature-icon {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .feature-name {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .feature-desc {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -1211,51 +980,9 @@ function navigateTo(path) {
     padding: 6px 10px;
   }
 
-  .layout-switcher {
-    margin-bottom: 16px;
-  }
-
-  .layout-label {
-    display: none;
-  }
-
   .feature-grid {
-    gap: 10px;
-  }
-
-  .feature-grid.layout-A {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-grid.layout-B {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .feature-grid.layout-B .feature-card:nth-child(9) {
-    grid-column: 1 / -1;
-  }
-
-  .feature-grid.layout-C {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .feature-card {
-    padding: 14px 8px;
-  }
-
-  .feature-icon {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-  }
-
-  .feature-name {
-    font-size: 0.85rem;
-    margin-bottom: 4px;
-  }
-
-  .feature-desc {
-    font-size: 0.65rem;
-    display: none;
+    gap: 12px;
   }
 }
 </style>

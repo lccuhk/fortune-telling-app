@@ -1,10 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { tanshuApi, transformConstellationData } from '../services/api.js'
 
 const router = useRouter()
 const loading = ref(false)
 const result = ref(null)
+const apiError = ref('')
+const useMockData = ref(true)
 
 const xingzuoList = [
   { name: '白羊座', emoji: '♈', date: '3.21-4.19', element: '火' },
@@ -28,12 +31,51 @@ const formData = ref({
   timeRange: '今日'
 })
 
+onMounted(() => {
+  const savedKey = localStorage.getItem('tanshu_api_key')
+  if (savedKey && savedKey !== 'YOUR_TANSHU_API_KEY') {
+    tanshuApi.setApiKey(savedKey)
+    useMockData.value = false
+  }
+})
+
 function goBack() {
   router.push('/')
 }
 
 function selectXingzuo(xz) {
   formData.value.selectedXingzuo = xz
+}
+
+function generateMockData(xingzuo, timeRange) {
+  const scores = {
+    overall: Math.floor(Math.random() * 40) + 60,
+    love: Math.floor(Math.random() * 40) + 60,
+    career: Math.floor(Math.random() * 40) + 60,
+    wealth: Math.floor(Math.random() * 40) + 60,
+    health: Math.floor(Math.random() * 40) + 60
+  }
+  
+  const luckyItems = [
+    { type: '数字', value: Math.floor(Math.random() * 99) + 1 },
+    { type: '颜色', value: ['红色', '蓝色', '绿色', '紫色', '黄色', '粉色'][Math.floor(Math.random() * 6)] },
+    { type: '宝石', value: ['钻石', '红宝石', '蓝宝石', '翡翠', '珍珠'][Math.floor(Math.random() * 5)] },
+    { type: '方位', value: ['东方', '西方', '南方', '北方'][Math.floor(Math.random() * 4)] }
+  ]
+  
+  return {
+    xingzuo: xingzuo,
+    timeRange: timeRange,
+    scores: scores,
+    luckyItems: luckyItems,
+    analysis: {
+      overview: `${xingzuo.name}的朋友${timeRange}运势${scores.overall >= 80 ? '相当不错' : scores.overall >= 70 ? '较为平稳' : '需要多加注意'}。整体能量${scores.overall >= 80 ? '高涨' : '平稳'}，适合${scores.overall >= 80 ? '主动出击' : '稳扎稳打'}。`,
+      love: scores.love >= 80 ? '感情运势极佳，单身者有机会遇到心仪对象，有伴侣者感情甜蜜。' : scores.love >= 70 ? '感情平稳，需要多花时间陪伴对方。' : '感情上可能会有一些小摩擦，需要多沟通理解。',
+      career: scores.career >= 80 ? '事业运势强劲，工作效率高，容易得到上司认可。' : scores.career >= 70 ? '事业平稳发展，按部就班完成任务即可。' : '工作上可能会遇到一些挑战，需要保持耐心和冷静。',
+      wealth: scores.wealth >= 80 ? '财运亨通，正财偏财都有收获，适合理财投资。' : scores.wealth >= 70 ? '财运平稳，收支平衡，不宜大额投资。' : '财运一般，需要控制开支，避免冲动消费。'
+    },
+    isMock: true
+  }
 }
 
 async function handleGetXingzuo() {
@@ -43,38 +85,72 @@ async function handleGetXingzuo() {
   }
 
   loading.value = true
+  apiError.value = ''
+  
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    const scores = {
-      overall: Math.floor(Math.random() * 40) + 60,
-      love: Math.floor(Math.random() * 40) + 60,
-      career: Math.floor(Math.random() * 40) + 60,
-      wealth: Math.floor(Math.random() * 40) + 60,
-      health: Math.floor(Math.random() * 40) + 60
-    }
-    
-    const luckyItems = [
-      { type: '数字', value: Math.floor(Math.random() * 99) + 1 },
-      { type: '颜色', value: ['红色', '蓝色', '绿色', '紫色', '黄色', '粉色'][Math.floor(Math.random() * 6)] },
-      { type: '宝石', value: ['钻石', '红宝石', '蓝宝石', '翡翠', '珍珠'][Math.floor(Math.random() * 5)] },
-      { type: '方位', value: ['东方', '西方', '南方', '北方'][Math.floor(Math.random() * 4)] }
-    ]
-    
-    result.value = {
-      xingzuo: formData.value.selectedXingzuo,
-      timeRange: formData.value.timeRange,
-      scores: scores,
-      luckyItems: luckyItems,
-      analysis: {
-        overview: `${formData.value.selectedXingzuo.name}的朋友${formData.value.timeRange}运势${scores.overall >= 80 ? '相当不错' : scores.overall >= 70 ? '较为平稳' : '需要多加注意'}。整体能量${scores.overall >= 80 ? '高涨' : '平稳'}，适合${scores.overall >= 80 ? '主动出击' : '稳扎稳打'}。`,
-        love: scores.love >= 80 ? '感情运势极佳，单身者有机会遇到心仪对象，有伴侣者感情甜蜜。' : scores.love >= 70 ? '感情平稳，需要多花时间陪伴对方。' : '感情上可能会有一些小摩擦，需要多沟通理解。',
-        career: scores.career >= 80 ? '事业运势强劲，工作效率高，容易得到上司认可。' : scores.career >= 70 ? '事业平稳发展，按部就班完成任务即可。' : '工作上可能会遇到一些挑战，需要保持耐心和冷静。',
-        wealth: scores.wealth >= 80 ? '财运亨通，正财偏财都有收获，适合理财投资。' : scores.wealth >= 70 ? '财运平稳，收支平衡，不宜大额投资。' : '财运一般，需要控制开支，避免冲动消费。'
+    if (useMockData.value) {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      result.value = generateMockData(formData.value.selectedXingzuo, formData.value.timeRange)
+    } else {
+      const apiData = await tanshuApi.getConstellationFortune(
+        formData.value.selectedXingzuo.name,
+        formData.value.timeRange
+      )
+      
+      if (apiData.code === 1 && apiData.data) {
+        const transformed = transformConstellationData(apiData, formData.value.timeRange)
+        
+        if (formData.value.timeRange === '今日' || formData.value.timeRange === '明日') {
+          result.value = {
+            xingzuo: formData.value.selectedXingzuo,
+            timeRange: formData.value.timeRange,
+            scores: transformed.scores,
+            luckyItems: [
+              { type: '数字', value: apiData.data.number },
+              { type: '颜色', value: apiData.data.color },
+              { type: '速配星座', value: apiData.data.friend }
+            ],
+            analysis: {
+              overview: transformed.summary,
+              love: `爱情指数: ${transformed.scores.love}%`,
+              career: `事业指数: ${transformed.scores.career}%`,
+              wealth: `财富指数: ${transformed.scores.wealth}%`
+            },
+            datetime: transformed.datetime,
+            isMock: false
+          }
+        } else {
+          result.value = {
+            xingzuo: formData.value.selectedXingzuo,
+            timeRange: formData.value.timeRange,
+            scores: transformed.scores,
+            luckyItems: [
+              { type: '日期', value: transformed.date }
+            ],
+            analysis: transformed.analysis || {
+              overview: `${formData.value.selectedXingzuo.name}${formData.value.timeRange}运势分析`,
+              love: transformed.analysis?.love || '感情运势平稳',
+              career: transformed.analysis?.work || '事业运势平稳',
+              wealth: transformed.analysis?.money || '财运平稳'
+            },
+            isMock: false
+          }
+        }
+      } else {
+        throw new Error(apiData.msg || 'API 返回错误')
       }
     }
   } catch (err) {
-    alert('星座运势查询失败，请重试')
+    console.error('获取星座运势失败:', err)
+    apiError.value = err.message || '获取运势失败，请稍后重试'
+    
+    if (!useMockData.value) {
+      const useMock = confirm('API 调用失败，是否使用模拟数据？')
+      if (useMock) {
+        result.value = generateMockData(formData.value.selectedXingzuo, formData.value.timeRange)
+        apiError.value = ''
+      }
+    }
   } finally {
     loading.value = false
   }
@@ -82,8 +158,28 @@ async function handleGetXingzuo() {
 
 function resetXingzuo() {
   result.value = null
+  apiError.value = ''
   formData.value.selectedXingzuo = null
   formData.value.timeRange = '今日'
+}
+
+function openApiKeyModal() {
+  const currentKey = localStorage.getItem('tanshu_api_key') || ''
+  const newKey = prompt('请输入探数 API Key（留空则使用模拟数据）:', currentKey)
+  
+  if (newKey !== null) {
+    if (newKey.trim()) {
+      localStorage.setItem('tanshu_api_key', newKey.trim())
+      tanshuApi.setApiKey(newKey.trim())
+      useMockData.value = false
+      alert('API Key 已保存！')
+    } else {
+      localStorage.removeItem('tanshu_api_key')
+      tanshuApi.setApiKey('YOUR_TANSHU_API_KEY')
+      useMockData.value = true
+      alert('已切换到模拟数据模式')
+    }
+  }
 }
 </script>
 
@@ -93,7 +189,15 @@ function resetXingzuo() {
       <button class="back-btn" @click="goBack">← 返回首页</button>
       <h1 class="page-title">♈ 星座运势</h1>
       <p class="page-subtitle">基于西方占星学的运势分析</p>
+      <button class="api-key-btn" @click="openApiKeyModal" :title="useMockData ? '当前使用模拟数据' : '当前使用真实 API'">
+        {{ useMockData ? '🔧 设置 API Key' : '🔑 API 已配置' }}
+      </button>
     </header>
+
+    <div v-if="useMockData" class="mock-notice">
+      <span class="mock-icon">⚠️</span>
+      <span>当前使用模拟数据，点击右上角按钮配置真实 API Key</span>
+    </div>
 
     <div v-if="!result" class="form-section">
       <div class="form-card">
@@ -133,12 +237,22 @@ function resetXingzuo() {
       </div>
     </div>
 
-    <div v-else class="result-section">
+    <div v-if="apiError" class="error-message">
+      <span class="error-icon">❌</span>
+      <span>{{ apiError }}</span>
+    </div>
+
+    <div v-else-if="result" class="result-section">
       <div class="result-card">
         <div class="result-header">
           <div class="xingzuo-icon">{{ result.xingzuo.emoji }}</div>
           <h2>{{ result.xingzuo.name }}</h2>
-          <p class="result-subtitle">{{ result.timeRange }}运势 | {{ result.xingzuo.element }}象星座</p>
+          <p class="result-subtitle">
+            {{ result.timeRange }}运势 | {{ result.xingzuo.element }}象星座
+            <span v-if="result.isMock" class="mock-badge">模拟数据</span>
+            <span v-else class="api-badge">真实数据</span>
+          </p>
+          <p v-if="result.datetime" class="result-date">{{ result.datetime }}</p>
         </div>
 
         <div class="score-section">
@@ -225,7 +339,7 @@ function resetXingzuo() {
 
 .page-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   position: relative;
 }
 
@@ -246,6 +360,24 @@ function resetXingzuo() {
   background: rgba(255, 255, 255, 0.3);
 }
 
+.api-key-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.api-key-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .page-title {
   color: white;
   font-size: 2rem;
@@ -255,6 +387,41 @@ function resetXingzuo() {
 .page-subtitle {
   color: rgba(255, 255, 255, 0.8);
   font-size: 1rem;
+}
+
+.mock-notice {
+  max-width: 700px;
+  margin: 0 auto 20px;
+  padding: 12px 20px;
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  border-radius: 10px;
+  color: #fef3c7;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mock-icon {
+  font-size: 1.2rem;
+}
+
+.error-message {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 15px 20px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 10px;
+  color: #fecaca;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-icon {
+  font-size: 1.2rem;
 }
 
 .form-section {
@@ -412,6 +579,34 @@ function resetXingzuo() {
 .result-subtitle {
   color: #6b7280;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mock-badge {
+  padding: 2px 8px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.api-badge {
+  padding: 2px 8px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.result-date {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin-top: 5px;
 }
 
 .score-section {
@@ -601,7 +796,8 @@ function resetXingzuo() {
     padding: 15px;
   }
 
-  .back-btn {
+  .back-btn,
+  .api-key-btn {
     position: static;
     margin-bottom: 15px;
     width: 100%;

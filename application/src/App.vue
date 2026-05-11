@@ -1,12 +1,13 @@
 <script setup>
+import ErrorLogViewer from './components/ErrorLogViewer.vue'
 </script>
 
 <template>
   <RouterView />
+  <ErrorLogViewer />
 </template>
 
 <style>
-/* 全局样式 */
 * {
   margin: 0;
   padding: 0;

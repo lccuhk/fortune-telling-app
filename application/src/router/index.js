@@ -10,6 +10,7 @@ import XingmingPage from '../pages/XingmingPage.vue'
 import JiemengPage from '../pages/JiemengPage.vue'
 import TarotPage from '../pages/TarotPage.vue'
 import LoginPage from '../pages/LoginPage.vue'
+import HuangliPage from '../pages/HuangliPage.vue'
 
 const routes = [
   {
@@ -106,6 +107,15 @@ const routes = [
     meta: {
       title: '多人合盘',
       description: '分析两人的命理匹配度'
+    }
+  },
+  {
+    path: '/huangli',
+    name: 'Huangli',
+    component: HuangliPage,
+    meta: {
+      title: '黄历',
+      description: '每日宜忌、时辰吉凶查询'
     }
   }
 ]

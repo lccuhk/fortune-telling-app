@@ -1,7 +1,17 @@
+function getStoredApiKey() {
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem('tanshu_api_key')
+    if (stored && stored.trim() && stored !== 'YOUR_TANSHU_API_KEY') {
+      return stored.trim()
+    }
+  }
+  return 'YOUR_TANSHU_API_KEY'
+}
+
 const API_CONFIG = {
   tanshu: {
     baseUrl: 'https://api.tanshuapi.com/api',
-    key: 'YOUR_TANSHU_API_KEY',
+    key: getStoredApiKey(),
     timeout: 10000
   }
 }
@@ -229,6 +239,9 @@ export const tanshuApi = {
   setApiKey(key) {
     if (key && key.trim()) {
       API_CONFIG.tanshu.key = key.trim()
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('tanshu_api_key', key.trim())
+      }
       console.log('[API] API Key 已更新')
     }
   },

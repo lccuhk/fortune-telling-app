@@ -32,7 +32,8 @@ const fortuneFeatures = [
   { name: '姓名学', icon: '📝', path: '/xingming', desc: '五格数理分析', color: '#11998e' },
   { name: '周公解梦', icon: '💭', path: '/jiemeng', desc: '梦境寓意解读', color: '#4facfe' },
   { name: '塔罗牌', icon: '🃏', path: '/tarot', desc: '神秘塔罗占卜', color: '#2D1B4E' },
-  { name: '多人合盘', icon: '💑', path: '/hepan', desc: '命理匹配分析', color: '#FF8C42' }
+  { name: '多人合盘', icon: '💑', path: '/hepan', desc: '命理匹配分析', color: '#FF8C42' },
+  { name: '黄历', icon: '📅', path: '/huangli', desc: '每日宜忌查询', color: '#f093fb' }
 ]
 
 // 初始化时检查本地存储的主题设置
@@ -625,9 +626,9 @@ function navigateTo(path) {
 /* 9宫格功能导航 */
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-width: 900px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  max-width: 1000px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -942,8 +943,8 @@ function navigateTo(path) {
   }
 
   .feature-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
   }
 
   .feature-card {

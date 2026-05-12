@@ -972,7 +972,7 @@ function resetBazi() {
 
   .form-card,
   .result-card {
-    padding: 25px;
+    padding: 20px;
   }
 
   .type-buttons {
@@ -990,6 +990,134 @@ function resetBazi() {
   .btn-primary,
   .btn-secondary {
     width: 100%;
+  }
+
+  .wuxing-chart {
+    padding: 15px;
+  }
+
+  .chart-bar {
+    width: 35px;
+  }
+
+  .analysis-section {
+    padding: 15px;
+  }
+
+  .analysis-title {
+    font-size: 1rem;
+  }
+
+  .analysis-content {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bazi-page {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .form-card,
+  .result-card {
+    padding: 15px;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-input,
+  .form-select {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .type-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .type-btn {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .bazi-display {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .bazi-item {
+    padding: 12px 8px;
+  }
+
+  .bazi-tiangan,
+  .bazi-dizhi {
+    font-size: 1.2rem;
+  }
+
+  .bazi-wuxing {
+    font-size: 0.7rem;
+  }
+
+  .bazi-label {
+    font-size: 0.7rem;
+  }
+
+  .wuxing-chart {
+    padding: 12px;
+  }
+
+  .chart-bar {
+    width: 28px;
+  }
+
+  .chart-label {
+    font-size: 0.75rem;
+  }
+
+  .chart-value {
+    font-size: 0.7rem;
+  }
+
+  .balance-badge {
+    padding: 6px 15px;
+    font-size: 0.85rem;
+  }
+
+  .analysis-section {
+    padding: 12px;
+  }
+
+  .analysis-title {
+    font-size: 0.95rem;
+  }
+
+  .analysis-content {
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .submit-btn {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .result-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .result-badge {
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
 }
 </style>

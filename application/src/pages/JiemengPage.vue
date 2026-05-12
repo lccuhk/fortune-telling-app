@@ -942,24 +942,62 @@ function toggleHistory() {
     padding: 15px;
   }
 
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   .back-btn,
   .history-btn {
     position: static;
-    margin-bottom: 15px;
+    margin-bottom: 0;
     width: 100%;
+    order: 2;
   }
 
   .page-title {
     font-size: 1.5rem;
+    order: 1;
+  }
+
+  .page-subtitle {
+    order: 1;
+    margin-bottom: 10px;
   }
 
   .form-card,
   .result-card {
-    padding: 25px;
+    padding: 20px;
   }
 
   .categories-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .category-card {
+    padding: 12px;
+  }
+
+  .cat-icon {
+    font-size: 1.3rem;
+  }
+
+  .cat-name {
+    font-size: 0.85rem;
+  }
+
+  .cat-examples {
+    font-size: 0.7rem;
+  }
+
+  .cat-keywords {
+    gap: 4px;
+  }
+
+  .cat-keyword {
+    padding: 3px 8px;
+    font-size: 0.7rem;
   }
 
   .result-header {
@@ -979,6 +1017,187 @@ function toggleHistory() {
   .btn-primary,
   .btn-secondary {
     width: 100%;
+  }
+
+  .popular-tags {
+    gap: 8px;
+  }
+
+  .popular-tag {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .search-input {
+    padding: 14px 14px 14px 42px;
+    font-size: 0.95rem;
+  }
+
+  .desc-input {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .history-panel {
+    padding: 15px;
+  }
+
+  .history-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .history-icon {
+    font-size: 1.3rem;
+  }
+
+  .history-title {
+    font-size: 0.9rem;
+  }
+
+  .history-time {
+    font-size: 0.75rem;
+  }
+
+  .history-luck {
+    padding: 3px 10px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .jiemeng-page {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .form-card,
+  .result-card {
+    padding: 15px;
+  }
+
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-card {
+    padding: 15px;
+  }
+
+  .cat-icon {
+    font-size: 1.5rem;
+  }
+
+  .cat-name {
+    font-size: 0.95rem;
+  }
+
+  .cat-examples {
+    font-size: 0.75rem;
+  }
+
+  .cat-keywords {
+    gap: 6px;
+  }
+
+  .cat-keyword {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  .popular-tags {
+    gap: 6px;
+  }
+
+  .popular-tag {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .mock-notice {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  .submit-btn {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .interpretation-section,
+  .advice-section {
+    padding: 15px;
+  }
+
+  .interpretation-section h3,
+  .advice-section h3 {
+    font-size: 1rem;
+  }
+
+  .interpretation-text,
+  .advice-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .related-tags {
+    gap: 8px;
+  }
+
+  .related-tag {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .result-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .luck-badge {
+    padding: 6px 15px;
+    font-size: 0.9rem;
+  }
+
+  .history-panel {
+    padding: 12px;
+  }
+
+  .history-header h3 {
+    font-size: 1rem;
+  }
+
+  .history-item {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .history-icon {
+    font-size: 1.2rem;
+  }
+
+  .history-title {
+    font-size: 0.85rem;
+  }
+
+  .history-time {
+    font-size: 0.7rem;
+  }
+
+  .history-luck {
+    padding: 2px 8px;
+    font-size: 0.7rem;
+  }
+
+  .clear-history-btn {
+    padding: 6px 15px;
+    font-size: 0.85rem;
   }
 }
 </style>

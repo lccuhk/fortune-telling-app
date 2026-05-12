@@ -821,7 +821,7 @@ function openApiKeyModal() {
 
   .form-card,
   .result-card {
-    padding: 25px;
+    padding: 20px;
   }
 
   .xingzuo-grid {
@@ -844,6 +844,133 @@ function openApiKeyModal() {
   .btn-primary,
   .btn-secondary {
     width: 100%;
+  }
+
+  .time-buttons {
+    gap: 8px;
+  }
+
+  .time-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .xingzuo-page {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .form-card,
+  .result-card {
+    padding: 15px;
+  }
+
+  .xingzuo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .xingzuo-item {
+    padding: 15px 10px;
+  }
+
+  .xingzuo-icon {
+    font-size: 2rem;
+  }
+
+  .xingzuo-name {
+    font-size: 0.9rem;
+  }
+
+  .xingzuo-date {
+    font-size: 0.7rem;
+  }
+
+  .time-buttons {
+    gap: 6px;
+  }
+
+  .time-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .submit-btn {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .result-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .result-badge {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .score-item {
+    padding: 15px;
+  }
+
+  .score-label {
+    font-size: 0.85rem;
+  }
+
+  .score-value {
+    font-size: 1.5rem;
+  }
+
+  .score-bar {
+    height: 8px;
+  }
+
+  .lucky-item {
+    padding: 12px;
+  }
+
+  .lucky-label {
+    font-size: 0.8rem;
+  }
+
+  .lucky-value {
+    font-size: 0.95rem;
+  }
+
+  .summary-section,
+  .love-section,
+  .career-section,
+  .health-section {
+    padding: 15px;
+  }
+
+  .summary-section h3,
+  .love-section h3,
+  .career-section h3,
+  .health-section h3 {
+    font-size: 1rem;
+  }
+
+  .summary-text,
+  .love-text,
+  .career-text,
+  .health-text {
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .mock-notice {
+    padding: 10px 12px;
+    font-size: 0.85rem;
   }
 }
 </style>

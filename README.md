@@ -1,135 +1,227 @@
-# 🔮 算命应用 - Fortune Telling App
+# 🔮 命运之轮 - Fortune Telling App
 
-一个功能完整的算命应用，包含传统算命、塔罗牌占卜、用户系统、数据可视化等功能。
+一个功能完整的在线命理应用，集成传统算命、塔罗牌占卜、星座运势、周公解梦等多种命理功能。
 
 ## ✨ 功能特性
 
-### 🎯 核心功能
-- **传统算命** - 根据出生日期和问题类型提供运势预测
-- **塔罗牌占卜** - 随机抽取塔罗牌，获得命运指引
-- **星座生肖** - 自动计算并显示星座和生肖信息
-- **历史记录** - 保存和查询算命历史
-- **收藏功能** - 收藏喜欢的算命结果
+### 🎯 核心功能模块
+
+| 功能 | 描述 | 状态 |
+|------|------|------|
+| 🎴 塔罗牌占卜 | 单张牌/三张牌抽牌，3D 翻转动画 | ✅ |
+| 📜 八字算命 | 基于天干地支的传统命理分析 | ✅ |
+| ⭐ 紫微斗数 | 十四主星命盘分析 | ✅ |
+| 🐉 生肖运势 | 十二生肖年度/月度运势 | ✅ |
+| ♈ 星座运势 | 十二星座每日运势 | ✅ |
+| 📝 姓名学 | 五格剖象法姓名分析 | ✅ |
+| 💭 周公解梦 | 梦境解读与分析 | ✅ |
+| 👥 多人合盘 | 两人命理匹配度分析 | ✅ |
+| 📅 黄历查询 | 每日宜忌、时辰吉凶 | ✅ |
+| 🔮 传统算命 | 综合命理分析 | ✅ |
 
 ### 🎨 用户体验
+
 - **深色/浅色主题** - 支持主题切换
 - **响应式设计** - 完美适配手机、平板、桌面
-- **分享功能** - 支持多种分享方式
-- **数据导出** - 导出为 JSON 和 CSV 格式
-- **每日运势推送** - 浏览器通知提醒
+- **流畅动画** - 塔罗牌 3D 翻转，requestAnimationFrame 驱动
+- **数据持久化** - LocalStorage 本地存储
+- **用户系统** - 登录/注册功能
 
 ### 📊 数据管理
-- **可视化图表** - 使用 Chart.js 展示数据统计
-- **搜索筛选** - 历史记录搜索和分类筛选
-- **用户系统** - 注册、登录、个人数据管理
+
+- **历史记录** - 保存所有算命历史
+- **搜索筛选** - 按类型、时间筛选
+- **数据导出** - JSON/CSV 格式导出
+- **错误日志** - 完整的错误追踪系统
 
 ## 📁 项目结构
 
 ```
 fortune-telling-app/
-├── application/              # 前端应用（Vue3 + Vite）
+├── .github/
+│   └── workflows/
+│       └── github-pages.yml    # GitHub Pages 自动部署
+├── application/                 # 前端应用（Vue3 + Vite）
 │   ├── src/
-│   │   ├── components/       # 组件
-│   │   │   └── FortuneForm.vue
+│   │   ├── components/         # 公共组件
+│   │   │   ├── FortuneForm.vue
+│   │   │   ├── HePanAnalysis.vue
+│   │   │   ├── ShareCard.vue
+│   │   │   └── ErrorLogViewer.vue
+│   │   ├── pages/              # 页面组件
+│   │   │   ├── Home.vue        # 首页
+│   │   │   ├── LoginPage.vue   # 登录页
+│   │   │   ├── TarotPage.vue   # 塔罗牌
+│   │   │   ├── BaziPage.vue    # 八字
+│   │   │   ├── ZiweiPage.vue   # 紫微斗数
+│   │   │   ├── ShengxiaoPage.vue # 生肖
+│   │   │   ├── XingzuoPage.vue  # 星座
+│   │   │   ├── XingmingPage.vue # 姓名学
+│   │   │   ├── JiemengPage.vue  # 周公解梦
+│   │   │   ├── HePan.vue        # 合盘
+│   │   │   ├── HuangliPage.vue  # 黄历
+│   │   │   └── FortunePage.vue  # 传统算命
+│   │   ├── router/             # 路由配置
+│   │   ├── services/           # 服务层
+│   │   │   ├── api.js          # API 服务
+│   │   │   ├── storage.js      # 本地存储
+│   │   │   └── errorHandler.js # 错误处理
+│   │   ├── styles/             # 样式文件
 │   │   ├── App.vue
 │   │   └── main.js
+│   ├── ai-trader-customization/ # AI 交易器项目（独立）
+│   ├── public/                 # 静态资源
+│   ├── dist/                   # 构建输出
 │   ├── package.json
-│   └── vite.config.js
-├── source_code/              # 后端应用（FastAPI）
-│   ├── main.py
-│   ├── database.py
-│   ├── advanced_fortune.py
-│   └── requirements.txt
-└── architecture.md
+│   ├── vite.config.js
+│   └── README.md
+├── DEPLOY_GUIDE.md
+├── architecture.md
+├── vercel.json
+└── README.md
 ```
 
 ## 🚀 快速开始
 
 ### 前置要求
-- Node.js 16+
-- Python 3.8+
-- pip
 
-### 后端启动
-```bash
-cd source_code
-pip install -r requirements.txt
-python -m uvicorn main:app --reload --port 8000
-```
+- Node.js 18+
+- npm 或 yarn
 
-### 前端启动
+### 安装依赖
+
 ```bash
 cd application
 npm install
+```
+
+### 开发模式
+
+```bash
+cd application
 npm run dev
 ```
 
-### 访问地址
-- **前端应用**: http://localhost:5173
-- **后端API**: http://localhost:8000
+访问地址：http://localhost:5173/fortune-telling-app/
+
+### 生产构建
+
+```bash
+cd application
+npm run build
+```
+
+构建产物在 `application/dist/` 目录
+
+### 预览构建结果
+
+```bash
+cd application
+npm run preview
+```
 
 ## 🛠 技术栈
 
 ### 前端
-- Vue 3
-- Vite
-- Chart.js
-- CSS3
 
-### 后端
-- FastAPI
-- Python 3.8+
-- 支持 MySQL 和文件数据库
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Vue | 3.x | 前端框架 |
+| Vite | 8.x | 构建工具 |
+| Vue Router | 4.x | 路由管理 |
+| CSS3 | - | 样式（3D 变换、动画） |
+| LocalStorage | - | 本地数据存储 |
 
-## 📊 API 接口
+### 部署
 
-### 算命接口
-- `POST /api/fortune` - 获取算命结果
-
-### 历史记录
-- `GET /api/history` - 获取历史记录
-- `POST /api/history/delete` - 删除历史记录
-
-## 🎮 使用说明
-
-1. **注册/登录** - 创建账户或登录现有账户
-2. **选择模式** - 选择传统算命或塔罗牌占卜
-3. **填写信息** - 输入姓名、出生日期、问题类型
-4. **获取结果** - 点击开始，查看算命结果
-5. **保存/分享** - 收藏、分享或导出结果
-
-## 📝 数据存储
-
-应用支持多种数据存储方式：
-- **文件数据库** - 默认使用JSON文件存储
-- **MySQL数据库** - 配置.env后使用MySQL
-- **LocalStorage** - 前端数据备份
-
-## 🔧 配置说明
-
-数据库配置见 `source_code/.env.example`
+- **GitHub Pages** - 自动部署
+- **Vercel** - 可选部署平台
 
 ## 📱 响应式支持
 
-✅ 手机端 (< 480px)  
-✅ 平板端 (480px - 768px)  
-✅ 桌面端 (> 768px)
+| 设备类型 | 断点 | 布局 |
+|----------|------|------|
+| 📱 手机端 | < 480px | 单列布局 |
+| 📱 平板端 | 480px - 768px | 双列布局 |
+| 🖥 桌面端 | > 768px | 三列/网格布局 |
 
-## 🎉 特色功能
+## 🎴 塔罗牌动画特性
 
-- **三级降级机制** - 确保服务稳定性
-- **完整的测试套件** - 单元测试、集成测试
-- **详细的日志记录** - 便于排查问题
-- **优雅的错误处理** - 用户友好的错误提示
+v1.2.0 版本对塔罗牌动画进行了重大优化：
 
-## 🏆 项目亮点
+### 动画实现
 
-1. **完整的用户系统** - 注册、登录、个人数据
-2. **丰富的视觉效果** - 渐变色、动画效果
-3. **专业的图表展示** - 饼图、柱状图、折线图
-4. **完善的测试体系** - 功能完整测试覆盖
+- **纯 JS 驱动** - 使用 `requestAnimationFrame` 逐帧控制
+- **缓动函数** - `easeInOutCubic` 实现平滑加速减速
+- **3D 变换** - CSS `perspective` + `rotateY` 实现立体翻转
+- **GPU 加速** - `will-change` + `translateZ(0)` 优化性能
+
+### 动画日志
+
+开启浏览器控制台可查看详细的动画性能数据：
+
+```
+[Card 0] 🎞️ 帧 #1 | 时间: 1234.56ms | 进度: 2.5% | 旋转: 4.50° | 帧间隔: 16.67ms | 实际帧率: 60.0fps
+```
+
+## 🌐 在线访问
+
+- **GitHub Pages**: https://lccuhk.github.io/fortune-telling-app/
+
+## 📝 版本历史
+
+### v1.2.0 (2026-05-18)
+
+- ✨ 塔罗牌翻牌动画改为纯 JS 驱动的 requestAnimationFrame 实现
+- ✨ 添加 easeInOutCubic 缓动函数，动画更丝滑
+- ✨ 添加动画日志用于调试帧率
+- ✨ 添加 AI Trader 自定义项目
+- ✨ 添加 API 测试脚本
+- ✨ 优化响应式布局
+- 🔧 支持 tag 触发 GitHub Pages 部署
+
+### v1.1.0 (2026-05-15)
+
+- ✨ 优化移动端响应式样式
+- ✨ 增强命理功能和数据持久化
+- ✨ 增强八字算命页面功能
+
+### v1.0.0 (2026-04-21)
+
+- 🎉 初始版本发布
+- ✨ 完整的命理功能模块
+- ✨ 用户系统和数据持久化
+- ✨ GitHub Pages 自动部署
+
+## 🔧 开发命令
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+
+# 运行测试
+npm run test
+```
+
+## 📄 License
+
+MIT License
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
 
 ---
 
-**版本**: 1.0.0  
-**最后更新**: 2026-04-21
+**版本**: v1.2.0  
+**最后更新**: 2026-05-18  
+**作者**: lccuhk

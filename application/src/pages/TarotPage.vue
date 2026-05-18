@@ -121,6 +121,44 @@ function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
+function getLogTimestamp() {
+  const now = new Date()
+  const isoString = now.toISOString()
+  return isoString.replace('T', ' ').replace('Z', '')
+}
+
+function log(level, message, data = {}) {
+  const timestamp = getLogTimestamp()
+  const logEntry = {
+    timestamp,
+    level,
+    module: 'tarot-animation',
+    message,
+    ...data
+  }
+  
+  const logString = `[${timestamp}] [${level.toUpperCase()}] [tarot-animation] ${message}`
+  
+  switch (level) {
+    case 'error':
+      console.error(logString, data)
+      break
+    case 'warn':
+      console.warn(logString, data)
+      break
+    case 'info':
+      console.info(logString, data)
+      break
+    case 'debug':
+      console.debug(logString, data)
+      break
+    default:
+      console.log(logString, data)
+  }
+  
+  return logEntry
+}
+
 function animateCardRotation(index, duration = 500) {
   return new Promise((resolve) => {
     const startTime = performance.now()
@@ -130,7 +168,13 @@ function animateCardRotation(index, duration = 500) {
     let lastFrameTime = startTime
     const frameIntervals = []
 
-    console.log(`[Card ${index}] 🎬 动画开始 - 开始时间: ${startTime.toFixed(2)}ms, 目标时长: ${duration}ms`)
+    log('info', '动画开始', {
+      cardIndex: index,
+      startTime: startTime.toFixed(2),
+      targetDuration: duration,
+      startRotation: startRotation,
+      endRotation: endRotation
+    })
 
     function animate(currentTime) {
       const elapsed = currentTime - startTime
@@ -143,14 +187,24 @@ function animateCardRotation(index, duration = 500) {
       frameIntervals.push(frameInterval)
       const actualFps = 1000 / frameInterval
 
-      console.log(
-        `[Card ${index}] 🎞️ 帧 #${frameCount} | ` +
-        `时间: ${currentTime.toFixed(2)}ms | ` +
-        `进度: ${(progress * 100).toFixed(1)}% | ` +
-        `旋转: ${currentRotation.toFixed(2)}° | ` +
-        `帧间隔: ${frameInterval.toFixed(2)}ms | ` +
-        `实际帧率: ${actualFps.toFixed(1)}fps`
-      )
+      const logData = {
+        cardIndex: index,
+        frameNumber: frameCount,
+        currentTime: currentTime.toFixed(2),
+        elapsed: elapsed.toFixed(2),
+        progress: (progress * 100).toFixed(1),
+        rotation: currentRotation.toFixed(2),
+        frameInterval: frameInterval.toFixed(2),
+        fps: actualFps.toFixed(1)
+      }
+
+      if (frameInterval > 33) {
+        log('warn', '帧间隔过高，可能存在性能问题', logData)
+      } else if (frameInterval > 20) {
+        log('info', '帧执行', logData)
+      } else {
+        log('debug', '帧执行', logData)
+      }
 
       cardRotations.value[index] = currentRotation
       lastFrameTime = currentTime
@@ -164,18 +218,29 @@ function animateCardRotation(index, duration = 500) {
         const totalDuration = currentTime - startTime
         const avgInterval = frameIntervals.reduce((a, b) => a + b, 0) / frameIntervals.length
         const avgFps = 1000 / avgInterval
+        const minInterval = Math.min(...frameIntervals)
+        const maxInterval = Math.max(...frameIntervals)
 
-        console.log(`
-[Card ${index}] ✅ 动画完成统计
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-总帧数: ${frameCount}
-总时长: ${totalDuration.toFixed(2)}ms (目标: ${duration}ms)
-平均帧间隔: ${avgInterval.toFixed(2)}ms
-平均帧率: ${avgFps.toFixed(1)}fps
-最小帧间隔: ${Math.min(...frameIntervals).toFixed(2)}ms
-最大帧间隔: ${Math.max(...frameIntervals).toFixed(2)}ms
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        `)
+        const summaryData = {
+          cardIndex: index,
+          totalFrames: frameCount,
+          totalDuration: totalDuration.toFixed(2),
+          targetDuration: duration,
+          durationDiff: (totalDuration - duration).toFixed(2),
+          avgFrameInterval: avgInterval.toFixed(2),
+          avgFps: avgFps.toFixed(1),
+          minFrameInterval: minInterval.toFixed(2),
+          maxFrameInterval: maxInterval.toFixed(2),
+          performanceScore: avgFps >= 55 ? 'excellent' : avgFps >= 45 ? 'good' : avgFps >= 30 ? 'fair' : 'poor'
+        }
+
+        if (avgFps < 30) {
+          log('warn', '动画完成 - 性能警告', summaryData)
+        } else if (avgFps < 45) {
+          log('info', '动画完成', summaryData)
+        } else {
+          log('info', '动画完成 - 性能优秀', summaryData)
+        }
 
         resolve()
       }

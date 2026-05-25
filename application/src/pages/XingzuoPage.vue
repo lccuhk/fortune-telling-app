@@ -55,14 +55,20 @@ function generateMockData(xingzuo, timeRange) {
     wealth: Math.floor(Math.random() * 40) + 60,
     health: Math.floor(Math.random() * 40) + 60
   }
-  
+
   const luckyItems = [
     { type: '数字', value: Math.floor(Math.random() * 99) + 1 },
-    { type: '颜色', value: ['红色', '蓝色', '绿色', '紫色', '黄色', '粉色'][Math.floor(Math.random() * 6)] },
-    { type: '宝石', value: ['钻石', '红宝石', '蓝宝石', '翡翠', '珍珠'][Math.floor(Math.random() * 5)] },
+    {
+      type: '颜色',
+      value: ['红色', '蓝色', '绿色', '紫色', '黄色', '粉色'][Math.floor(Math.random() * 6)]
+    },
+    {
+      type: '宝石',
+      value: ['钻石', '红宝石', '蓝宝石', '翡翠', '珍珠'][Math.floor(Math.random() * 5)]
+    },
     { type: '方位', value: ['东方', '西方', '南方', '北方'][Math.floor(Math.random() * 4)] }
   ]
-  
+
   return {
     xingzuo: xingzuo,
     timeRange: timeRange,
@@ -70,9 +76,24 @@ function generateMockData(xingzuo, timeRange) {
     luckyItems: luckyItems,
     analysis: {
       overview: `${xingzuo.name}的朋友${timeRange}运势${scores.overall >= 80 ? '相当不错' : scores.overall >= 70 ? '较为平稳' : '需要多加注意'}。整体能量${scores.overall >= 80 ? '高涨' : '平稳'}，适合${scores.overall >= 80 ? '主动出击' : '稳扎稳打'}。`,
-      love: scores.love >= 80 ? '感情运势极佳，单身者有机会遇到心仪对象，有伴侣者感情甜蜜。' : scores.love >= 70 ? '感情平稳，需要多花时间陪伴对方。' : '感情上可能会有一些小摩擦，需要多沟通理解。',
-      career: scores.career >= 80 ? '事业运势强劲，工作效率高，容易得到上司认可。' : scores.career >= 70 ? '事业平稳发展，按部就班完成任务即可。' : '工作上可能会遇到一些挑战，需要保持耐心和冷静。',
-      wealth: scores.wealth >= 80 ? '财运亨通，正财偏财都有收获，适合理财投资。' : scores.wealth >= 70 ? '财运平稳，收支平衡，不宜大额投资。' : '财运一般，需要控制开支，避免冲动消费。'
+      love:
+        scores.love >= 80
+          ? '感情运势极佳，单身者有机会遇到心仪对象，有伴侣者感情甜蜜。'
+          : scores.love >= 70
+            ? '感情平稳，需要多花时间陪伴对方。'
+            : '感情上可能会有一些小摩擦，需要多沟通理解。',
+      career:
+        scores.career >= 80
+          ? '事业运势强劲，工作效率高，容易得到上司认可。'
+          : scores.career >= 70
+            ? '事业平稳发展，按部就班完成任务即可。'
+            : '工作上可能会遇到一些挑战，需要保持耐心和冷静。',
+      wealth:
+        scores.wealth >= 80
+          ? '财运亨通，正财偏财都有收获，适合理财投资。'
+          : scores.wealth >= 70
+            ? '财运平稳，收支平衡，不宜大额投资。'
+            : '财运一般，需要控制开支，避免冲动消费。'
     },
     isMock: true
   }
@@ -86,7 +107,7 @@ async function handleGetXingzuo() {
 
   loading.value = true
   apiError.value = ''
-  
+
   try {
     if (useMockData.value) {
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -97,17 +118,17 @@ async function handleGetXingzuo() {
         时间范围: formData.value.timeRange,
         时间范围类型: typeof formData.value.timeRange
       })
-      
+
       const apiData = await tanshuApi.getConstellationFortune(
         formData.value.selectedXingzuo.name,
         formData.value.timeRange
       )
-      
+
       console.log('[Xingzuo] API 返回结果:', apiData)
-      
+
       if (apiData.code === 1 && apiData.data) {
         const transformed = transformConstellationData(apiData, formData.value.timeRange)
-        
+
         if (formData.value.timeRange === '今日' || formData.value.timeRange === '明日') {
           result.value = {
             xingzuo: formData.value.selectedXingzuo,
@@ -132,9 +153,7 @@ async function handleGetXingzuo() {
             xingzuo: formData.value.selectedXingzuo,
             timeRange: formData.value.timeRange,
             scores: transformed.scores,
-            luckyItems: [
-              { type: '日期', value: transformed.date }
-            ],
+            luckyItems: [{ type: '日期', value: transformed.date }],
             analysis: transformed.analysis || {
               overview: `${formData.value.selectedXingzuo.name}${formData.value.timeRange}运势分析`,
               love: transformed.analysis?.love || '感情运势平稳',
@@ -151,7 +170,7 @@ async function handleGetXingzuo() {
   } catch (err) {
     console.error('获取星座运势失败:', err)
     apiError.value = err.message || '获取运势失败，请稍后重试'
-    
+
     if (!useMockData.value) {
       const useMock = confirm(`${err.message || 'API 调用失败'}，是否使用模拟数据？`)
       if (useMock) {
@@ -178,7 +197,7 @@ function resetXingzuo() {
 function openApiKeyModal() {
   const currentKey = localStorage.getItem('tanshu_api_key') || ''
   const newKey = prompt('请输入探数 API Key（留空则使用模拟数据）:', currentKey)
-  
+
   if (newKey !== null) {
     if (newKey.trim()) {
       localStorage.setItem('tanshu_api_key', newKey.trim())
@@ -201,7 +220,11 @@ function openApiKeyModal() {
       <button class="back-btn" @click="goBack">← 返回首页</button>
       <h1 class="page-title">♈ 星座运势</h1>
       <p class="page-subtitle">基于西方占星学的运势分析</p>
-      <button class="api-key-btn" @click="openApiKeyModal" :title="useMockData ? '当前使用模拟数据' : '当前使用真实 API'">
+      <button
+        class="api-key-btn"
+        :title="useMockData ? '当前使用模拟数据' : '当前使用真实 API'"
+        @click="openApiKeyModal"
+      >
         {{ useMockData ? '🔧 设置 API Key' : '🔑 API 已配置' }}
       </button>
     </header>
@@ -243,7 +266,7 @@ function openApiKeyModal() {
           </div>
         </div>
 
-        <button class="submit-btn" @click="handleGetXingzuo" :disabled="loading">
+        <button class="submit-btn" :disabled="loading" @click="handleGetXingzuo">
           {{ loading ? '✨ 正在分析...' : '♈ 查看星座运势' }}
         </button>
       </div>
@@ -283,21 +306,30 @@ function openApiKeyModal() {
             <div class="detail-item">
               <span class="detail-label">💼 事业</span>
               <div class="detail-bar">
-                <div class="detail-fill career" :style="{ width: result.scores.career + '%' }"></div>
+                <div
+                  class="detail-fill career"
+                  :style="{ width: result.scores.career + '%' }"
+                ></div>
               </div>
               <span class="detail-value">{{ result.scores.career }}%</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">💰 财富</span>
               <div class="detail-bar">
-                <div class="detail-fill wealth" :style="{ width: result.scores.wealth + '%' }"></div>
+                <div
+                  class="detail-fill wealth"
+                  :style="{ width: result.scores.wealth + '%' }"
+                ></div>
               </div>
               <span class="detail-value">{{ result.scores.wealth }}%</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">🏃 健康</span>
               <div class="detail-bar">
-                <div class="detail-fill health" :style="{ width: result.scores.health + '%' }"></div>
+                <div
+                  class="detail-fill health"
+                  :style="{ width: result.scores.health + '%' }"
+                ></div>
               </div>
               <span class="detail-value">{{ result.scores.health }}%</span>
             </div>
@@ -688,10 +720,18 @@ function openApiKeyModal() {
   transition: width 0.5s ease;
 }
 
-.detail-fill.love { background: linear-gradient(90deg, #fa709a, #fee140); }
-.detail-fill.career { background: linear-gradient(90deg, #667eea, #764ba2); }
-.detail-fill.wealth { background: linear-gradient(90deg, #f093fb, #f5576c); }
-.detail-fill.health { background: linear-gradient(90deg, #11998e, #38ef7d); }
+.detail-fill.love {
+  background: linear-gradient(90deg, #fa709a, #fee140);
+}
+.detail-fill.career {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+.detail-fill.wealth {
+  background: linear-gradient(90deg, #f093fb, #f5576c);
+}
+.detail-fill.health {
+  background: linear-gradient(90deg, #11998e, #38ef7d);
+}
 
 .detail-value {
   width: 40px;

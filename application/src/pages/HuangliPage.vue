@@ -26,11 +26,11 @@ const shichenList = [
 ]
 
 const wuxingColors = {
-  '金': '#f59e0b',
-  '木': '#22c55e',
-  '水': '#3b82f6',
-  '火': '#ef4444',
-  '土': '#a16207'
+  金: '#f59e0b',
+  木: '#22c55e',
+  水: '#3b82f6',
+  火: '#ef4444',
+  土: '#a16207'
 }
 
 onMounted(() => {
@@ -54,15 +54,15 @@ function getMockHuangli(dateStr) {
   const month = date.getMonth() + 1
   const day = date.getDate()
   const weekDay = date.getDay()
-  
+
   const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-  
+
   const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
   const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
-  
+
   const yearTG = tiangan[(year - 4) % 10]
   const yearDZ = dizhi[(year - 4) % 12]
-  
+
   const yijis = [
     { yi: ['嫁娶', '祭祀', '祈福', '求嗣', '开光'], ji: ['动土', '破土', '安葬', '开市'] },
     { yi: ['开市', '交易', '立券', '纳财', '开光'], ji: ['嫁娶', '移徙', '入宅', '安葬'] },
@@ -70,22 +70,33 @@ function getMockHuangli(dateStr) {
     { yi: ['嫁娶', '纳采', '订盟', '祭祀', '祈福'], ji: ['开市', '交易', '立券', '纳财'] },
     { yi: ['修造', '动土', '起基', '上梁', '盖屋'], ji: ['嫁娶', '开市', '出行', '移徙'] }
   ]
-  
+
   const yiji = yijis[Math.floor(Math.random() * yijis.length)]
-  
+
   const jixiong = ['大吉', '吉', '中', '小吉']
   const jixiongColors = ['#16a34a', '#22c55e', '#eab308', '#84cc16']
   const jixiongIndex = Math.floor(Math.random() * 4)
-  
+
   const taishen = ['占门厕外正北', '占房床外正东', '占厨灶炉外正南', '占门厕外正西', '占房床内正北']
-  const wuxing = ['金箔金', '天河水', '大驿土', '钗钏金', '桑柘木', '大溪水', '沙中土', '天上火', '石榴木', '大海水']
-  
+  const wuxing = [
+    '金箔金',
+    '天河水',
+    '大驿土',
+    '钗钏金',
+    '桑柘木',
+    '大溪水',
+    '沙中土',
+    '天上火',
+    '石榴木',
+    '大海水'
+  ]
+
   const shichenJixiong = shichenList.map(sc => ({
     ...sc,
     jixiong: jixiong[Math.floor(Math.random() * 4)],
     color: jixiongColors[Math.floor(Math.random() * 4)]
   }))
-  
+
   return {
     date: dateStr,
     year: year,
@@ -209,13 +220,8 @@ const formattedDate = computed(() => {
           <button class="quick-btn" @click="goTomorrow">明天</button>
         </div>
         <div class="date-picker-wrapper">
-          <input 
-            v-model="selectedDate" 
-            type="date" 
-            class="date-picker"
-            @change="getHuangli"
-          />
-          <button class="refresh-btn" @click="getHuangli" :disabled="loading">
+          <input v-model="selectedDate" type="date" class="date-picker" @change="getHuangli" />
+          <button class="refresh-btn" :disabled="loading" @click="getHuangli">
             {{ loading ? '加载中...' : '查询' }}
           </button>
         </div>
@@ -261,7 +267,7 @@ const formattedDate = computed(() => {
               </span>
             </div>
           </div>
-          
+
           <div class="ji-section">
             <div class="section-header">
               <span class="section-icon">❌</span>
@@ -293,27 +299,17 @@ const formattedDate = computed(() => {
         <div class="shichen-section">
           <h3 class="shichen-title">⏰ 时辰吉凶</h3>
           <div class="shichen-grid">
-            <div 
-              v-for="(sc, index) in result.shichen" 
-              :key="index" 
-              class="shichen-card"
-            >
+            <div v-for="(sc, index) in result.shichen" :key="index" class="shichen-card">
               <div class="shichen-header">
                 <span class="shichen-icon">{{ sc.icon }}</span>
                 <span class="shichen-name">{{ sc.name }}</span>
               </div>
               <span class="shichen-time">{{ sc.time }}</span>
               <div class="shichen-footer">
-                <span 
-                  class="shichen-wuxing" 
-                  :style="{ color: wuxingColors[sc.wuxing] }"
-                >
+                <span class="shichen-wuxing" :style="{ color: wuxingColors[sc.wuxing] }">
                   {{ sc.wuxing }}
                 </span>
-                <span 
-                  class="shichen-jixiong"
-                  :style="{ background: sc.color }"
-                >
+                <span class="shichen-jixiong" :style="{ background: sc.color }">
                   {{ sc.jixiong }}
                 </span>
               </div>
@@ -492,7 +488,9 @@ const formattedDate = computed(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-section p {

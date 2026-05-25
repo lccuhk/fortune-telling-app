@@ -18,22 +18,22 @@ async function handleAnalyzeHepan(data) {
   console.log('💑 [合盘页面] 人员1:', data.person1)
   console.log('💑 [合盘页面] 人员2:', data.person2)
   console.log('💑 [合盘页面] 分析类型:', data.analysisType)
-  
+
   loading.value = true
-  
+
   try {
     // 模拟合盘分析结果
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     const analysisTypeMap = {
       marriage: '婚姻合盘',
       partnership: '合伙合盘',
       wealth: '财运合盘'
     }
-    
+
     const typeName = analysisTypeMap[data.analysisType] || '合盘分析'
     const matchScore = Math.floor(Math.random() * 30) + 70 // 70-100分
-    
+
     result.value = {
       type: typeName,
       score: matchScore,
@@ -46,7 +46,7 @@ async function handleAnalyzeHepan(data) {
         fortune: `未来三年运势${matchScore > 85 ? '持续上升' : '稳中有升'}，建议${data.analysisType === 'marriage' ? '把握良缘，珍惜彼此' : data.analysisType === 'partnership' ? '精诚合作，共创未来' : '共同理财，稳健投资'}。`
       }
     }
-    
+
     console.log('💑 [合盘页面] 分析完成')
   } catch (err) {
     console.error('💑 [合盘页面] 分析失败:', err)
@@ -66,19 +66,14 @@ function resetAnalysis() {
   <div class="hepan-page">
     <!-- 页面头部 -->
     <header class="page-header">
-      <button class="back-btn" @click="goBack">
-        ← 返回首页
-      </button>
+      <button class="back-btn" @click="goBack">← 返回首页</button>
       <h1 class="page-title">💑 多人合盘</h1>
       <p class="page-subtitle">分析两人的命理匹配度</p>
     </header>
 
     <!-- 合盘分析组件 -->
     <div v-if="!result" class="analysis-section">
-      <HePanAnalysis
-        :loading="loading"
-        @analyze-hepan="handleAnalyzeHepan"
-      />
+      <HePanAnalysis :loading="loading" @analyze-hepan="handleAnalyzeHepan" />
     </div>
 
     <!-- 分析结果 -->
@@ -95,12 +90,16 @@ function resetAnalysis() {
         <div class="couple-info">
           <div class="person-info">
             <span class="person-name">{{ result.person1.name }}</span>
-            <span class="person-gender" :class="result.person1.gender">{{ result.person1.gender }}</span>
+            <span class="person-gender" :class="result.person1.gender">{{
+              result.person1.gender
+            }}</span>
           </div>
           <div class="vs">💕</div>
           <div class="person-info">
             <span class="person-name">{{ result.person2.name }}</span>
-            <span class="person-gender" :class="result.person2.gender">{{ result.person2.gender }}</span>
+            <span class="person-gender" :class="result.person2.gender">{{
+              result.person2.gender
+            }}</span>
           </div>
         </div>
 
@@ -120,12 +119,8 @@ function resetAnalysis() {
         </div>
 
         <div class="result-actions">
-          <button class="btn-secondary" @click="resetAnalysis">
-            🔄 重新分析
-          </button>
-          <button class="btn-primary" @click="goBack">
-            🏠 返回首页
-          </button>
+          <button class="btn-secondary" @click="resetAnalysis">🔄 重新分析</button>
+          <button class="btn-primary" @click="goBack">🏠 返回首页</button>
         </div>
       </div>
     </div>
@@ -268,8 +263,13 @@ function resetAnalysis() {
 }
 
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .analysis-details {

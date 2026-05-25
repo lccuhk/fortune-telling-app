@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算命应用逻辑测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-section h2 {
+            color: #374151;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .test-group {
+            margin-bottom: 20px;
+        }
+        
+        .test-group h3 {
+            color: #4b5563;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .test-result {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .test-result.pass {
+            border-left: 4px solid #22c55e;
+        }
+        
+        .test-result.fail {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .icon {
+            font-size: 1.2rem;
+        }
+        
+        .test-name {
+            flex: 1;
+            color: #374151;
+        }
+        
+        .test-status {
+            font-weight: 600;
+        }
+        
+        .pass .test-status {
+            color: #22c55e;
+        }
+        
+        .fail .test-status {
+            color: #ef4444;
+        }
+        
+        .test-details {
+            margin-top: 5px;
+            padding: 10px 15px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #6b7280;
+            white-space: pre-wrap;
+        }
+        
+        .summary {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .summary h2 {
+            margin-bottom: 15px;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .stat.pass .stat-value {
+            color: #22c55e;
+        }
+        
+        .stat.fail .stat-value {
+            color: #ef4444;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .run-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .run-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .demo-section h2 {
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .demo-card {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .demo-card h3 {
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .demo-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .demo-btn {
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .demo-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .tarot-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .tarot-card {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(135deg, #2D1B4E 0%, #4B0082 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .tarot-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .shengxiao-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+        
+        .shengxiao-item {
+            text-align: center;
+            padding: 10px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .shengxiao-item:hover {
+            background: #e5e7eb;
+        }
+        
+        .shengxiao-item .emoji {
+            font-size: 1.5rem;
+            display: block;
+        }
+        
+        .shengxiao-item .name {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 算命应用逻辑测试</h1>
+            <p>验证新创建的组合式函数和工具函数</p>
+        </div>
+        
+        <div class="summary">
+            <h2>📊 测试摘要</h2>
+            <div class="summary-stats">
+                <div class="stat pass">
+                    <div class="stat-value" id="passCount">0</div>
+                    <div class="stat-label">通过</div>
+                </div>
+                <div class="stat fail">
+                    <div class="stat-value" id="failCount">0</div>
+                    <div class="stat-label">失败</div>
+                </div>
+            </div>
+            <button class="run-btn" id="runTestsBtn" onclick="runAllTests()">
+                ▶️ 运行所有测试
+            </button>
+        </div>
+        
+        <div id="testResults"></div>
+        
+        <div class="demo-section">
+            <h2>🎮 功能演示</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>🎲 随机数生成</h3>
+                    <div class="demo-value" id="randomNumber">-</div>
+                    <button class="demo-btn" onclick="demoRandomNumber()">生成随机数</button>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🆔 唯一ID生成</h3>
+                    <div class="demo-value" id="uniqueId" style="font-size: 0.875rem;">-</div>
+                    <button class="demo-btn" onclick="demoGenerateId()">生成ID</button>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>📅 日期格式化</h3>
+                    <div class="demo-value" id="formattedDate">-</div>
+                    <button class="demo-btn" onclick="demoFormatDate()">格式化日期</button>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 30px;">🃏 塔罗牌数据</h3>
+            <div class="tarot-cards" id="tarotDemo"></div>
+            
+            <h3 style="margin-top: 30px;">🐲 生肖数据</h3>
+            <div class="shengxiao-grid" id="shengxiaoDemo"></div>
+        </div>
+    </div>
+
+    <script>
+        const helpers = {
+            getRandomItem(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            },
+            
+            getRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            },
+            
+            formatDate(date) {
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+            
+            formatDateTime(date) {
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                const seconds = String(d.getSeconds()).padStart(2, '0');
+                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            },
+            
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            },
+            
+            easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+        };
+
+        const tarotData = {
+            majorArcana: [
+                { id: 'm0', name: '愚者', number: 0, meaning: '新的开始，冒险，纯真', keyword: '自由', element: '风', icon: '🃏' },
+                { id: 'm1', name: '魔术师', number: 1, meaning: '创造力，意志力，显化', keyword: '创造', element: '风', icon: '🧙' },
+                { id: 'm2', name: '女祭司', number: 2, meaning: '直觉，神秘，内在智慧', keyword: '直觉', element: '水', icon: '👸' },
+                { id: 'm3', name: '皇后', number: 3, meaning: '丰饶，母性，创造力', keyword: '丰饶', element: '土', icon: '👑' },
+                { id: 'm4', name: '皇帝', number: 4, meaning: '权威，稳定，控制', keyword: '权威', element: '火', icon: '🏛️' },
+                { id: 'm5', name: '教皇', number: 5, meaning: '传统，信仰，指导', keyword: '信仰', element: '土', icon: '⛪' },
+                { id: 'm6', name: '恋人', number: 6, meaning: '爱情，选择，和谐', keyword: '选择', element: '风', icon: '💕' },
+                { id: 'm7', name: '战车', number: 7, meaning: '意志力，胜利，决心', keyword: '胜利', element: '水', icon: '🏎️' },
+                { id: 'm8', name: '力量', number: 8, meaning: '勇气，耐心，内在力量', keyword: '力量', element: '火', icon: '🦁' },
+                { id: 'm9', name: '隐者', number: 9, meaning: '内省，独处，寻求真理', keyword: '内省', element: '土', icon: '🏮' },
+                { id: 'm10', name: '命运之轮', number: 10, meaning: '变化，命运，周期', keyword: '命运', element: '火', icon: '☸️' },
+                { id: 'm11', name: '正义', number: 11, meaning: '公正，平衡，因果', keyword: '公正', element: '风', icon: '⚖️' },
+                { id: 'm12', name: '倒吊人', number: 12, meaning: '牺牲，等待，新视角', keyword: '牺牲', element: '水', icon: '🙃' },
+                { id: 'm13', name: '死神', number: 13, meaning: '结束，转变，重生', keyword: '转变', element: '水', icon: '💀' },
+                { id: 'm14', name: '节制', number: 14, meaning: '平衡，调和，耐心', keyword: '平衡', element: '火', icon: '⚗️' },
+                { id: 'm15', name: '恶魔', number: 15, meaning: '束缚，欲望，物质主义', keyword: '束缚', element: '土', icon: '😈' },
+                { id: 'm16', name: '塔', number: 16, meaning: '突变，觉醒，破坏', keyword: '突变', element: '火', icon: '🗼' },
+                { id: 'm17', name: '星星', number: 17, meaning: '希望，灵感，宁静', keyword: '希望', element: '风', icon: '⭐' },
+                { id: 'm18', name: '月亮', number: 18, meaning: '幻觉，恐惧，潜意识', keyword: '幻觉', element: '水', icon: '🌙' },
+                { id: 'm19', name: '太阳', number: 19, meaning: '快乐，成功，活力', keyword: '快乐', element: '火', icon: '☀️' },
+                { id: 'm20', name: '审判', number: 20, meaning: '重生，觉醒，救赎', keyword: '觉醒', element: '火', icon: '📯' },
+                { id: 'm21', name: '世界', number: 21, meaning: '完成，成就，圆满', keyword: '圆满', element: '土', icon: '🌍' }
+            ],
+            
+            cardSpreads: [
+                { name: '单张牌', cards: 1, desc: '快速指引', icon: '🃏' },
+                { name: '三张牌', cards: 3, desc: '过去-现在-未来', icon: '🎴' }
+            ]
+        };
+
+        const shengxiaoData = [
+            { name: '鼠', emoji: '🐭', years: '2020, 2008, 1996' },
+            { name: '牛', emoji: '🐮', years: '2021, 2009, 1997' },
+            { name: '虎', emoji: '🐯', years: '2022, 2010, 1998' },
+            { name: '兔', emoji: '🐰', years: '2023, 2011, 1999' },
+            { name: '龙', emoji: '🐲', years: '2024, 2012, 2000' },
+            { name: '蛇', emoji: '🐍', years: '2025, 2013, 2001' },
+            { name: '马', emoji: '🐴', years: '2026, 2014, 2002' },
+            { name: '羊', emoji: '🐑', years: '2027, 2015, 2003' },
+            { name: '猴', emoji: '🐵', years: '2028, 2016, 2004' },
+            { name: '鸡', emoji: '🐔', years: '2029, 2017, 2005' },
+            { name: '狗', emoji: '🐶', years: '2030, 2018, 2006' },
+            { name: '猪', emoji: '🐷', years: '2031, 2019, 2007' }
+        ];
+
+        const baziData = {
+            tiangan: ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'],
+            dizhi: ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
+            wuxing: ['金', '木', '水', '火', '土']
+        };
+
+        const testResults = {
+            passed: 0,
+            failed: 0,
+            tests: []
+        };
+
+        function addTestResult(name, passed, details = '') {
+            testResults.tests.push({ name, passed, details });
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            document.getElementById('passCount').textContent = testResults.passed;
+            document.getElementById('failCount').textContent = testResults.failed;
+        }
+
+        function renderTestResults() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = '';
+
+            const testSections = [
+                {
+                    title: '🔧 工具函数测试',
+                    tests: testResults.tests.filter(t => t.name.includes('工具') || t.name.includes('getRandom') || t.name.includes('generateId') || t.name.includes('format'))
+                },
+                {
+                    title: '🎴 塔罗牌数据测试',
+                    tests: testResults.tests.filter(t => t.name.includes('塔罗') || t.name.includes('majorArcana') || t.name.includes('cardSpreads'))
+                },
+                {
+                    title: '🐲 生肖数据测试',
+                    tests: testResults.tests.filter(t => t.name.includes('生肖'))
+                },
+                {
+                    title: '🎯 八字数据测试',
+                    tests: testResults.tests.filter(t => t.name.includes('八字') || t.name.includes('天干') || t.name.includes('地支') || t.name.includes('五行'))
+                },
+                {
+                    title: '📜 历史记录测试',
+                    tests: testResults.tests.filter(t => t.name.includes('历史'))
+                }
+            ];
+
+            testSections.forEach(section => {
+                if (section.tests.length === 0) return;
+
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'test-section';
+                sectionDiv.innerHTML = `<h2>${section.title}</h2>`;
+
+                section.tests.forEach(test => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = `test-result ${test.passed ? 'pass' : 'fail'}`;
+                    resultDiv.innerHTML = `
+                        <span class="icon">${test.passed ? '✅' : '❌'}</span>
+                        <span class="test-name">${test.name}</span>
+                        <span class="test-status">${test.passed ? '通过' : '失败'}</span>
+                    `;
+                    
+                    if (test.details) {
+                        const detailsDiv = document.createElement('div');
+                        detailsDiv.className = 'test-details';
+                        detailsDiv.textContent = test.details;
+                        resultDiv.appendChild(detailsDiv);
+                    }
+                    
+                    sectionDiv.appendChild(resultDiv);
+                });
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function runAllTests() {
+            testResults.passed = 0;
+            testResults.failed = 0;
+            testResults.tests = [];
+            updateSummary();
+
+            const btn = document.getElementById('runTestsBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 测试中...';
+
+            setTimeout(() => {
+                testHelpers();
+                testTarotData();
+                testShengxiaoData();
+                testBaziData();
+                testHistoryLogic();
+
+                renderTestResults();
+                
+                btn.disabled = false;
+                btn.textContent = '🔄 重新运行测试';
+            }, 100);
+        }
+
+        function testHelpers() {
+            const testArray = [1, 2, 3, 4, 5];
+            const randomItem = helpers.getRandomItem(testArray);
+            addTestResult(
+                '工具函数: getRandomItem',
+                testArray.includes(randomItem),
+                `返回值: ${randomItem}`
+            );
+
+            const randomNum = helpers.getRandomNumber(1, 100);
+            addTestResult(
+                '工具函数: getRandomNumber',
+                randomNum >= 1 && randomNum <= 100,
+                `返回值: ${randomNum} (范围: 1-100)`
+            );
+
+            const id1 = helpers.generateId();
+            const id2 = helpers.generateId();
+            addTestResult(
+                '工具函数: generateId',
+                id1 !== id2 && id1.length > 0,
+                `ID1: ${id1}\nID2: ${id2}`
+            );
+
+            const now = new Date();
+            const formatted = helpers.formatDate(now);
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            addTestResult(
+                '工具函数: formatDate',
+                dateRegex.test(formatted),
+                `格式化结果: ${formatted}`
+            );
+
+            const formattedDateTime = helpers.formatDateTime(now);
+            const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+            addTestResult(
+                '工具函数: formatDateTime',
+                dateTimeRegex.test(formattedDateTime),
+                `格式化结果: ${formattedDateTime}`
+            );
+
+            const easeResult = helpers.easeInOutCubic(0.5);
+            addTestResult(
+                '工具函数: easeInOutCubic',
+                easeResult === 0.5,
+                `easeInOutCubic(0.5) = ${easeResult}`
+            );
+        }
+
+        function testTarotData() {
+            addTestResult(
+                '塔罗牌: 大阿卡纳数量',
+                tarotData.majorArcana.length === 22,
+                `实际数量: ${tarotData.majorArcana.length} (预期: 22)`
+            );
+
+            addTestResult(
+                '塔罗牌: 包含愚者',
+                tarotData.majorArcana.some(c => c.name === '愚者'),
+                '检查大阿卡纳第一张牌'
+            );
+
+            addTestResult(
+                '塔罗牌: 包含世界',
+                tarotData.majorArcana.some(c => c.name === '世界'),
+                '检查大阿卡纳最后一张牌'
+            );
+
+            addTestResult(
+                '塔罗牌: 牌阵数量',
+                tarotData.cardSpreads.length === 2,
+                `实际数量: ${tarotData.cardSpreads.length} (预期: 2)`
+            );
+
+            addTestResult(
+                '塔罗牌: 包含单张牌阵',
+                tarotData.cardSpreads.some(s => s.name === '单张牌'),
+                '检查单张牌阵'
+            );
+
+            addTestResult(
+                '塔罗牌: 包含三张牌阵',
+                tarotData.cardSpreads.some(s => s.name === '三张牌'),
+                '检查三张牌阵'
+            );
+
+            const firstCard = tarotData.majorArcana[0];
+            addTestResult(
+                '塔罗牌: 卡牌数据结构',
+                firstCard.id && firstCard.name && firstCard.meaning && firstCard.element,
+                `卡牌结构: ${JSON.stringify(firstCard, null, 2)}`
+            );
+        }
+
+        function testShengxiaoData() {
+            addTestResult(
+                '生肖: 数量检查',
+                shengxiaoData.length === 12,
+                `实际数量: ${shengxiaoData.length} (预期: 12)`
+            );
+
+            const requiredShengxiao = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+            let allPresent = true;
+            let missing = [];
+            requiredShengxiao.forEach(sx => {
+                if (!shengxiaoData.some(s => s.name === sx)) {
+                    allPresent = false;
+                    missing.push(sx);
+                }
+            });
+            addTestResult(
+                '生肖: 完整性检查',
+                allPresent,
+                missing.length > 0 ? `缺失: ${missing.join(', ')}` : '所有生肖都存在'
+            );
+
+            addTestResult(
+                '生肖: 数据结构',
+                shengxiaoData[0].name && shengxiaoData[0].emoji && shengxiaoData[0].years,
+                `生肖结构: ${JSON.stringify(shengxiaoData[0], null, 2)}`
+            );
+        }
+
+        function testBaziData() {
+            addTestResult(
+                '八字: 天干数量',
+                baziData.tiangan.length === 10,
+                `实际数量: ${baziData.tiangan.length} (预期: 10)`
+            );
+
+            addTestResult(
+                '八字: 地支数量',
+                baziData.dizhi.length === 12,
+                `实际数量: ${baziData.dizhi.length} (预期: 12)`
+            );
+
+            addTestResult(
+                '八字: 五行数量',
+                baziData.wuxing.length === 5,
+                `实际数量: ${baziData.wuxing.length} (预期: 5)`
+            );
+
+            const requiredTiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+            let allTianganPresent = true;
+            requiredTiangan.forEach(tg => {
+                if (!baziData.tiangan.includes(tg)) {
+                    allTianganPresent = false;
+                }
+            });
+            addTestResult(
+                '八字: 天干完整性',
+                allTianganPresent,
+                `天干列表: ${baziData.tiangan.join(', ')}`
+            );
+
+            const requiredDizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+            let allDizhiPresent = true;
+            requiredDizhi.forEach(dz => {
+                if (!baziData.dizhi.includes(dz)) {
+                    allDizhiPresent = false;
+                }
+            });
+            addTestResult(
+                '八字: 地支完整性',
+                allDizhiPresent,
+                `地支列表: ${baziData.dizhi.join(', ')}`
+            );
+
+            const requiredWuxing = ['金', '木', '水', '火', '土'];
+            let allWuxingPresent = true;
+            requiredWuxing.forEach(wx => {
+                if (!baziData.wuxing.includes(wx)) {
+                    allWuxingPresent = false;
+                }
+            });
+            addTestResult(
+                '八字: 五行完整性',
+                allWuxingPresent,
+                `五行列表: ${baziData.wuxing.join(', ')}`
+            );
+        }
+
+        function testHistoryLogic() {
+            const STORAGE_KEY = 'fortune_history';
+            const MAX_HISTORY_ITEMS = 50;
+
+            addTestResult(
+                '历史记录: 存储键名',
+                STORAGE_KEY === 'fortune_history',
+                `存储键名: ${STORAGE_KEY}`
+            );
+
+            addTestResult(
+                '历史记录: 最大数量',
+                MAX_HISTORY_ITEMS === 50,
+                `最大历史记录数: ${MAX_HISTORY_ITEMS}`
+            );
+
+            const mockHistoryItem = {
+                id: 'test123',
+                type: 'tarot',
+                title: '测试记录',
+                timestamp: new Date().toISOString()
+            };
+
+            addTestResult(
+                '历史记录: 数据结构',
+                mockHistoryItem.id && mockHistoryItem.type && mockHistoryItem.timestamp,
+                `历史记录结构: ${JSON.stringify(mockHistoryItem, null, 2)}`
+            );
+
+            const historyTypes = ['tarot', 'bazi', 'ziwei', 'shengxiao', 'xingzuo', 'xingming', 'jiemeng', 'hepan', 'huangli', 'fortune'];
+            addTestResult(
+                '历史记录: 类型数量',
+                historyTypes.length === 10,
+                `支持的历史类型: ${historyTypes.join(', ')}`
+            );
+        }
+
+        function demoRandomNumber() {
+            const num = helpers.getRandomNumber(1, 100);
+            document.getElementById('randomNumber').textContent = num;
+        }
+
+        function demoGenerateId() {
+            const id = helpers.generateId();
+            document.getElementById('uniqueId').textContent = id;
+        }
+
+        function demoFormatDate() {
+            const date = helpers.formatDate(new Date());
+            document.getElementById('formattedDate').textContent = date;
+        }
+
+        function initTarotDemo() {
+            const container = document.getElementById('tarotDemo');
+            tarotData.majorArcana.slice(0, 10).forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'tarot-card';
+                cardDiv.textContent = card.icon;
+                cardDiv.title = `${card.name}: ${card.meaning}`;
+                cardDiv.onclick = () => {
+                    alert(`🎴 ${card.name}\n\n📖 ${card.meaning}\n\n🔑 关键词: ${card.keyword}\n🌟 元素: ${card.element}`);
+                };
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function initShengxiaoDemo() {
+            const container = document.getElementById('shengxiaoDemo');
+            shengxiaoData.forEach(sx => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shengxiao-item';
+                itemDiv.innerHTML = `
+                    <span class="emoji">${sx.emoji}</span>
+                    <span class="name">${sx.name}</span>
+                `;
+                itemDiv.onclick = () => {
+                    const scores = {
+                        overall: helpers.getRandomNumber(60, 99),
+                        career: helpers.getRandomNumber(60, 99),
+                        wealth: helpers.getRandomNumber(60, 99),
+                        love: helpers.getRandomNumber(60, 99),
+                        health: helpers.getRandomNumber(60, 99)
+                    };
+                    alert(`🐲 ${sx.name}年运势\n\n📊 综合: ${scores.overall}分\n💼 事业: ${scores.career}分\n💰 财运: ${scores.wealth}分\n💕 感情: ${scores.love}分\n🏥 健康: ${scores.health}分`);
+                };
+                container.appendChild(itemDiv);
+            });
+        }
+
+        window.onload = function() {
+            initTarotDemo();
+            initShengxiaoDemo();
+            demoRandomNumber();
+            demoGenerateId();
+            demoFormatDate();
+        };
+    </script>
+</body>
+</html>

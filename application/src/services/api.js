@@ -17,26 +17,26 @@ const API_CONFIG = {
 }
 
 const xingzuoMap = {
-  '白羊座': 1,
-  '金牛座': 2,
-  '双子座': 3,
-  '巨蟹座': 4,
-  '狮子座': 5,
-  '处女座': 6,
-  '天秤座': 7,
-  '天蝎座': 8,
-  '射手座': 9,
-  '摩羯座': 10,
-  '水瓶座': 11,
-  '双鱼座': 12
+  白羊座: 1,
+  金牛座: 2,
+  双子座: 3,
+  巨蟹座: 4,
+  狮子座: 5,
+  处女座: 6,
+  天秤座: 7,
+  天蝎座: 8,
+  射手座: 9,
+  摩羯座: 10,
+  水瓶座: 11,
+  双鱼座: 12
 }
 
 const timeTypeMap = {
-  '今日': 'today',
-  '明日': 'tomorrow',
-  '本周': 'week',
-  '本月': 'month',
-  '本年': 'year'
+  今日: 'today',
+  明日: 'tomorrow',
+  本周: 'week',
+  本月: 'month',
+  本年: 'year'
 }
 
 const errorMessages = {
@@ -66,13 +66,13 @@ function createTimeoutPromise(ms) {
 async function request(url, params = {}) {
   const queryString = new URLSearchParams(params).toString()
   const fullUrl = queryString ? `${url}?${queryString}` : url
-  
+
   console.log('[API] 请求 URL:', fullUrl)
-  
+
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.tanshu.timeout)
-    
+
     const response = await Promise.race([
       fetch(fullUrl, {
         method: 'GET',
@@ -83,9 +83,9 @@ async function request(url, params = {}) {
       }),
       createTimeoutPromise(API_CONFIG.tanshu.timeout)
     ])
-    
+
     clearTimeout(timeoutId)
-    
+
     if (!response.ok) {
       if (response.status === 401) {
         throw new Error('invalidKey')
@@ -96,20 +96,20 @@ async function request(url, params = {}) {
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    
+
     const data = await response.json()
     console.log('[API] 响应数据:', data)
-    
+
     if (data && data.code !== undefined && data.code !== 1) {
       throw new Error(data.msg || 'API 返回错误')
     }
-    
+
     return data
   } catch (error) {
     console.error('[API] 请求异常:', error)
-    
+
     let userMessage = errorMessages.unknown
-    
+
     if (error.message === 'timeout' || error.name === 'AbortError') {
       userMessage = errorMessages.timeout
     } else if (error.message === 'invalidKey') {
@@ -123,7 +123,7 @@ async function request(url, params = {}) {
     } else if (error.message) {
       userMessage = error.message
     }
-    
+
     showError(userMessage)
     throw new Error(userMessage)
   }
@@ -145,29 +145,29 @@ export const tanshuApi = {
   async getConstellationFortune(xingzuoName, timeRange = '今日') {
     try {
       console.log('[API] 调用星座运势:', { xingzuoName, timeRange })
-      
+
       if (!xingzuoName) {
         throw new Error('请选择您的星座')
       }
-      
+
       const cid = xingzuoMap[xingzuoName]
       if (!cid) {
         throw new Error(`未知的星座: ${xingzuoName}`)
       }
-      
+
       const validTimeRanges = ['今日', '明日', '本周', '本月', '本年']
       const normalizedTimeRange = validTimeRanges.includes(timeRange) ? timeRange : '今日'
       const type = timeTypeMap[normalizedTimeRange] || 'today'
-      
+
       console.log('[API] 转换后的参数:', { cid, type, normalizedTimeRange })
-      
+
       const url = `${API_CONFIG.tanshu.baseUrl}/constellation/v1/index`
       const params = {
         key: API_CONFIG.tanshu.key,
         cid: cid,
         type: type
       }
-      
+
       return await request(url, params)
     } catch (error) {
       throw error
@@ -179,7 +179,7 @@ export const tanshuApi = {
       if (!keyword || !keyword.trim()) {
         throw new Error('请输入梦境关键词')
       }
-      
+
       const url = `${API_CONFIG.tanshu.baseUrl}/dream/v1/index`
       const params = {
         key: API_CONFIG.tanshu.key,
@@ -223,7 +223,7 @@ export const tanshuApi = {
       if (!type || !value) {
         throw new Error('请输入完整的测试信息')
       }
-      
+
       const url = `${API_CONFIG.tanshu.baseUrl}/jixiong/v1/index`
       const params = {
         key: API_CONFIG.tanshu.key,
@@ -251,9 +251,11 @@ export const tanshuApi = {
   },
 
   isConfigured() {
-    return API_CONFIG.tanshu.key && 
-           API_CONFIG.tanshu.key !== 'YOUR_TANSHU_API_KEY' && 
-           API_CONFIG.tanshu.key.trim() !== ''
+    return (
+      API_CONFIG.tanshu.key &&
+      API_CONFIG.tanshu.key !== 'YOUR_TANSHU_API_KEY' &&
+      API_CONFIG.tanshu.key.trim() !== ''
+    )
   }
 }
 
@@ -262,9 +264,9 @@ export function transformConstellationData(apiData, timeRange) {
     console.warn('[API] 数据转换失败: 无效的 API 响应')
     return null
   }
-  
+
   const data = apiData.data
-  
+
   if (timeRange === '今日' || timeRange === '明日') {
     return {
       name: data.name,
@@ -347,7 +349,7 @@ export function transformConstellationData(apiData, timeRange) {
       }
     }
   }
-  
+
   return data
 }
 

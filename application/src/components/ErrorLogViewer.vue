@@ -67,7 +67,7 @@ function getTypeColor(type) {
 
 <template>
   <div class="error-log-viewer">
-    <button class="toggle-btn" @click="togglePanel" :class="{ active: showPanel }">
+    <button class="toggle-btn" :class="{ active: showPanel }" @click="togglePanel">
       <span class="btn-icon">📋</span>
       <span class="btn-text">{{ showPanel ? '隐藏日志' : '错误日志' }}</span>
       <span v-if="logs.length" class="log-count">{{ logs.length }}</span>
@@ -78,15 +78,9 @@ function getTypeColor(type) {
         <div class="panel-header">
           <h3>📋 错误日志</h3>
           <div class="panel-actions">
-            <button class="action-btn export" @click="exportLogs" title="导出日志">
-              📥 导出
-            </button>
-            <button class="action-btn clear" @click="clearLogs" title="清空日志">
-              🗑️ 清空
-            </button>
-            <button class="action-btn close" @click="togglePanel">
-              ✕
-            </button>
+            <button class="action-btn export" title="导出日志" @click="exportLogs">📥 导出</button>
+            <button class="action-btn clear" title="清空日志" @click="clearLogs">🗑️ 清空</button>
+            <button class="action-btn close" @click="togglePanel">✕</button>
           </div>
         </div>
 

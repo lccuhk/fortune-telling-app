@@ -14,17 +14,17 @@ function getDevtoolsGlobalHook() {
 function getTarget() {
 	return typeof navigator !== "undefined" && typeof window !== "undefined" ? window : typeof globalThis !== "undefined" ? globalThis : {};
 }
-var isProxyAvailable = typeof Proxy === "function";
+const isProxyAvailable = typeof Proxy === "function";
 //#endregion
 //#region node_modules/@vue/devtools-api/lib/esm/const.js
-var HOOK_SETUP = "devtools-plugin:setup";
-var HOOK_PLUGIN_SETTINGS_SET = "plugin:settings:set";
+const HOOK_SETUP = "devtools-plugin:setup";
+const HOOK_PLUGIN_SETTINGS_SET = "plugin:settings:set";
 //#endregion
 //#region node_modules/@vue/devtools-api/lib/esm/time.js
-var supported;
-var perf;
+let supported;
+let perf;
 function isPerformanceSupported() {
-	var _a;
+	let _a;
 	if (supported !== void 0) return supported;
 	if (typeof window !== "undefined" && window.performance) {
 		supported = true;
@@ -40,7 +40,7 @@ function now() {
 }
 //#endregion
 //#region node_modules/@vue/devtools-api/lib/esm/proxy.js
-var ApiProxy = class {
+const ApiProxy = class {
 	constructor(plugin, hook) {
 		this.target = null;
 		this.targetQueue = [];
@@ -135,7 +135,7 @@ function setupDevtoolsPlugin(pluginDescriptor, setupFn) {
 * (c) 2025 Eduardo San Martin Morote
 * @license MIT
 */
-var isBrowser = typeof document !== "undefined";
+const isBrowser = typeof document !== "undefined";
 /**
 * Allows differentiating lazy components from functional components and vue-class-component
 * @internal
@@ -148,7 +148,7 @@ function isRouteComponent(component) {
 function isESModule(obj) {
 	return obj.__esModule || obj[Symbol.toStringTag] === "Module" || obj.default && isRouteComponent(obj.default);
 }
-var assign = Object.assign;
+const assign = Object.assign;
 function applyToParams(fn, params) {
 	const newParams = {};
 	for (const key in params) {
@@ -157,7 +157,7 @@ function applyToParams(fn, params) {
 	}
 	return newParams;
 }
-var noop = () => {};
+const noop = () => {};
 /**
 * Typesafe alternative to Array.isArray
 * https://github.com/microsoft/TypeScript/pull/48228
@@ -191,12 +191,12 @@ function warn$1(msg) {
 * encoded everywhere because some browsers like FF encode it when directly
 * written while others don't. Safari and IE don't encode ``"<>{}``` in hash.
 */
-var HASH_RE = /#/g;
-var AMPERSAND_RE = /&/g;
-var SLASH_RE = /\//g;
-var EQUAL_RE = /=/g;
-var IM_RE = /\?/g;
-var PLUS_RE = /\+/g;
+const HASH_RE = /#/g;
+const AMPERSAND_RE = /&/g;
+const SLASH_RE = /\//g;
+const EQUAL_RE = /=/g;
+const IM_RE = /\?/g;
+const PLUS_RE = /\+/g;
 /**
 * NOTE: It's not clear to me if we should encode the + symbol in queries, it
 * seems to be less flexible than not doing so and I can't find out the legacy
@@ -211,14 +211,14 @@ var PLUS_RE = /\+/g;
 * - https://url.spec.whatwg.org/#urlencoded-parsing
 * - https://stackoverflow.com/questions/1634271/url-encoding-the-space-character-or-20
 */
-var ENC_BRACKET_OPEN_RE = /%5B/g;
-var ENC_BRACKET_CLOSE_RE = /%5D/g;
-var ENC_CARET_RE = /%5E/g;
-var ENC_BACKTICK_RE = /%60/g;
-var ENC_CURLY_OPEN_RE = /%7B/g;
-var ENC_PIPE_RE = /%7C/g;
-var ENC_CURLY_CLOSE_RE = /%7D/g;
-var ENC_SPACE_RE = /%20/g;
+const ENC_BRACKET_OPEN_RE = /%5B/g;
+const ENC_BRACKET_CLOSE_RE = /%5D/g;
+const ENC_CARET_RE = /%5E/g;
+const ENC_BACKTICK_RE = /%60/g;
+const ENC_CURLY_OPEN_RE = /%7B/g;
+const ENC_PIPE_RE = /%7C/g;
+const ENC_CURLY_CLOSE_RE = /%7D/g;
+const ENC_SPACE_RE = /%20/g;
 /**
 * Encode characters that need to be encoded on the path, search and hash
 * sections of the URL.
@@ -287,8 +287,8 @@ function decode(text) {
 	}
 	return "" + text;
 }
-var TRAILING_SLASH_RE = /\/$/;
-var removeTrailingSlash = (path) => path.replace(TRAILING_SLASH_RE, "");
+const TRAILING_SLASH_RE = /\/$/;
+const removeTrailingSlash = (path) => path.replace(TRAILING_SLASH_RE, "");
 /**
 * Transforms a URI into a normalized history location
 *
@@ -366,7 +366,7 @@ function isSameRouteRecord(a, b) {
 }
 function isSameRouteLocationParams(a, b) {
 	if (Object.keys(a).length !== Object.keys(b).length) return false;
-	for (var key in a) if (!isSameRouteLocationParamsValue(a[key], b[key])) return false;
+	for (const key in a) if (!isSameRouteLocationParamsValue(a[key], b[key])) return false;
 	return true;
 }
 function isSameRouteLocationParamsValue(a, b) {
@@ -426,7 +426,7 @@ function resolveRelativePath(to, from) {
 * })
 * ```
 */
-var START_LOCATION_NORMALIZED = {
+const START_LOCATION_NORMALIZED = {
 	path: "/",
 	name: void 0,
 	params: {},
@@ -437,12 +437,12 @@ var START_LOCATION_NORMALIZED = {
 	meta: {},
 	redirectedFrom: void 0
 };
-var NavigationType = /* @__PURE__ */ function(NavigationType$1) {
+const NavigationType = /* @__PURE__ */ function(NavigationType$1) {
 	NavigationType$1["pop"] = "pop";
 	NavigationType$1["push"] = "push";
 	return NavigationType$1;
 }({});
-var NavigationDirection = /* @__PURE__ */ function(NavigationDirection$1) {
+const NavigationDirection = /* @__PURE__ */ function(NavigationDirection$1) {
 	NavigationDirection$1["back"] = "back";
 	NavigationDirection$1["forward"] = "forward";
 	NavigationDirection$1["unknown"] = "";
@@ -463,7 +463,7 @@ function normalizeBase(base) {
 	if (base[0] !== "/" && base[0] !== "#") base = "/" + base;
 	return removeTrailingSlash(base);
 }
-var BEFORE_HASH_RE = /^[^#]+#/;
+const BEFORE_HASH_RE = /^[^#]+#/;
 function createHref(base, location) {
 	return base.replace(BEFORE_HASH_RE, "#") + location;
 }
@@ -476,7 +476,7 @@ function getElementPosition(el, offset) {
 		top: elRect.top - docRect.top - (offset.top || 0)
 	};
 }
-var computeScrollPosition = () => ({
+const computeScrollPosition = () => ({
 	left: window.scrollX,
 	top: window.scrollY
 });
@@ -531,7 +531,7 @@ function scrollToPosition(position) {
 function getScrollKey(path, delta) {
 	return (history.state ? history.state.position - delta : -1) + path;
 }
-var scrollPositions = /* @__PURE__ */ new Map();
+const scrollPositions = /* @__PURE__ */ new Map();
 function saveScrollPosition(key, scrollPosition) {
 	scrollPositions.set(key, scrollPosition);
 }
@@ -556,7 +556,7 @@ function isRouteName(name) {
 *
 * @internal
 */
-var ErrorTypes = /* @__PURE__ */ function(ErrorTypes$1) {
+const ErrorTypes = /* @__PURE__ */ function(ErrorTypes$1) {
 	ErrorTypes$1[ErrorTypes$1["MATCHER_NOT_FOUND"] = 1] = "MATCHER_NOT_FOUND";
 	ErrorTypes$1[ErrorTypes$1["NAVIGATION_GUARD_REDIRECT"] = 2] = "NAVIGATION_GUARD_REDIRECT";
 	ErrorTypes$1[ErrorTypes$1["NAVIGATION_ABORTED"] = 4] = "NAVIGATION_ABORTED";
@@ -564,12 +564,12 @@ var ErrorTypes = /* @__PURE__ */ function(ErrorTypes$1) {
 	ErrorTypes$1[ErrorTypes$1["NAVIGATION_DUPLICATED"] = 16] = "NAVIGATION_DUPLICATED";
 	return ErrorTypes$1;
 }({});
-var NavigationFailureSymbol = Symbol("navigation failure");
+const NavigationFailureSymbol = Symbol("navigation failure");
 /**
 * Enumeration with all possible types for navigation failures. Can be passed to
 * {@link isNavigationFailure} to check for specific failures.
 */
-var NavigationFailureType = /* @__PURE__ */ function(NavigationFailureType$1) {
+const NavigationFailureType = /* @__PURE__ */ function(NavigationFailureType$1) {
 	/**
 	* An aborted navigation is a navigation that failed because a navigation
 	* guard returned `false` or called `next(false)`
@@ -587,7 +587,7 @@ var NavigationFailureType = /* @__PURE__ */ function(NavigationFailureType$1) {
 	NavigationFailureType$1[NavigationFailureType$1["duplicated"] = 16] = "duplicated";
 	return NavigationFailureType$1;
 }({});
-var ErrorTypeMessages = {
+const ErrorTypeMessages = {
 	[ErrorTypes.MATCHER_NOT_FOUND]({ location, currentLocation }) {
 		return `No match for\n ${JSON.stringify(location)}${currentLocation ? "\nwhile being at\n" + JSON.stringify(currentLocation) : ""}`;
 	},
@@ -619,7 +619,7 @@ function createRouterError(type, params) {
 function isNavigationFailure(error, type) {
 	return error instanceof Error && NavigationFailureSymbol in error && (type == null || !!(error.type & type));
 }
-var propertiesToLog = [
+const propertiesToLog = [
 	"params",
 	"query",
 	"hash"
@@ -707,35 +707,35 @@ function normalizeQuery(query) {
 *
 * @internal
 */
-var matchedRouteKey = Symbol("router view location matched");
+const matchedRouteKey = Symbol("router view location matched");
 /**
 * Allows overriding the router view depth to control which component in
 * `matched` is rendered. rvd stands for Router View Depth
 *
 * @internal
 */
-var viewDepthKey = Symbol("router view depth");
+const viewDepthKey = Symbol("router view depth");
 /**
 * Allows overriding the router instance returned by `useRouter` in tests. r
 * stands for router
 *
 * @internal
 */
-var routerKey = Symbol("router");
+const routerKey = Symbol("router");
 /**
 * Allows overriding the current route returned by `useRoute` in tests. rl
 * stands for route location
 *
 * @internal
 */
-var routeLocationKey = Symbol("route location");
+const routeLocationKey = Symbol("route location");
 /**
 * Allows overriding the current route used by router-view. Internally this is
 * used when the `route` prop is passed.
 *
 * @internal
 */
-var routerViewLocationKey = Symbol("router view location");
+const routerViewLocationKey = Symbol("router view location");
 /**
 * Create a list of callbacks that can be reset. Used to create before and after navigation guards list
 */
@@ -963,7 +963,7 @@ function formatRouteLocation(routeLocation, tooltip) {
 function formatDisplay(display) {
 	return { _custom: { display } };
 }
-var routerId = 0;
+let routerId = 0;
 function addDevtools(app, router, matcher) {
 	if (router.__hasDevtools) return;
 	router.__hasDevtools = true;
@@ -1196,9 +1196,9 @@ function formatRouteRecordMatcherForStateInspector(route) {
 var PINK_500 = 15485081;
 var BLUE_600 = 2450411;
 var LIME_500 = 8702998;
-var CYAN_400 = 2282478;
+const CYAN_400 = 2282478;
 var ORANGE_400 = 16486972;
-var DARK = 6710886;
+const DARK = 6710886;
 var RED_100 = 16704226;
 var RED_700 = 12131356;
 function formatRouteRecordForInspector(route) {
@@ -1247,7 +1247,7 @@ function formatRouteRecordForInspector(route) {
 	};
 }
 var routeRecordId = 0;
-var EXTRACT_REGEXP_RE = /^\/(.*)\/([a-z]*)$/;
+const EXTRACT_REGEXP_RE = /^\/(.*)\/([a-z]*)$/;
 function markRouteRecordActive(route, currentRoute) {
 	const isExactActive = currentRoute.matched.length && isSameRouteRecord(currentRoute.matched[currentRoute.matched.length - 1], route.record);
 	route.__vd_exactActive = route.__vd_active = isExactActive;
@@ -1289,7 +1289,7 @@ function omit(obj, keys) {
 * (c) 2025 Eduardo San Martin Morote
 * @license MIT
 */
-var createBaseLocation = () => location.protocol + "//" + location.host;
+const createBaseLocation = () => location.protocol + "//" + location.host;
 /**
 * Creates a normalized history location from a window.location object
 * @param base - The base path
@@ -1299,7 +1299,7 @@ function createCurrentLocation(base, location$1) {
 	const { pathname, search, hash } = location$1;
 	const hashPos = base.indexOf("#");
 	if (hashPos > -1) {
-		let slicePos = hash.includes(base.slice(hashPos)) ? base.slice(hashPos).length : 1;
+		const slicePos = hash.includes(base.slice(hashPos)) ? base.slice(hashPos).length : 1;
 		let pathFromHash = hash.slice(slicePos);
 		if (pathFromHash[0] !== "/") pathFromHash = "/" + pathFromHash;
 		return stripBase(pathFromHash, "");
@@ -1307,7 +1307,7 @@ function createCurrentLocation(base, location$1) {
 	return stripBase(pathname, base) + search + hash;
 }
 function useHistoryListeners(base, historyState, currentLocation, replace) {
-	let listeners = [];
+	const listeners = [];
 	let teardowns = [];
 	let pauseState = null;
 	const popStateHandler = ({ state }) => {
@@ -1561,7 +1561,7 @@ function createWebHashHistory(base) {
 	if (!base.endsWith("#/") && !base.endsWith("#")) warn$1(`A hash base must end with a "#":\n"${base}" should be "${base.replace(/#.*$/, "#")}".`);
 	return createWebHistory(base);
 }
-var TokenType = /* @__PURE__ */ function(TokenType$1) {
+const TokenType = /* @__PURE__ */ function(TokenType$1) {
 	TokenType$1[TokenType$1["Static"] = 0] = "Static";
 	TokenType$1[TokenType$1["Param"] = 1] = "Param";
 	TokenType$1[TokenType$1["Group"] = 2] = "Group";
@@ -1575,11 +1575,11 @@ var TokenizerState = /* @__PURE__ */ function(TokenizerState$1) {
 	TokenizerState$1[TokenizerState$1["EscapeNext"] = 4] = "EscapeNext";
 	return TokenizerState$1;
 }(TokenizerState || {});
-var ROOT_TOKEN = {
+const ROOT_TOKEN = {
 	type: TokenType.Static,
 	value: ""
 };
-var VALID_PARAM_RE = /[a-zA-Z0-9_]/;
+const VALID_PARAM_RE = /[a-zA-Z0-9_]/;
 function tokenizePath(path) {
 	if (!path) return [[]];
 	if (path === "/") return [[ROOT_TOKEN]];
@@ -1671,8 +1671,8 @@ function tokenizePath(path) {
 	finalizeSegment();
 	return tokens;
 }
-var BASE_PARAM_PATTERN = "[^/]+?";
-var BASE_PATH_PARSER_OPTIONS = {
+const BASE_PARAM_PATTERN = "[^/]+?";
+const BASE_PATH_PARSER_OPTIONS = {
 	sensitive: false,
 	strict: false,
 	start: true,
@@ -1693,7 +1693,7 @@ var PathScore = /* @__PURE__ */ function(PathScore$1) {
 	PathScore$1[PathScore$1["BonusCaseSensitive"] = .25] = "BonusCaseSensitive";
 	return PathScore$1;
 }(PathScore || {});
-var REGEX_CHARS_RE = /[.+*?^${}()[\]/\\]/g;
+const REGEX_CHARS_RE = /[.+*?^${}()[\]/\\]/g;
 /**
 * Creates a path parser from an array of Segments (a segment is an array of Tokens)
 *
@@ -1845,7 +1845,7 @@ function isLastScoreNegative(score) {
 	const last = score[score.length - 1];
 	return score.length > 0 && last[last.length - 1] < 0;
 }
-var PATH_PARSER_OPTIONS_DEFAULTS = {
+const PATH_PARSER_OPTIONS_DEFAULTS = {
 	strict: false,
 	end: true,
 	sensitive: false
@@ -2231,7 +2231,7 @@ function preferSingleVNode(vnodes) {
 /**
 * Component to render a link that triggers a navigation on click.
 */
-var RouterLink = /* @__PURE__ */ defineComponent({
+const RouterLink = /* @__PURE__ */ defineComponent({
 	name: "RouterLink",
 	compatConfig: { MODE: 3 },
 	props: {
@@ -2303,7 +2303,7 @@ function getOriginalPath(record) {
 * @param defaultClass
 */
 var getLinkClass = (propClass, globalClass, defaultClass) => propClass != null ? propClass : globalClass != null ? globalClass : defaultClass;
-var RouterViewImpl = /* @__PURE__ */ defineComponent({
+const RouterViewImpl = /* @__PURE__ */ defineComponent({
 	name: "RouterView",
 	inheritAttrs: false,
 	props: {
@@ -2389,7 +2389,7 @@ function normalizeSlot(slot, data) {
 /**
 * Component to display the current route the user is at.
 */
-var RouterView = RouterViewImpl;
+const RouterView = RouterViewImpl;
 function warnDeprecatedUsage() {
 	const instance = getCurrentInstance();
 	const parentName = instance.parent && instance.parent.type.name;
@@ -2675,8 +2675,8 @@ function createRouter(options) {
 			}).catch(noop);
 		});
 	}
-	let readyHandlers = useCallbacks();
-	let errorListeners = useCallbacks();
+	const readyHandlers = useCallbacks();
+	const errorListeners = useCallbacks();
 	let ready;
 	/**
 	* Trigger errorListeners added via onError and throws the error as well

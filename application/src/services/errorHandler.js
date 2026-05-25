@@ -40,13 +40,13 @@ function addErrorLog(errorInfo) {
     ...errorInfo,
     context: collectContext()
   }
-  
+
   errorLogs.unshift(log)
-  
+
   if (errorLogs.length > MAX_LOGS) {
     errorLogs.pop()
   }
-  
+
   console.group('%c🚨 错误捕获', 'color: #ef4444; font-weight: bold; font-size: 14px;')
   console.log('%c类型:', 'color: #f59e0b; font-weight: bold;', errorInfo.type)
   console.log('%c消息:', 'color: #3b82f6; font-weight: bold;', errorInfo.message)
@@ -57,13 +57,13 @@ function addErrorLog(errorInfo) {
     console.log('%c详情:', 'color: #10b981; font-weight: bold;', errorInfo.details)
   }
   console.groupEnd()
-  
+
   try {
     localStorage.setItem('errorLogs', JSON.stringify(errorLogs.slice(0, 50)))
   } catch (e) {
     console.warn('无法保存错误日志到 localStorage:', e)
   }
-  
+
   return log
 }
 
@@ -176,7 +176,7 @@ function exportErrorLogs() {
     exportTime: getTimestamp(),
     logs: getErrorLogs(100)
   }
-  
+
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -190,34 +190,38 @@ function exportErrorLogs() {
 
 function initGlobalErrorHandler(app) {
   loadStoredLogs()
-  
-  window.onerror = function(message, source, lineno, colno, error) {
+
+  window.onerror = function (message, source, lineno, colno, error) {
     handleJSError(message, source, lineno, colno, error)
     return false
   }
-  
-  window.addEventListener('unhandledrejection', function(event) {
+
+  window.addEventListener('unhandledrejection', function (event) {
     event.preventDefault()
     handlePromiseRejection(event)
   })
-  
-  window.addEventListener('error', function(event) {
-    if (event.target && (event.target.src || event.target.href)) {
-      handleResourceError(event)
-    }
-  }, true)
-  
+
+  window.addEventListener(
+    'error',
+    function (event) {
+      if (event.target && (event.target.src || event.target.href)) {
+        handleResourceError(event)
+      }
+    },
+    true
+  )
+
   if (app && app.config) {
-    app.config.errorHandler = function(error, instance, info) {
+    app.config.errorHandler = function (error, instance, info) {
       handleVueError(error, instance, info)
       console.error('Vue 错误:', error)
     }
-    
-    app.config.warnHandler = function(msg, instance, trace) {
+
+    app.config.warnHandler = function (msg, instance, trace) {
       console.warn('Vue 警告:', msg, trace)
     }
   }
-  
+
   console.log('%c✅ 全局错误捕获已初始化', 'color: #10b981; font-weight: bold;')
 }
 
@@ -237,7 +241,7 @@ function showErrorNotification(message, details = null) {
     animation: slideIn 0.3s ease-out;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   `
-  
+
   notification.innerHTML = `
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="font-size: 24px;">🚨</span>
@@ -248,9 +252,9 @@ function showErrorNotification(message, details = null) {
       </div>
     </div>
   `
-  
+
   document.body.appendChild(notification)
-  
+
   setTimeout(() => {
     notification.style.animation = 'slideOut 0.3s ease-in'
     setTimeout(() => notification.remove(), 300)

@@ -1,16 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../pages/Home.vue'
-import HePan from '../pages/HePan.vue'
-import FortunePage from '../pages/FortunePage.vue'
-import BaziPage from '../pages/BaziPage.vue'
-import ZiweiPage from '../pages/ZiweiPage.vue'
-import ShengxiaoPage from '../pages/ShengxiaoPage.vue'
-import XingzuoPage from '../pages/XingzuoPage.vue'
-import XingmingPage from '../pages/XingmingPage.vue'
-import JiemengPage from '../pages/JiemengPage.vue'
-import TarotPage from '../pages/TarotPage.vue'
-import LoginPage from '../pages/LoginPage.vue'
-import HuangliPage from '../pages/HuangliPage.vue'
+
+const Home = () => import('../pages/Home.vue')
+const HePan = () => import('../pages/HePan.vue')
+const FortunePage = () => import('../pages/FortunePage.vue')
+const BaziPage = () => import('../pages/BaziPage.vue')
+const ZiweiPage = () => import('../pages/ZiweiPage.vue')
+const ShengxiaoPage = () => import('../pages/ShengxiaoPage.vue')
+const XingzuoPage = () => import('../pages/XingzuoPage.vue')
+const XingmingPage = () => import('../pages/XingmingPage.vue')
+const JiemengPage = () => import('../pages/JiemengPage.vue')
+const TarotPage = () => import('../pages/TarotPage.vue')
+const LoginPage = () => import('../pages/LoginPage.vue')
+const HuangliPage = () => import('../pages/HuangliPage.vue')
 
 const routes = [
   {
@@ -122,19 +123,23 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory('/fortune-telling-app/'),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
-// 路由守卫
 router.beforeEach((to, from, next) => {
-  // 设置页面标题
   if (to.meta.title) {
     document.title = `${to.meta.title} - 命运之轮`
   } else {
     document.title = '命运之轮 - 探索你的专属命运指引'
   }
 
-  // 登录守卫
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
 
   if (to.meta.requiresAuth !== false && !isLoggedIn && to.name !== 'Login') {

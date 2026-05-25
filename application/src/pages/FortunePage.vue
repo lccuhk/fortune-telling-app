@@ -27,7 +27,7 @@ function goBack() {
 // 处理算命
 async function handleGetFortune() {
   errorMsg.value = ''
-  
+
   if (!formData.value.name.trim() || !formData.value.birthDate) {
     errorMsg.value = '命理分析需要您的姓名和出生日期，请补充完整哦 🔮'
     return
@@ -38,11 +38,11 @@ async function handleGetFortune() {
   }
 
   loading.value = true
-  
+
   try {
     // 模拟占卜过程的延迟
     await new Promise(resolve => setTimeout(resolve, 2500))
-    
+
     const fortunes = [
       '近期运势平稳，宜守不宜攻。保持现状，等待时机。',
       '财运亨通，正财偏财皆有收获。把握投资机会。',
@@ -50,7 +50,7 @@ async function handleGetFortune() {
       '事业运强劲，有贵人相助，适合拓展业务。',
       '健康需注意，劳逸结合，保持规律作息。'
     ]
-    
+
     const advices = [
       '建议多与家人沟通，家庭和睦是事业成功的基础。',
       '保持谦逊态度，虚心学习，会有意想不到的收获。',
@@ -58,7 +58,7 @@ async function handleGetFortune() {
       '多关注身边的机会，把握时机，果断行动。',
       '注意身体健康，定期体检，预防胜于治疗。'
     ]
-    
+
     result.value = {
       name: formData.value.name,
       birthDate: formData.value.birthDate,
@@ -70,7 +70,7 @@ async function handleGetFortune() {
       luckyColor: ['红色', '蓝色', '绿色', '紫色', '黄色'][Math.floor(Math.random() * 5)],
       luckyDirection: ['东方', '南方', '西方', '北方'][Math.floor(Math.random() * 4)]
     }
-  } catch (err) {
+  } catch (_err) {
     alert('算命失败，请重试')
   } finally {
     loading.value = false
@@ -101,11 +101,19 @@ function resetFortune() {
     <!-- 表单区域 -->
     <div v-if="!result" class="form-section">
       <div class="form-card">
-        
         <!-- 空状态/错误状态插画 -->
         <div v-if="errorMsg" class="error-state">
           <div class="error-icon">
-            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="12"></line>
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -116,9 +124,9 @@ function resetFortune() {
 
         <div class="form-group">
           <label>👤 姓名</label>
-          <input 
-            v-model="formData.name" 
-            type="text" 
+          <input
+            v-model="formData.name"
+            type="text"
             placeholder="请输入您的姓名"
             class="form-input"
           />
@@ -126,11 +134,7 @@ function resetFortune() {
 
         <div class="form-group">
           <label>🎂 出生日期</label>
-          <input 
-            v-model="formData.birthDate" 
-            type="date"
-            class="form-input"
-          />
+          <input v-model="formData.birthDate" type="date" class="form-input" />
         </div>
 
         <div class="form-group">
@@ -149,19 +153,15 @@ function resetFortune() {
 
         <div v-if="formData.questionType === '综合'" class="form-group">
           <label>💭 具体问题</label>
-          <input 
-            v-model="formData.question" 
-            type="text" 
+          <input
+            v-model="formData.question"
+            type="text"
             placeholder="例如：我的未来会怎样？"
             class="form-input"
           />
         </div>
 
-        <button 
-          class="submit-btn"
-          @click="handleGetFortune"
-          :disabled="loading"
-        >
+        <button class="submit-btn" :disabled="loading" @click="handleGetFortune">
           🔮 开始算命
         </button>
       </div>
@@ -173,7 +173,7 @@ function resetFortune() {
         <div class="mystic-circle">
           <div class="yin-yang">☯️</div>
         </div>
-        <p class="loading-text">星辰运转，命运交织<br>正在为您洞察天机...</p>
+        <p class="loading-text">星辰运转，命运交织<br />正在为您洞察天机...</p>
       </div>
     </div>
 
@@ -223,11 +223,11 @@ function resetFortune() {
     </div>
 
     <!-- 运势海报组件 -->
-    <ShareCard 
+    <ShareCard
       :show="showShareCard"
       :result="{ prediction: result?.fortune, advice: result?.advice }"
-      :userName="result?.name"
-      fortuneType="传统算命"
+      :user-name="result?.name"
+      fortune-type="传统算命"
       @close="showShareCard = false"
     />
   </div>
@@ -394,16 +394,31 @@ function resetFortune() {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* 沉浸式加载动画样式 */
@@ -454,16 +469,26 @@ function resetFortune() {
 }
 
 @keyframes spinSlow {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes spinFast {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes breathe {
-  0% { opacity: 0.6; transform: scale(0.95); }
-  100% { opacity: 1; transform: scale(1.05); }
+  0% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
 
 .result-section {

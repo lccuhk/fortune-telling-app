@@ -32,14 +32,14 @@ const generatedImage = ref(null)
 // 计算属性：获取运势类型图标
 const fortuneTypeIcon = computed(() => {
   const icons = {
-    '传统算命': '🔮',
-    '八字算命': '🎯',
-    '紫微斗数': '⭐',
-    '生肖运势': '🐲',
-    '星座运势': '♈',
-    '姓名学': '📝',
-    '周公解梦': '💭',
-    '塔罗牌占卜': '🃏'
+    传统算命: '🔮',
+    八字算命: '🎯',
+    紫微斗数: '⭐',
+    生肖运势: '🐲',
+    星座运势: '♈',
+    姓名学: '📝',
+    周公解梦: '💭',
+    塔罗牌占卜: '🃏'
   }
   return icons[props.fortuneType] || '🔮'
 })
@@ -86,18 +86,18 @@ const luckyNumbers = computed(() => {
 const yiJi = computed(() => {
   const yiList = ['签约', '出行', '求财', '交友', '学习', '创新', '投资', '求职']
   const jiList = ['争吵', '冒险', '借贷', '冲动', '熬夜', '拖延', '浪费', '固执']
-  
+
   const seed = new Date().getDate()
   return {
-    yi: yiList.slice(seed % 4, seed % 4 + 2),
-    ji: jiList.slice((seed + 2) % 4, (seed + 2) % 4 + 2)
+    yi: yiList.slice(seed % 4, (seed % 4) + 2),
+    ji: jiList.slice((seed + 2) % 4, ((seed + 2) % 4) + 2)
   }
 })
 
 // 生成分享图片
 async function generateShareImage() {
   if (!shareCardRef.value) return
-  
+
   isGenerating.value = true
   try {
     const canvas = await html2canvas(shareCardRef.value, {
@@ -107,7 +107,7 @@ async function generateShareImage() {
       backgroundColor: null,
       logging: false
     })
-    
+
     generatedImage.value = canvas.toDataURL('image/png')
     emit('shared', generatedImage.value)
   } catch (error) {
@@ -121,7 +121,7 @@ async function generateShareImage() {
 // 下载图片
 function downloadImage() {
   if (!generatedImage.value) return
-  
+
   const link = document.createElement('a')
   link.download = `运势分享_${props.userName || '用户'}_${new Date().toLocaleDateString()}.png`
   link.href = generatedImage.value
@@ -144,7 +144,7 @@ function closeModal() {
             <h3>✨ 生成分享卡片</h3>
             <button class="close-btn" @click="closeModal">✕</button>
           </div>
-          
+
           <div class="modal-content">
             <!-- 分享卡片预览 -->
             <div ref="shareCardRef" class="share-card">
@@ -156,7 +156,7 @@ function closeModal() {
                   <p class="card-date">{{ new Date().toLocaleDateString('zh-CN') }}</p>
                 </div>
               </div>
-              
+
               <!-- 用户信息 -->
               <div class="user-info">
                 <div class="user-avatar">
@@ -167,30 +167,35 @@ function closeModal() {
                   <p class="user-label">今日运势</p>
                 </div>
               </div>
-              
+
               <!-- 运势评分 -->
               <div class="fortune-score">
-                <div class="score-circle" :style="{ background: `conic-gradient(${luckyColor.hex} ${fortuneScore * 3.6}deg, #f0f0f0 0deg)` }">
+                <div
+                  class="score-circle"
+                  :style="{
+                    background: `conic-gradient(${luckyColor.hex} ${fortuneScore * 3.6}deg, #f0f0f0 0deg)`
+                  }"
+                >
                   <div class="score-inner">
                     <span class="score-number">{{ fortuneScore }}</span>
                     <span class="score-label">运势分</span>
                   </div>
                 </div>
               </div>
-              
+
               <!-- 运势内容 -->
-              <div class="fortune-content" v-if="result">
+              <div v-if="result" class="fortune-content">
                 <div class="content-section">
                   <h4>🌟 运势概述</h4>
                   <p>{{ result.prediction?.substring(0, 80) }}...</p>
                 </div>
-                
+
                 <div class="content-section">
                   <h4>💡 建议指引</h4>
                   <p>{{ result.advice?.substring(0, 80) }}...</p>
                 </div>
               </div>
-              
+
               <!-- 幸运信息 -->
               <div class="lucky-info">
                 <div class="lucky-item">
@@ -203,7 +208,7 @@ function closeModal() {
                   <span class="lucky-numbers">{{ luckyNumbers.join(', ') }}</span>
                 </div>
               </div>
-              
+
               <!-- 宜忌 -->
               <div class="yi-ji-section">
                 <div class="yi-ji-item yi">
@@ -215,7 +220,7 @@ function closeModal() {
                   <span class="yi-ji-content">{{ yiJi.ji.join(' · ') }}</span>
                 </div>
               </div>
-              
+
               <!-- 卡片底部 -->
               <div class="card-footer">
                 <p class="app-name">🔮 命运占卜</p>
@@ -224,35 +229,31 @@ function closeModal() {
                   <span>扫码测运势</span>
                 </div>
               </div>
-              
+
               <!-- 装饰元素 -->
               <div class="decoration decoration-1"></div>
               <div class="decoration decoration-2"></div>
               <div class="decoration decoration-3"></div>
             </div>
-            
+
             <!-- 操作按钮 -->
             <div class="action-buttons">
-              <button 
+              <button
                 v-if="!generatedImage"
-                class="btn-generate" 
-                @click="generateShareImage"
+                class="btn-generate"
                 :disabled="isGenerating"
+                @click="generateShareImage"
               >
                 <span v-if="isGenerating" class="loading-spinner"></span>
                 {{ isGenerating ? '生成中...' : '📸 生成分享图片' }}
               </button>
-              
+
               <template v-else>
-                <button class="btn-download" @click="downloadImage">
-                  💾 下载图片
-                </button>
-                <button class="btn-regenerate" @click="generateShareImage">
-                  🔄 重新生成
-                </button>
+                <button class="btn-download" @click="downloadImage">💾 下载图片</button>
+                <button class="btn-regenerate" @click="generateShareImage">🔄 重新生成</button>
               </template>
             </div>
-            
+
             <!-- 生成的图片预览 -->
             <div v-if="generatedImage" class="image-preview">
               <img :src="generatedImage" alt="分享卡片" />
@@ -739,29 +740,29 @@ function closeModal() {
   .share-modal {
     margin: 10px;
   }
-  
+
   .share-card {
     padding: 16px;
   }
-  
+
   .card-icon {
     font-size: 2rem;
   }
-  
+
   .card-title h2 {
     font-size: 1.1rem;
   }
-  
+
   .score-circle {
     width: 100px;
     height: 100px;
   }
-  
+
   .score-inner {
     width: 85px;
     height: 85px;
   }
-  
+
   .score-number {
     font-size: 1.5rem;
   }

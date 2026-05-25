@@ -10,42 +10,63 @@ const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', 
 const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
 
 const tianganWuxing = {
-  '甲': '木', '乙': '木',
-  '丙': '火', '丁': '火',
-  '戊': '土', '己': '土',
-  '庚': '金', '辛': '金',
-  '壬': '水', '癸': '水'
+  甲: '木',
+  乙: '木',
+  丙: '火',
+  丁: '火',
+  戊: '土',
+  己: '土',
+  庚: '金',
+  辛: '金',
+  壬: '水',
+  癸: '水'
 }
 
 const dizhiWuxing = {
-  '子': '水', '丑': '土', '寅': '木', '卯': '木',
-  '辰': '土', '巳': '火', '午': '火', '未': '土',
-  '申': '金', '酉': '金', '戌': '土', '亥': '水'
+  子: '水',
+  丑: '土',
+  寅: '木',
+  卯: '木',
+  辰: '土',
+  巳: '火',
+  午: '火',
+  未: '土',
+  申: '金',
+  酉: '金',
+  戌: '土',
+  亥: '水'
 }
 
 const dizhiShengxiao = {
-  '子': '鼠', '丑': '牛', '寅': '虎', '卯': '兔',
-  '辰': '龙', '巳': '蛇', '午': '马', '未': '羊',
-  '申': '猴', '酉': '鸡', '戌': '狗', '亥': '猪'
+  子: '鼠',
+  丑: '牛',
+  寅: '虎',
+  卯: '兔',
+  辰: '龙',
+  巳: '蛇',
+  午: '马',
+  未: '羊',
+  申: '猴',
+  酉: '鸡',
+  戌: '狗',
+  亥: '猪'
 }
 
 const wuxingColors = {
-  '金': '#f59e0b',
-  '木': '#22c55e',
-  '水': '#3b82f6',
-  '火': '#ef4444',
-  '土': '#a16207'
+  金: '#f59e0b',
+  木: '#22c55e',
+  水: '#3b82f6',
+  火: '#ef4444',
+  土: '#a16207'
 }
 
 const wuxingEmojis = {
-  '金': '⚔️',
-  '木': '🌲',
-  '水': '💧',
-  '火': '🔥',
-  '土': '🏔️'
+  金: '⚔️',
+  木: '🌲',
+  水: '💧',
+  火: '🔥',
+  土: '🏔️'
 }
-
-const shishen = ['比肩', '劫财', '食神', '伤官', '偏财', '正财', '七杀', '正官', '偏印', '正印']
 
 const formData = ref({
   name: '',
@@ -75,7 +96,7 @@ function generateBazi() {
   const dayDZ = getRandomItem(dizhi)
   const hourTG = getRandomItem(tiangan)
   const hourDZ = getRandomItem(dizhi)
-  
+
   return {
     year: { tg: yearTG, dz: yearDZ, full: yearTG + yearDZ },
     month: { tg: monthTG, dz: monthDZ, full: monthTG + monthDZ },
@@ -85,36 +106,36 @@ function generateBazi() {
 }
 
 function calculateWuxingCount(bazi) {
-  const counts = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 }
-  
+  const counts = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 }
+
   const pillars = [bazi.year, bazi.month, bazi.day, bazi.hour]
-  
+
   pillars.forEach(pillar => {
     counts[tianganWuxing[pillar.tg]]++
     counts[dizhiWuxing[pillar.dz]]++
   })
-  
+
   return counts
 }
 
 function getMainWuxing(counts) {
   let max = 0
   let main = '土'
-  
+
   Object.entries(counts).forEach(([wuxing, count]) => {
     if (count > max) {
       max = count
       main = wuxing
     }
   })
-  
+
   return main
 }
 
 function getWuxingBalance(counts) {
   const total = Object.values(counts).reduce((a, b) => a + b, 0)
   const avg = total / 5
-  
+
   const balance = {}
   Object.entries(counts).forEach(([wuxing, count]) => {
     const diff = count - avg
@@ -126,7 +147,7 @@ function getWuxingBalance(counts) {
       balance[wuxing] = '平衡'
     }
   })
-  
+
   return balance
 }
 
@@ -134,58 +155,62 @@ function generateAnalysis(bazi, wuxingCounts, mainWuxing, balance, questionType)
   const dayTG = bazi.day.tg
   const dayDZ = bazi.day.dz
   const dayWuxing = tianganWuxing[dayTG]
-  
+
   const templates = {
-    '综合': [
+    综合: [
       `您的日主为${dayTG}${dayDZ}，五行属${dayWuxing}。${dayTG}日出生的人，性格${dayTG === '甲' ? '正直刚强，有领导才能' : dayTG === '乙' ? '温柔善良，善于协调' : dayTG === '丙' ? '热情开朗，积极向上' : dayTG === '丁' ? '细腻敏感，富有艺术气息' : dayTG === '戊' ? '稳重踏实，值得信赖' : dayTG === '己' ? '包容大度，有耐心' : dayTG === '庚' ? '果断坚决，讲义气' : dayTG === '辛' ? '精致细腻，追求完美' : dayTG === '壬' ? '聪明灵活，善于变通' : '智慧深沉，有谋略'}。`,
       `从五行来看，您的${mainWuxing}${wuxingEmojis[mainWuxing]}最为旺盛，这意味着您在${mainWuxing === '金' ? '决断力和执行力' : mainWuxing === '木' ? '创造力和成长力' : mainWuxing === '水' ? '智慧和适应力' : mainWuxing === '火' ? '热情和表现力' : '稳定性和包容力'}方面具有天赋。`,
       `整体命格${Object.values(balance).every(b => b === '平衡') ? '五行平衡，命格清奇' : '五行有偏，需要注意调和'}。建议在日常生活中多关注${Object.entries(balance).find(([_, b]) => b === '偏弱')?.[0] || '各方面'}的补充。`
     ],
-    '事业': [
+    事业: [
       `您的事业运势${mainWuxing === '金' || mainWuxing === '火' ? '较为强劲' : '平稳发展'}。${dayTG}日出生的人在事业上${dayTG === '甲' || dayTG === '庚' ? '适合担任领导职务' : dayTG === '丙' || dayTG === '丁' ? '适合从事创意或服务行业' : '适合稳定发展的职业'}。`,
       `从八字来看，您在${bazi.year.tg === '庚' || bazi.year.tg === '辛' ? '金融、法律' : bazi.year.tg === '甲' || bazi.year.tg === '乙' ? '教育、文化' : bazi.year.tg === '丙' || bazi.year.tg === '丁' ? '媒体、艺术' : bazi.year.tg === '壬' || bazi.year.tg === '癸' ? '科研、技术' : '房地产、建筑'}等领域会有较好的发展。`,
       `建议：在工作中多发挥${dayWuxing}的特质，${dayWuxing === '金' ? '果断决策' : dayWuxing === '木' ? '创新思维' : dayWuxing === '水' ? '灵活应变' : dayWuxing === '火' ? '热情投入' : '稳重踏实'}，会有意想不到的收获。`
     ],
-    '财运': [
+    财运: [
       `您的财运${mainWuxing === '金' || mainWuxing === '土' ? '较为旺盛' : '需要努力积累'}。${dayTG}日出生的人在理财方面${dayTG === '戊' || dayTG === '己' ? '善于储蓄' : dayTG === '壬' || dayTG === '癸' ? '善于投资' : '需要理性规划'}。`,
       `从五行来看，${balance['金'] === '平衡' || balance['金'] === '过旺' ? '正财偏财都有机会' : '需要注意守财'}。建议在${mainWuxing === '水' ? '流动性强的行业' : mainWuxing === '土' ? '固定资产' : '多元化'}方面进行投资。`,
       `提醒：财运起伏是正常的，保持平常心，理性投资，避免冲动决策。`
     ],
-    '感情': [
+    感情: [
       `您的感情运势${mainWuxing === '木' || mainWuxing === '水' ? '较为浪漫' : '需要用心经营'}。${dayTG}日出生的人在感情中${dayTG === '乙' || dayTG === '丁' ? '温柔体贴' : dayTG === '甲' || dayTG === '庚' ? '主动积极' : '稳重可靠'}。`,
       `${formData.value.gender === '男' ? '您的正财代表妻子' : '您的正官代表丈夫'}，从八字来看，您的感情生活${bazi.day.dz === '子' || bazi.day.dz === '午' ? '较为热烈' : bazi.day.dz === '丑' || bazi.day.dz === '未' ? '需要磨合' : '平稳发展'}。`,
       `建议：在感情中多沟通，${dayWuxing === '火' ? '控制情绪' : dayWuxing === '金' ? '学会妥协' : '保持热情'}，珍惜眼前人。`
     ],
-    '健康': [
+    健康: [
       `您的健康运势${mainWuxing === '土' || mainWuxing === '水' ? '较为平稳' : '需要注意调养'}。${dayTG}日出生的人需要特别注意${dayWuxing === '木' ? '肝胆' : dayWuxing === '火' ? '心脏' : dayWuxing === '土' ? '脾胃' : dayWuxing === '金' ? '呼吸系统' : '肾脏'}方面的保养。`,
-      `从五行平衡来看，${Object.entries(balance).find(([w, b]) => b !== '平衡') ? '五行有偏，建议通过饮食和运动来调和' : '五行平衡，继续保持良好的生活习惯'}。`,
+      `从五行平衡来看，${Object.entries(balance).find(([_, b]) => b !== '平衡') ? '五行有偏，建议通过饮食和运动来调和' : '五行平衡，继续保持良好的生活习惯'}。`,
       `建议：保持规律作息，适当运动，${dayWuxing === '火' ? '避免熬夜' : dayWuxing === '金' ? '注意保暖' : dayWuxing === '水' ? '避免过度劳累' : '保持心情愉悦'}。`
     ],
-    '性格': [
+    性格: [
       `您的日主${dayTG}${dayDZ}，五行属${dayWuxing}。${dayTG}日出生的人性格特点：${dayTG === '甲' ? '正直、有领导力、但有时过于固执' : dayTG === '乙' ? '温柔、善解人意、但有时过于优柔' : dayTG === '丙' ? '热情、乐观、但有时冲动' : dayTG === '丁' ? '细腻、敏感、但有时多疑' : dayTG === '戊' ? '稳重、可靠、但有时保守' : dayTG === '己' ? '包容、耐心、但有时被动' : dayTG === '庚' ? '果断、义气、但有时强硬' : dayTG === '辛' ? '精致、完美、但有时挑剔' : dayTG === '壬' ? '聪明、灵活、但有时善变' : '智慧、深沉、但有时孤僻'}。`,
       `您的生肖属${dizhiShengxiao[bazi.year.dz]}，这为您的性格增添了${dizhiShengxiao[bazi.year.dz] === '龙' || dizhiShengxiao[bazi.year.dz] === '虎' ? '领导力和魄力' : dizhiShengxiao[bazi.year.dz] === '兔' || dizhiShengxiao[bazi.year.dz] === '羊' ? '温柔和善良' : dizhiShengxiao[bazi.year.dz] === '马' || dizhiShengxiao[bazi.year.dz] === '猴' ? '活力和智慧' : '稳重和坚持'}的特质。`,
       `总体来说，您是一个${mainWuxing === '金' ? '果断、讲义气' : mainWuxing === '木' ? '有创造力、积极向上' : mainWuxing === '水' ? '聪明、善于变通' : mainWuxing === '火' ? '热情、有魅力' : '稳重、值得信赖'}的人。`
     ]
   }
-  
+
   return templates[questionType] || templates['综合']
 }
 
 function generateAdvice(mainWuxing, balance) {
   const advices = []
-  
+
   if (balance[mainWuxing] === '过旺') {
-    advices.push(`您的${mainWuxing}过旺，建议适当克制，避免${mainWuxing === '金' ? '过于固执' : mainWuxing === '木' ? '过于冲动' : mainWuxing === '水' ? '过于投机' : mainWuxing === '火' ? '过于急躁' : '过于保守'}。`)
+    advices.push(
+      `您的${mainWuxing}过旺，建议适当克制，避免${mainWuxing === '金' ? '过于固执' : mainWuxing === '木' ? '过于冲动' : mainWuxing === '水' ? '过于投机' : mainWuxing === '火' ? '过于急躁' : '过于保守'}。`
+    )
   }
-  
+
   const weakWuxing = Object.entries(balance).find(([_, b]) => b === '偏弱')?.[0]
   if (weakWuxing) {
-    advices.push(`您的${weakWuxing}偏弱，建议多补充：${weakWuxing === '金' ? '多穿白色、金色衣物，多吃辛辣食物' : weakWuxing === '木' ? '多穿绿色衣物，多吃蔬菜水果' : weakWuxing === '水' ? '多穿黑色、蓝色衣物，多喝水' : weakWuxing === '火' ? '多穿红色衣物，多吃热性食物' : '多穿黄色衣物，多吃甜食'}。`)
+    advices.push(
+      `您的${weakWuxing}偏弱，建议多补充：${weakWuxing === '金' ? '多穿白色、金色衣物，多吃辛辣食物' : weakWuxing === '木' ? '多穿绿色衣物，多吃蔬菜水果' : weakWuxing === '水' ? '多穿黑色、蓝色衣物，多喝水' : weakWuxing === '火' ? '多穿红色衣物，多吃热性食物' : '多穿黄色衣物，多吃甜食'}。`
+    )
   }
-  
+
   advices.push('建议多行善积德，广结善缘，命运会更加顺遂。')
   advices.push('在重要决策前多听取长辈或专业人士的意见。')
-  
+
   return advices
 }
 
@@ -198,14 +223,20 @@ async function handleGetBazi() {
   loading.value = true
   try {
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     const bazi = generateBazi()
     const wuxingCounts = calculateWuxingCount(bazi)
     const mainWuxing = getMainWuxing(wuxingCounts)
     const balance = getWuxingBalance(wuxingCounts)
-    const analysis = generateAnalysis(bazi, wuxingCounts, mainWuxing, balance, formData.value.questionType)
+    const analysis = generateAnalysis(
+      bazi,
+      wuxingCounts,
+      mainWuxing,
+      balance,
+      formData.value.questionType
+    )
     const advice = generateAdvice(mainWuxing, balance)
-    
+
     result.value = {
       name: formData.value.name,
       gender: formData.value.gender,
@@ -220,7 +251,7 @@ async function handleGetBazi() {
       advice: advice,
       shengxiao: dizhiShengxiao[bazi.year.dz]
     }
-  } catch (err) {
+  } catch (_err) {
     alert('八字排盘失败，请重试')
   } finally {
     loading.value = false
@@ -251,16 +282,21 @@ function resetBazi() {
       <div class="form-card">
         <div class="form-group">
           <label>👤 姓名</label>
-          <input v-model="formData.name" type="text" placeholder="请输入您的姓名" class="form-input" />
+          <input
+            v-model="formData.name"
+            type="text"
+            placeholder="请输入您的姓名"
+            class="form-input"
+          />
         </div>
 
         <div class="form-group">
           <label>⚧️ 性别</label>
           <div class="gender-buttons">
-            <button 
-              v-for="g in genders" 
-              :key="g" 
-              :class="['gender-btn', { active: formData.gender === g }]" 
+            <button
+              v-for="g in genders"
+              :key="g"
+              :class="['gender-btn', { active: formData.gender === g }]"
               @click="formData.gender = g"
             >
               {{ g === '男' ? '👨 男' : '👩 女' }}
@@ -281,10 +317,10 @@ function resetBazi() {
         <div class="form-group">
           <label>🎯 问题类型</label>
           <div class="type-buttons">
-            <button 
-              v-for="type in questionTypes" 
-              :key="type" 
-              :class="['type-btn', { active: formData.questionType === type }]" 
+            <button
+              v-for="type in questionTypes"
+              :key="type"
+              :class="['type-btn', { active: formData.questionType === type }]"
               @click="formData.questionType = type"
             >
               {{ type }}
@@ -292,7 +328,7 @@ function resetBazi() {
           </div>
         </div>
 
-        <button class="submit-btn bazi-btn" @click="handleGetBazi" :disabled="loading">
+        <button class="submit-btn bazi-btn" :disabled="loading" @click="handleGetBazi">
           {{ loading ? '✨ 正在排盘...' : '🎯 八字排盘' }}
         </button>
       </div>
@@ -307,15 +343,15 @@ function resetBazi() {
             <span class="user-gender">{{ result.gender }}</span>
             <span class="user-shengxiao">🐾 {{ result.shengxiao }}</span>
           </div>
-          <div class="birth-info">
-            {{ result.birthDate }} {{ result.birthTime }}
-          </div>
+          <div class="birth-info">{{ result.birthDate }} {{ result.birthTime }}</div>
         </div>
 
         <div class="bazi-display">
-          <div class="bazi-item" v-for="(pillar, key) in result.bazi" :key="key">
+          <div v-for="(pillar, key) in result.bazi" :key="key" class="bazi-item">
             <div class="pillar-label">
-              {{ key === 'year' ? '年柱' : key === 'month' ? '月柱' : key === 'day' ? '日柱' : '时柱' }}
+              {{
+                key === 'year' ? '年柱' : key === 'month' ? '月柱' : key === 'day' ? '日柱' : '时柱'
+              }}
             </div>
             <div class="pillar-content">
               <div class="pillar-tg" :style="{ color: wuxingColors[tianganWuxing[pillar.tg]] }">
@@ -334,27 +370,31 @@ function resetBazi() {
         <div class="wuxing-section">
           <h3>🌟 五行分析</h3>
           <div class="wuxing-chart">
-            <div v-for="(count, wuxing) in result.wuxingCounts" :key="wuxing" class="wuxing-bar-item">
+            <div
+              v-for="(count, wuxing) in result.wuxingCounts"
+              :key="wuxing"
+              class="wuxing-bar-item"
+            >
               <div class="wuxing-label">
                 <span class="wuxing-emoji">{{ wuxingEmojis[wuxing] }}</span>
                 <span class="wuxing-name">{{ wuxing }}</span>
               </div>
               <div class="wuxing-bar-container">
-                <div 
-                  class="wuxing-bar" 
-                  :style="{ 
-                    width: (count / 8 * 100) + '%',
+                <div
+                  class="wuxing-bar"
+                  :style="{
+                    width: (count / 8) * 100 + '%',
                     backgroundColor: wuxingColors[wuxing]
                   }"
                 ></div>
               </div>
               <div class="wuxing-count">{{ count }}</div>
-              <div 
+              <div
                 class="wuxing-status"
                 :class="{
-                  'over': result.balance[wuxing] === '过旺',
-                  'weak': result.balance[wuxing] === '偏弱',
-                  'balanced': result.balance[wuxing] === '平衡'
+                  over: result.balance[wuxing] === '过旺',
+                  weak: result.balance[wuxing] === '偏弱',
+                  balanced: result.balance[wuxing] === '平衡'
                 }"
               >
                 {{ result.balance[wuxing] }}
@@ -413,7 +453,7 @@ function resetBazi() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(circle at 20% 80%, rgba(217, 119, 6, 0.2) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(146, 64, 14, 0.2) 0%, transparent 50%);
   pointer-events: none;
@@ -485,8 +525,12 @@ function resetBazi() {
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .form-group {

@@ -12,15 +12,54 @@ const showHistory = ref(false)
 const useMockData = ref(true)
 
 const dreamCategories = [
-  { name: '动物', icon: '🦁', examples: '蛇、狗、猫、鸟', keywords: ['蛇', '狗', '猫', '鸟', '鱼', '老虎', '龙', '凤凰'] },
-  { name: '人物', icon: '👤', examples: '亲人、朋友、陌生人', keywords: ['父母', '朋友', '陌生人', '老师', '同学', '恋人', '孩子', '老人'] },
-  { name: '自然', icon: '🌲', examples: '山、水、火、风', keywords: ['山', '水', '火', '风', '雨', '雪', '雷', '彩虹'] },
-  { name: '物品', icon: '🎁', examples: '房子、车、钱', keywords: ['房子', '车', '钱', '手机', '衣服', '食物', '书', '花'] },
-  { name: '行为', icon: '🏃', examples: '跑、飞、游泳', keywords: ['跑', '飞', '游泳', '打架', '唱歌', '跳舞', '吃饭', '睡觉'] },
-  { name: '情感', icon: '❤️', examples: '笑、哭、害怕', keywords: ['笑', '哭', '害怕', '生气', '开心', '悲伤', '紧张', '放松'] }
+  {
+    name: '动物',
+    icon: '🦁',
+    examples: '蛇、狗、猫、鸟',
+    keywords: ['蛇', '狗', '猫', '鸟', '鱼', '老虎', '龙', '凤凰']
+  },
+  {
+    name: '人物',
+    icon: '👤',
+    examples: '亲人、朋友、陌生人',
+    keywords: ['父母', '朋友', '陌生人', '老师', '同学', '恋人', '孩子', '老人']
+  },
+  {
+    name: '自然',
+    icon: '🌲',
+    examples: '山、水、火、风',
+    keywords: ['山', '水', '火', '风', '雨', '雪', '雷', '彩虹']
+  },
+  {
+    name: '物品',
+    icon: '🎁',
+    examples: '房子、车、钱',
+    keywords: ['房子', '车', '钱', '手机', '衣服', '食物', '书', '花']
+  },
+  {
+    name: '行为',
+    icon: '🏃',
+    examples: '跑、飞、游泳',
+    keywords: ['跑', '飞', '游泳', '打架', '唱歌', '跳舞', '吃饭', '睡觉']
+  },
+  {
+    name: '情感',
+    icon: '❤️',
+    examples: '笑、哭、害怕',
+    keywords: ['笑', '哭', '害怕', '生气', '开心', '悲伤', '紧张', '放松']
+  }
 ]
 
-const popularDreams = ['梦见蛇', '梦见掉牙', '梦见飞翔', '梦见考试', '梦见死人', '梦见怀孕', '梦见水', '梦见火']
+const popularDreams = [
+  '梦见蛇',
+  '梦见掉牙',
+  '梦见飞翔',
+  '梦见考试',
+  '梦见死人',
+  '梦见怀孕',
+  '梦见水',
+  '梦见火'
+]
 
 const formData = ref({
   keyword: '',
@@ -56,7 +95,7 @@ function getMockInterpretation(keyword) {
   const luckLevels = ['大吉', '吉', '中', '凶', '大凶']
   const luckColors = ['#16a34a', '#22c55e', '#eab308', '#dc2626', '#991b1b']
   const luckIndex = Math.floor(Math.random() * 5)
-  
+
   const interpretations = [
     `梦见${keyword}通常预示着近期会有好运降临，事业和财运都会有不错的进展。`,
     `此梦暗示您内心深处对${keyword}有所期待，建议把握机会，勇敢追求。`,
@@ -64,7 +103,7 @@ function getMockInterpretation(keyword) {
     `这个梦境反映了您近期的心理状态，建议适当放松心情，调整作息。`,
     `梦见${keyword}是一个警示，提醒您在做重要决定时要三思而后行。`
   ]
-  
+
   const advices = [
     '保持积极乐观的心态，好运自然会来。',
     '多关注身边的人和事，机会就在不经意间。',
@@ -72,7 +111,7 @@ function getMockInterpretation(keyword) {
     '遇到困难不要气馁，坚持就是胜利。',
     '多听取长辈和朋友的建议，会有意想不到的收获。'
   ]
-  
+
   return {
     keyword: keyword,
     luck: {
@@ -95,7 +134,7 @@ async function handleSearchDream() {
   loading.value = true
   try {
     let interpretation
-    
+
     if (useMockData.value) {
       await new Promise(resolve => setTimeout(resolve, 1500))
       interpretation = getMockInterpretation(formData.value.keyword)
@@ -125,12 +164,12 @@ async function handleSearchDream() {
         interpretation = getMockInterpretation(formData.value.keyword)
       }
     }
-    
+
     result.value = {
       ...interpretation,
       description: formData.value.description
     }
-    
+
     saveToHistory()
   } catch (err) {
     console.error('[Jiemeng] 解梦失败:', err)
@@ -142,7 +181,7 @@ async function handleSearchDream() {
 
 function saveToHistory() {
   if (!result.value) return
-  
+
   const historyItem = {
     type: 'jiemeng',
     title: `梦见${result.value.keyword}`,
@@ -150,7 +189,7 @@ function saveToHistory() {
     luck: result.value.luck,
     isMock: result.value.isMock
   }
-  
+
   storageService.history.add(historyItem)
   loadHistory()
 }
@@ -190,9 +229,7 @@ function toggleHistory() {
       <button class="back-btn" @click="goBack">← 返回首页</button>
       <h1 class="page-title">💭 周公解梦</h1>
       <p class="page-subtitle">解读梦境背后的含义</p>
-      <button class="history-btn" @click="toggleHistory">
-        📜 历史 ({{ history.length }})
-      </button>
+      <button class="history-btn" @click="toggleHistory">📜 历史 ({{ history.length }})</button>
     </header>
 
     <Transition name="slide">
@@ -205,9 +242,9 @@ function toggleHistory() {
           <p>暂无历史记录</p>
         </div>
         <div v-else class="history-list">
-          <div 
-            v-for="item in history" 
-            :key="item.id" 
+          <div
+            v-for="item in history"
+            :key="item.id"
             class="history-item"
             @click="viewHistoryItem(item)"
           >
@@ -216,10 +253,7 @@ function toggleHistory() {
               <span class="history-title">{{ item.title }}</span>
               <span class="history-time">{{ storageService.formatTimestamp(item.timestamp) }}</span>
             </div>
-            <span 
-              class="history-luck"
-              :style="{ background: item.luck?.color || '#eab308' }"
-            >
+            <span class="history-luck" :style="{ background: item.luck?.color || '#eab308' }">
               {{ item.luck?.level || '中' }}
             </span>
           </div>
@@ -239,9 +273,9 @@ function toggleHistory() {
 
         <div class="search-box">
           <span class="search-icon">🔍</span>
-          <input 
-            v-model="formData.keyword" 
-            type="text" 
+          <input
+            v-model="formData.keyword"
+            type="text"
             placeholder="输入梦境关键词，如：蛇、飞翔、考试..."
             class="search-input"
             @keyup.enter="handleSearchDream"
@@ -250,8 +284,8 @@ function toggleHistory() {
 
         <div class="form-group">
           <label>💭 详细描述（可选）</label>
-          <textarea 
-            v-model="formData.description" 
+          <textarea
+            v-model="formData.description"
             placeholder="描述您的梦境细节，有助于更准确的解读..."
             class="desc-input"
             rows="3"
@@ -261,8 +295,8 @@ function toggleHistory() {
         <div class="popular-section">
           <label>🔥 热门梦境</label>
           <div class="popular-tags">
-            <button 
-              v-for="dream in popularDreams" 
+            <button
+              v-for="dream in popularDreams"
               :key="dream"
               class="popular-tag"
               @click="selectPopularDream(dream)"
@@ -280,8 +314,8 @@ function toggleHistory() {
               <span class="cat-name">{{ cat.name }}</span>
               <span class="cat-examples">{{ cat.examples }}</span>
               <div class="cat-keywords">
-                <button 
-                  v-for="kw in cat.keywords.slice(0, 4)" 
+                <button
+                  v-for="kw in cat.keywords.slice(0, 4)"
                   :key="kw"
                   class="cat-keyword"
                   @click="selectCategoryKeyword(kw)"
@@ -293,7 +327,7 @@ function toggleHistory() {
           </div>
         </div>
 
-        <button class="submit-btn" @click="handleSearchDream" :disabled="loading">
+        <button class="submit-btn" :disabled="loading" @click="handleSearchDream">
           {{ loading ? '✨ 正在解梦...' : '💭 开始解梦' }}
         </button>
       </div>
@@ -332,11 +366,15 @@ function toggleHistory() {
         <div class="related-section">
           <h3>🔗 相关梦境</h3>
           <div class="related-tags">
-            <button 
-              v-for="dream in result.related" 
+            <button
+              v-for="dream in result.related"
               :key="dream"
               class="related-tag"
-              @click="selectPopularDream(dream); resetSearch(); handleSearchDream()"
+              @click="
+                selectPopularDream(dream)
+                resetSearch()
+                handleSearchDream()
+              "
             >
               {{ dream }}
             </button>

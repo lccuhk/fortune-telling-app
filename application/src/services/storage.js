@@ -18,7 +18,7 @@ function getStorage() {
 function get(key, defaultValue = null) {
   const storage = getStorage()
   if (!storage) return defaultValue
-  
+
   try {
     const value = storage.getItem(key)
     if (value === null) return defaultValue
@@ -32,7 +32,7 @@ function get(key, defaultValue = null) {
 function set(key, value) {
   const storage = getStorage()
   if (!storage) return false
-  
+
   try {
     storage.setItem(key, JSON.stringify(value))
     return true
@@ -45,7 +45,7 @@ function set(key, value) {
 function remove(key) {
   const storage = getStorage()
   if (!storage) return false
-  
+
   try {
     storage.removeItem(key)
     return true
@@ -58,7 +58,7 @@ function remove(key) {
 function clearAll() {
   const storage = getStorage()
   if (!storage) return false
-  
+
   try {
     Object.values(STORAGE_KEYS).forEach(key => {
       storage.removeItem(key)
@@ -82,13 +82,13 @@ const historyService = {
       id: Date.now(),
       timestamp: new Date().toISOString()
     }
-    
+
     history.unshift(newItem)
-    
+
     if (history.length > MAX_HISTORY_ITEMS) {
       history.splice(MAX_HISTORY_ITEMS)
     }
-    
+
     set(STORAGE_KEYS.HISTORY, history)
     return newItem
   },
@@ -203,7 +203,7 @@ function formatTimestamp(timestamp) {
   const date = new Date(timestamp)
   const now = new Date()
   const diff = now - date
-  
+
   if (diff < 60000) {
     return '刚刚'
   } else if (diff < 3600000) {

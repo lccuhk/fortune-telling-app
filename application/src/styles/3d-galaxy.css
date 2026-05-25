@@ -25,8 +25,15 @@
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 /* 3D元素基础样式 */
@@ -39,7 +46,7 @@
 
 /* 标题3D效果 */
 .galaxy-title {
-  text-shadow: 
+  text-shadow:
     0 0 20px rgba(102, 126, 234, 0.8),
     0 0 40px rgba(102, 126, 234, 0.4),
     0 0 60px rgba(102, 126, 234, 0.2),
@@ -50,7 +57,7 @@
 /* 按钮3D效果 */
 .galaxy-button {
   transform: translateZ(20px) !important;
-  box-shadow: 
+  box-shadow:
     0 10px 30px rgba(102, 126, 234, 0.4),
     0 5px 15px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -60,7 +67,7 @@
 
 .galaxy-button:hover {
   transform: translateZ(40px) scale(1.05) !important;
-  box-shadow: 
+  box-shadow:
     0 15px 40px rgba(102, 126, 234, 0.6),
     0 8px 20px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -69,7 +76,7 @@
 /* 卡片3D效果 */
 .galaxy-card {
   transform: translateZ(30px);
-  box-shadow: 
+  box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.4),
     0 10px 30px rgba(102, 126, 234, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -81,7 +88,7 @@
 
 .galaxy-card:hover {
   transform: translateZ(50px) scale(1.02);
-  box-shadow: 
+  box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.5),
     0 15px 40px rgba(102, 126, 234, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -102,7 +109,7 @@
 /* 结果卡片3D效果 */
 .galaxy-result {
   transform: translateZ(40px);
-  box-shadow: 
+  box-shadow:
     0 25px 60px rgba(0, 0, 0, 0.5),
     0 15px 35px rgba(102, 126, 234, 0.25);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
@@ -138,7 +145,7 @@
 
 .galaxy-input:focus {
   transform: translateZ(25px) scale(1.02);
-  box-shadow: 
+  box-shadow:
     inset 0 2px 10px rgba(0, 0, 0, 0.2),
     0 0 20px rgba(102, 126, 234, 0.4);
   border-color: rgba(102, 126, 234, 0.6) !important;
@@ -156,7 +163,7 @@
 
 .galaxy-mode-btn.active {
   transform: translateZ(45px) scale(1.05);
-  box-shadow: 
+  box-shadow:
     0 15px 40px rgba(102, 126, 234, 0.5),
     0 0 30px rgba(102, 126, 234, 0.3);
 }
@@ -178,10 +185,19 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, -20px) scale(1.1); }
-  50% { transform: translate(-20px, 30px) scale(1.05); }
-  75% { transform: translate(-30px, -10px) scale(1.15); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -20px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 30px) scale(1.05);
+  }
+  75% {
+    transform: translate(-30px, -10px) scale(1.15);
+  }
 }
 
 /* 流星效果 */
@@ -200,7 +216,9 @@
     transform: translateX(0) translateY(-100px) rotate(45deg);
     opacity: 1;
   }
-  70% { opacity: 1; }
+  70% {
+    opacity: 1;
+  }
   100% {
     transform: translateX(-1000px) translateY(1000px) rotate(45deg);
     opacity: 0;
@@ -217,13 +235,13 @@
   .galaxy-container {
     perspective: 800px;
   }
-  
+
   .galaxy-card,
   .galaxy-button,
   .galaxy-result {
     transform: translateZ(15px);
   }
-  
+
   .galaxy-card:hover,
   .galaxy-button:hover,
   .galaxy-result:hover {
@@ -252,7 +270,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
+  background:
     radial-gradient(ellipse at 20% 30%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 70%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 50%, rgba(240, 147, 251, 0.15) 0%, transparent 70%),

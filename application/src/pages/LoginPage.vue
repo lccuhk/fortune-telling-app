@@ -154,16 +154,11 @@ function skipSplash() {
 
         <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
 
-        <button
-          type="submit"
-          class="login-btn"
-          :disabled="loading"
-          style="--delay: 0.3s"
-        >
+        <button type="submit" class="login-btn" :disabled="loading" style="--delay: 0.3s">
           {{ loading ? '登录中...' : '登 录' }}
         </button>
 
-        <div class="test-tip" @click="fillTestAccount" style="--delay: 0.4s">
+        <div class="test-tip" style="--delay: 0.4s" @click="fillTestAccount">
           🔑 点击使用测试账号 (testuser / test123)
         </div>
       </form>
@@ -307,18 +302,21 @@ function skipSplash() {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(165, 180, 252, 0.4) 0%,
-    rgba(165, 180, 252, 0) 70%
-  );
+  background: radial-gradient(circle, rgba(165, 180, 252, 0.4) 0%, rgba(165, 180, 252, 0) 70%);
   animation: pulse 2.5s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 0.2; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.2;
+  }
 }
 
 /* ========== 标题 ========== */
@@ -328,7 +326,9 @@ function skipSplash() {
   background: linear-gradient(to right, #fff, #a5b4fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  transition: font-size 0.8s ease, margin 0.8s ease;
+  transition:
+    font-size 0.8s ease,
+    margin 0.8s ease;
 }
 
 .stage-splash .brand-title {
@@ -346,7 +346,9 @@ function skipSplash() {
   opacity: 0.8;
   letter-spacing: 2px;
   line-height: 1.6;
-  transition: font-size 0.8s ease, margin 0.8s ease;
+  transition:
+    font-size 0.8s ease,
+    margin 0.8s ease;
 }
 
 .stage-splash .brand-subtitle {
@@ -382,8 +384,12 @@ function skipSplash() {
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 /* ========== 登录表单 ========== */
 .login-form {
@@ -393,7 +399,9 @@ function skipSplash() {
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  transition: max-height 0.6s ease, opacity 0.4s ease;
+  transition:
+    max-height 0.6s ease,
+    opacity 0.4s ease;
 }
 
 .stage-form .login-form {
@@ -468,7 +476,10 @@ function skipSplash() {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.3s ease;
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
@@ -510,12 +521,20 @@ function skipSplash() {
 
 /* ========== 动画关键帧 ========== */
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
 }
 
 @keyframes itemFadeIn {
@@ -526,17 +545,30 @@ function skipSplash() {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 </style>

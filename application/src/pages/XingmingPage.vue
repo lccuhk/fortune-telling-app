@@ -27,20 +27,20 @@ async function handleGetXingming() {
   loading.value = true
   try {
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     const tiange = Math.floor(Math.random() * 20) + 1
     const renge = Math.floor(Math.random() * 20) + 1
     const dige = Math.floor(Math.random() * 20) + 1
     const waige = Math.floor(Math.random() * 20) + 1
     const zongge = tiange + renge + dige
-    
-    const getLuckLevel = (num) => {
+
+    const getLuckLevel = num => {
       if (num >= 15) return { level: '大吉', color: '#16a34a' }
       if (num >= 10) return { level: '吉', color: '#22c55e' }
       if (num >= 6) return { level: '中', color: '#eab308' }
       return { level: '凶', color: '#dc2626' }
     }
-    
+
     result.value = {
       fullName: formData.value.surname + formData.value.name,
       gender: formData.value.gender,
@@ -58,7 +58,7 @@ async function handleGetXingming() {
         overall: `总格数为${zongge}，整体运势${zongge >= 25 ? '极佳，一生顺遂，事业有成' : zongge >= 15 ? '较好，只要努力就能有所成就' : '平平，需要付出更多努力'}。`
       }
     }
-  } catch (err) {
+  } catch (_err) {
     alert('姓名分析失败，请重试')
   } finally {
     loading.value = false
@@ -99,13 +99,18 @@ function resetXingming() {
         <div class="form-group">
           <label>性别</label>
           <div class="gender-selector">
-            <button v-for="g in genders" :key="g" :class="['gender-btn', { active: formData.gender === g }]" @click="formData.gender = g">
+            <button
+              v-for="g in genders"
+              :key="g"
+              :class="['gender-btn', { active: formData.gender === g }]"
+              @click="formData.gender = g"
+            >
               {{ g === '男' ? '👨' : '👩' }} {{ g }}
             </button>
           </div>
         </div>
 
-        <button class="submit-btn" @click="handleGetXingming" :disabled="loading">
+        <button class="submit-btn" :disabled="loading" @click="handleGetXingming">
           {{ loading ? '✨ 正在分析...' : '📝 开始分析' }}
         </button>
       </div>
@@ -124,27 +129,37 @@ function resetXingming() {
             <div class="wuge-item">
               <span class="wuge-name">天格</span>
               <span class="wuge-num">{{ result.wuge.tiange.num }}</span>
-              <span class="wuge-level" :style="{ color: result.wuge.tiange.color }">{{ result.wuge.tiange.level }}</span>
+              <span class="wuge-level" :style="{ color: result.wuge.tiange.color }">{{
+                result.wuge.tiange.level
+              }}</span>
             </div>
             <div class="wuge-item">
               <span class="wuge-name">人格</span>
               <span class="wuge-num">{{ result.wuge.renge.num }}</span>
-              <span class="wuge-level" :style="{ color: result.wuge.renge.color }">{{ result.wuge.renge.level }}</span>
+              <span class="wuge-level" :style="{ color: result.wuge.renge.color }">{{
+                result.wuge.renge.level
+              }}</span>
             </div>
             <div class="wuge-item">
               <span class="wuge-name">地格</span>
               <span class="wuge-num">{{ result.wuge.dige.num }}</span>
-              <span class="wuge-level" :style="{ color: result.wuge.dige.color }">{{ result.wuge.dige.level }}</span>
+              <span class="wuge-level" :style="{ color: result.wuge.dige.color }">{{
+                result.wuge.dige.level
+              }}</span>
             </div>
             <div class="wuge-item">
               <span class="wuge-name">外格</span>
               <span class="wuge-num">{{ result.wuge.waige.num }}</span>
-              <span class="wuge-level" :style="{ color: result.wuge.waige.color }">{{ result.wuge.waige.level }}</span>
+              <span class="wuge-level" :style="{ color: result.wuge.waige.color }">{{
+                result.wuge.waige.level
+              }}</span>
             </div>
             <div class="wuge-item zongge">
               <span class="wuge-name">总格</span>
               <span class="wuge-num">{{ result.wuge.zongge.num }}</span>
-              <span class="wuge-level" :style="{ color: result.wuge.zongge.color }">{{ result.wuge.zongge.level }}</span>
+              <span class="wuge-level" :style="{ color: result.wuge.zongge.color }">{{
+                result.wuge.zongge.level
+              }}</span>
             </div>
           </div>
         </div>

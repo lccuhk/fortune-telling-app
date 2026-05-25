@@ -30,15 +30,43 @@ async function handleGetZiwei() {
   loading.value = true
   try {
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    const stars = ['紫微', '天机', '太阳', '武曲', '天同', '廉贞', '天府', '太阴', '贪狼', '巨门', '天相', '天梁', '七杀', '破军']
-    const palaces = ['命宫', '兄弟宫', '夫妻宫', '子女宫', '财帛宫', '疾厄宫', '迁移宫', '仆役宫', '官禄宫', '田宅宫', '福德宫', '父母宫']
-    
+
+    const stars = [
+      '紫微',
+      '天机',
+      '太阳',
+      '武曲',
+      '天同',
+      '廉贞',
+      '天府',
+      '太阴',
+      '贪狼',
+      '巨门',
+      '天相',
+      '天梁',
+      '七杀',
+      '破军'
+    ]
+    const palaces = [
+      '命宫',
+      '兄弟宫',
+      '夫妻宫',
+      '子女宫',
+      '财帛宫',
+      '疾厄宫',
+      '迁移宫',
+      '仆役宫',
+      '官禄宫',
+      '田宅宫',
+      '福德宫',
+      '父母宫'
+    ]
+
     const mainStars = []
     for (let i = 0; i < 4; i++) {
       mainStars.push(stars[Math.floor(Math.random() * stars.length)])
     }
-    
+
     result.value = {
       name: formData.value.name,
       gender: formData.value.gender,
@@ -51,7 +79,7 @@ async function handleGetZiwei() {
         relationship: `夫妻宫主星${mainStars[3]}，感情${mainStars[3] === '天同' ? '甜蜜和谐' : mainStars[3] === '巨门' ? '需要多沟通' : '充满激情'}，宜晚婚更利稳定。`
       }
     }
-  } catch (err) {
+  } catch (_err) {
     alert('紫微排盘失败，请重试')
   } finally {
     loading.value = false
@@ -82,13 +110,23 @@ function resetZiwei() {
       <div class="form-card">
         <div class="form-group">
           <label>👤 姓名</label>
-          <input v-model="formData.name" type="text" placeholder="请输入您的姓名" class="form-input" />
+          <input
+            v-model="formData.name"
+            type="text"
+            placeholder="请输入您的姓名"
+            class="form-input"
+          />
         </div>
 
         <div class="form-group">
           <label>⚥ 性别</label>
           <div class="gender-selector">
-            <button v-for="g in genders" :key="g" :class="['gender-btn', { active: formData.gender === g }]" @click="formData.gender = g">
+            <button
+              v-for="g in genders"
+              :key="g"
+              :class="['gender-btn', { active: formData.gender === g }]"
+              @click="formData.gender = g"
+            >
               {{ g === '男' ? '👨' : '👩' }} {{ g }}
             </button>
           </div>
@@ -107,13 +145,18 @@ function resetZiwei() {
         <div class="form-group">
           <label>🎯 问题类型</label>
           <div class="type-buttons">
-            <button v-for="type in questionTypes" :key="type" :class="['type-btn', { active: formData.questionType === type }]" @click="formData.questionType = type">
+            <button
+              v-for="type in questionTypes"
+              :key="type"
+              :class="['type-btn', { active: formData.questionType === type }]"
+              @click="formData.questionType = type"
+            >
               {{ type }}
             </button>
           </div>
         </div>
 
-        <button class="submit-btn" @click="handleGetZiwei" :disabled="loading">
+        <button class="submit-btn" :disabled="loading" @click="handleGetZiwei">
           {{ loading ? '✨ 正在排盘...' : '⭐ 紫微排盘' }}
         </button>
       </div>
@@ -132,7 +175,9 @@ function resetZiwei() {
         <div class="stars-section">
           <h3>🌟 主星分布</h3>
           <div class="stars-list">
-            <span v-for="(star, index) in result.mainStars" :key="index" class="star-tag">{{ star }}</span>
+            <span v-for="(star, index) in result.mainStars" :key="index" class="star-tag">{{
+              star
+            }}</span>
           </div>
         </div>
 
@@ -172,7 +217,7 @@ function resetZiwei() {
 <style scoped>
 .ziwei-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%);
   padding: 20px;
 }
 
@@ -246,7 +291,7 @@ function resetZiwei() {
 }
 
 .form-input:focus {
-  border-color: #8A2BE2;
+  border-color: #8a2be2;
   outline: none;
   box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
 }
@@ -269,12 +314,12 @@ function resetZiwei() {
 }
 
 .gender-btn:hover {
-  border-color: #8A2BE2;
+  border-color: #8a2be2;
   background: #faf5ff;
 }
 
 .gender-btn.active {
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%);
   color: white;
   border-color: transparent;
 }
@@ -297,12 +342,12 @@ function resetZiwei() {
 }
 
 .type-btn:hover {
-  border-color: #8A2BE2;
+  border-color: #8a2be2;
   background: #faf5ff;
 }
 
 .type-btn.active {
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%);
   color: white;
   border-color: transparent;
 }
@@ -314,7 +359,7 @@ function resetZiwei() {
   border-radius: 10px;
   font-size: 1.1rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -351,7 +396,7 @@ function resetZiwei() {
 }
 
 .result-header h2 {
-  color: #4B0082;
+  color: #4b0082;
   font-size: 1.8rem;
   margin-bottom: 15px;
 }
@@ -385,7 +430,7 @@ function resetZiwei() {
 }
 
 .stars-section h3 {
-  color: #4B0082;
+  color: #4b0082;
   margin-bottom: 15px;
 }
 
@@ -397,7 +442,7 @@ function resetZiwei() {
 
 .star-tag {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%);
   color: white;
   border-radius: 20px;
   font-weight: 500;
@@ -412,14 +457,14 @@ function resetZiwei() {
 }
 
 .palace-section h3 {
-  color: #4B0082;
+  color: #4b0082;
   margin-bottom: 10px;
 }
 
 .palace-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #4B0082;
+  color: #4b0082;
 }
 
 .analysis-content {
@@ -431,11 +476,11 @@ function resetZiwei() {
   padding: 20px;
   background: #f8f9fa;
   border-radius: 12px;
-  border-left: 4px solid #8A2BE2;
+  border-left: 4px solid #8a2be2;
 }
 
 .analysis-item h4 {
-  color: #4B0082;
+  color: #4b0082;
   margin-bottom: 10px;
   font-size: 1.1rem;
 }
@@ -457,7 +502,7 @@ function resetZiwei() {
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -482,8 +527,8 @@ function resetZiwei() {
 
 .btn-secondary:hover {
   background: #f8f9fa;
-  border-color: #8A2BE2;
-  color: #8A2BE2;
+  border-color: #8a2be2;
+  color: #8a2be2;
 }
 
 @media (max-width: 768px) {

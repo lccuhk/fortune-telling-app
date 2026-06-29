@@ -1,5 +1,19 @@
 # 🔮 命运之轮 - Fortune Telling App
 
+<p align="center">
+  <img src="https://img.shields.io/github/stars/lccuhk/fortune-telling-app?style=for-the-badge&color=00D9FF" />
+  <img src="https://img.shields.io/github/forks/lccuhk/fortune-telling-app?style=for-the-badge&color=00FF88" />
+  <img src="https://img.shields.io/github/issues/lccuhk/fortune-telling-app?style=for-the-badge&color=FF6B6B" />
+  <img src="https://img.shields.io/github/license/lccuhk/fortune-telling-app?style=for-the-badge&color=FFD93D" />
+  <img src="https://img.shields.io/github/last-commit/lccuhk/fortune-telling-app?style=for-the-badge&color=9B59B6" />
+</p>
+
+<p align="center">
+  <a href="https://lccuhk.github.io/fortune-telling-app/">
+    <img src="https://img.shields.io/badge/🚀_Live_Demo-GitHub_Pages-00D9FF?style=for-the-badge" />
+  </a>
+</p>
+
 一个功能完整的在线命理应用，集成传统算命、塔罗牌占卜、星座运势、周公解梦等多种命理功能。
 
 ## ✨ 功能特性

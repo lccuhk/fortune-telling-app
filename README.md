@@ -16,6 +16,12 @@
 
 一个功能完整的在线命理应用，集成传统算命、塔罗牌占卜、星座运势、周公解梦等多种命理功能。
 
+## 🖼️ 项目预览
+
+<p align="center">
+  <img src="docs/images/preview.svg" alt="Fortune Telling App Preview" width="100%" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);" />
+</p>
+
 ## ✨ 功能特性
 
 ### 🎯 核心功能模块
@@ -225,6 +231,55 @@ npm run preview
 # 运行测试
 npm run test
 ```
+
+## 🎯 里程碑规划
+
+我们按以下里程碑推进项目开发：
+
+| 里程碑 | 状态 | 目标 | 预计完成 |
+|--------|------|------|---------|
+| **v0.x Stabilization** | 🟡 进行中 | Bug 修复与性能优化，提升应用稳定性 | 2026 Q3 |
+| **Docs & Onboarding** | ⚪ 待办 | 完善文档与示例，降低使用门槛 | 2026 Q3 |
+| **Public Release** | ⚪ 待办 | 对外发布与推广，社区建设 | 2026 Q4 |
+
+### 里程碑详情
+
+#### v0.x Stabilization
+- [ ] 修复页面渲染问题
+- [ ] 优化应用加载速度
+- [ ] 提升移动端体验
+- [ ] 完善跨浏览器兼容性
+
+#### Docs & Onboarding
+- [ ] 添加详细的开发文档
+- [ ] 创建自定义主题指南
+- [ ] 提供更多功能模块示例
+- [ ] 添加常见问题解答
+
+#### Public Release
+- [ ] 发布 v1.0 正式版本
+- [ ] 撰写项目介绍博客
+- [ ] 提交到相关开源社区
+- [ ] 建立贡献者社区
+
+## 📋 项目管理
+
+我们使用 GitHub Projects 进行看板化管理：
+
+### 工作流
+```
+📥 待办 → 🔄 进行中 → ✅ 完成 → 🚀 已发布
+```
+
+### 看板状态
+- **📥 待办** - 待处理的 Issue 和 PR
+- **🔄 进行中** - 正在开发的任务
+- **✅ 完成** - 已完成待合并的任务
+- **🚀 已发布** - 已发布到正式版本
+
+### 关联项目
+- [📊 项目看板](https://github.com/users/lccuhk/projects) - 查看所有项目进度
+- [📝 里程碑](https://github.com/lccuhk/fortune-telling-app/milestones) - 查看里程碑详情
 
 ## 📄 License
 

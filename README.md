@@ -66,8 +66,16 @@ fortune-telling-app/
 │   │   ├── components/         # 公共组件
 │   │   │   ├── FortuneForm.vue
 │   │   │   ├── HePanAnalysis.vue
+│   │   │   ├── HistoryPanel.vue
 │   │   │   ├── ShareCard.vue
+│   │   │   ├── ErrorBoundary.vue
 │   │   │   └── ErrorLogViewer.vue
+│   │   ├── composables/        # 组合式函数
+│   │   │   ├── useFortune.js
+│   │   │   ├── useHistory.js
+│   │   │   ├── useTheme.js
+│   │   │   ├── useUser.js
+│   │   │   └── useTarot.js
 │   │   ├── pages/              # 页面组件
 │   │   │   ├── Home.vue        # 首页
 │   │   │   ├── LoginPage.vue   # 登录页
@@ -85,18 +93,36 @@ fortune-telling-app/
 │   │   ├── services/           # 服务层
 │   │   │   ├── api.js          # API 服务
 │   │   │   ├── storage.js      # 本地存储
+│   │   │   ├── logger.js       # 日志服务
 │   │   │   └── errorHandler.js # 错误处理
+│   │   ├── stores/             # Pinia 状态管理
+│   │   │   ├── fortune.js
+│   │   │   ├── history.js
+│   │   │   ├── theme.js
+│   │   │   └── user.js
 │   │   ├── styles/             # 样式文件
+│   │   │   ├── ancient-theme.css
+│   │   │   ├── ancient-mobile.css
+│   │   │   └── 3d-galaxy.css
+│   │   ├── plugins/            # 插件
+│   │   ├── utils/              # 工具函数
 │   │   ├── App.vue
 │   │   └── main.js
-│   ├── ai-trader-customization/ # AI 交易器项目（独立）
 │   ├── public/                 # 静态资源
 │   ├── dist/                   # 构建输出
 │   ├── package.json
 │   ├── vite.config.js
+│   ├── vitest.config.js        # 测试配置
+│   ├── eslint.config.js        # ESLint 配置
 │   └── README.md
+├── docs/
+│   └── images/
+│       └── preview.svg         # 项目预览图
 ├── DEPLOY_GUIDE.md
 ├── architecture.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
 ├── vercel.json
 └── README.md
 ```

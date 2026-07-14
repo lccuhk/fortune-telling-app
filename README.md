@@ -14,6 +14,14 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Vue-3.x-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-8.x-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
+  <img src="https://img.shields.io/badge/Pinia-🌲-FFD93D?style=for-the-badge" />
+</p>
+
 一个功能完整的在线命理应用，集成传统算命、塔罗牌占卜、星座运势、周公解梦等多种命理功能。
 
 ## 🖼️ 项目预览

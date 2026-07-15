@@ -84,6 +84,324 @@ npm run lint
 npm run test:unit
 ```
 
+## 代码风格指南
+
+### Git 提交规范
+
+我们遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**提交类型（type）：**
+- `feat` - 新功能、新页面
+- `fix` - Bug 修复
+- `docs` - 文档更新
+- `style` - 代码格式（不影响代码运行）
+- `refactor` - 重构（既不是新增功能，也不是修改 bug）
+- `perf` - 性能优化
+- `test` - 增加测试
+- `chore` - 构建过程或辅助工具的变动
+- `ci` - CI/CD 配置变更
+- `revert` - 回退提交
+
+**示例：**
+```
+feat(tarot): add card detail modal with animations
+
+- Implement tarot card detail popup
+- Add flip animation with CSS 3D transforms
+- Add card meaning interpretation
+- Update responsive layout for mobile
+- Add unit tests for card component
+
+Closes #123
+```
+
+**提交规范：**
+- 标题不超过 72 个字符
+- 使用中文或英文均可，但要保持一致
+- 标题使用祈使句（"添加" 而不是 "添加了"）
+- 正文详细说明改动的原因和内容
+- 关联相关 Issue（如 `Closes #123`、`Fixes #456`）
+
+### 命名约定
+
+#### Vue 组件
+```vue
+<!-- 组件名 - PascalCase，多单词 -->
+<script setup>
+// ✅ 好的命名
+const TarotCard = defineComponent({ ... })
+const FortuneForm = defineComponent({ ... })
+const HistoryPanel = defineComponent({ ... })
+
+// ❌ 不好的命名
+const card = defineComponent({ ... })
+const form = defineComponent({ ... })
+</script>
+```
+
+#### JavaScript/TypeScript
+```typescript
+// 变量/函数 - camelCase
+const userName = ref('John')
+const fetchFortuneData = async () => { ... }
+const calculateBazi = (birthDate) => { ... }
+
+// 常量 - UPPER_SNAKE_CASE
+const MAX_HISTORY_ITEMS = 50
+const API_BASE_URL = import.meta.env.VITE_API_URL
+const FORTUNE_TYPES = ['tarot', 'bazi', 'ziwei']
+
+// 组合式函数 - use 开头
+const useFortune = () => { ... }
+const useHistory = () => { ... }
+const useTheme = () => { ... }
+
+// Props - camelCase
+defineProps<{
+  cardData: CardData
+  isFlipped: boolean
+  theme: string
+}>()
+
+// Emits - camelCase（脚本中），kebab-case（模板中）
+const emit = defineEmits<{
+  (e: 'card-clicked', card: Card): void
+  (e: 'update:modelValue', value: string): void
+}>()
+```
+
+#### CSS 类名
+```css
+/* BEM 命名规范 */
+.tarot-card { }              /* Block */
+.tarot-card__image { }       /* Element */
+.tarot-card--flipped { }     /* Modifier */
+.tarot-card--reversed { }    /* Modifier */
+
+/* 状态类 */
+.is-active { }
+.is-loading { }
+.is-disabled { }
+.has-error { }
+```
+
+#### 文件命名
+```
+# Vue 组件 - PascalCase
+TarotCard.vue
+FortuneForm.vue
+HistoryPanel.vue
+
+# 组合式函数 - camelCase，use 开头
+useFortune.js
+useHistory.js
+useTheme.js
+
+# 工具函数 - camelCase
+formatDate.js
+calculateBazi.js
+
+# 样式文件 - kebab-case
+tarot-card.css
+ancient-theme.css
+
+# 图片资源 - kebab-case
+tarot-back.png
+bazi-chart.svg
+```
+
+### 注释规范
+
+#### JSDoc 注释
+```typescript
+/**
+ * 计算八字命盘
+ * @param birthDate - 出生日期（YYYY-MM-DD HH:mm:ss）
+ * @param gender - 性别 ('male' | 'female')
+ * @returns 八字命盘数据对象
+ * @example
+ * const bazi = calculateBazi('1990-01-15 12:00:00', 'male')
+ * console.log(bazi.yearPillar)
+ */
+function calculateBazi(birthDate: string, gender: string): BaziResult {
+  // ...
+}
+```
+
+#### Vue 组件注释
+```vue
+<script setup>
+/**
+ * 塔罗牌卡片组件
+ * @props cardData - 塔罗牌数据
+ * @props isFlipped - 是否翻转
+ * @emits card-clicked - 点击卡片时触发
+ */
+const props = defineProps<{
+  cardData: TarotCard
+  isFlipped: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'card-clicked', card: TarotCard): void
+}>()
+</script>
+```
+
+#### 行内注释
+```javascript
+// ✅ 好的注释 - 解释为什么这样做
+// 防抖 300ms，避免频繁触发 API 请求
+const debouncedSearch = useDebounce(searchQuery, 300)
+
+// ✅ 好的注释 - 解释业务逻辑
+// 塔罗牌正逆位：随机生成，30% 概率逆位
+const isReversed = Math.random() < 0.3
+
+// ❌ 不好的注释 - 重复代码内容
+// 定义变量
+const count = ref(0)
+```
+
+### Vue 组件规范
+
+#### 组件结构顺序
+```vue
+<script setup>
+// 1. 导入
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+// 2. Props 和 Emits
+const props = defineProps({ ... })
+const emit = defineEmits({ ... })
+
+// 3. 响应式数据
+const isLoading = ref(false)
+const formData = ref({ ... })
+
+// 4. 计算属性
+const totalCount = computed(() => ...)
+
+// 5. 方法
+const handleSubmit = () => { ... }
+
+// 6. 生命周期
+onMounted(() => { ... })
+</script>
+
+<template>
+  <!-- 模板内容 -->
+</template>
+
+<style scoped>
+/* 样式 */
+</style>
+```
+
+### 导入排序规范
+
+```typescript
+// 1. 第三方库
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { defineStore } from 'pinia'
+import axios from 'axios'
+
+// 2. 本地组件
+import TarotCard from '@/components/TarotCard.vue'
+import FortuneForm from '@/components/FortuneForm.vue'
+import HistoryPanel from '@/components/HistoryPanel.vue'
+
+// 3. 组合式函数
+import { useFortune } from '@/composables/useFortune'
+import { useHistory } from '@/composables/useHistory'
+import { useTheme } from '@/composables/useTheme'
+
+// 4. 工具函数和类型
+import { formatDate } from '@/utils/format'
+import { validateBirthDate } from '@/utils/validation'
+import type { TarotCard, BaziResult } from '@/types'
+
+// 5. 样式
+import '@/styles/ancient-theme.css'
+```
+
+### 错误处理规范
+
+```typescript
+// ✅ 使用 try-catch 处理异步操作
+const fetchFortune = async () => {
+  try {
+    isLoading.value = true
+    const response = await api.post('/fortune/tarot', formData.value)
+    result.value = response.data
+  } catch (error) {
+    console.error('算命请求失败:', error)
+    showError('获取结果失败，请稍后重试')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ✅ 统一错误处理
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+})
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // 未授权，清除登录状态
+      clearUserInfo()
+    }
+    return Promise.reject(error)
+  }
+)
+
+// ✅ 表单验证
+const validateForm = () => {
+  if (!formData.value.birthDate) {
+    showError('请输入出生日期')
+    return false
+  }
+  if (!formData.value.gender) {
+    showError('请选择性别')
+    return false
+  }
+  return true
+}
+```
+
+### 性能优化规范
+
+```typescript
+// ✅ 使用 computed 缓存计算结果
+const filteredHistory = computed(() => {
+  return history.value.filter(item => item.type === currentType.value)
+})
+
+// ✅ 使用 shallowRef 减少响应式开销
+const heavyData = shallowRef(largeObject)
+
+// ✅ 使用 v-memo 优化列表渲染
+<div v-memo="[item.id]" v-for="item in items" :key="item.id">
+  <!-- 只有 item.id 变化时才重新渲染 -->
+</div>
+
+// ✅ 图片懒加载
+<img v-lazy="imageUrl" alt="tarot card" />
+```
+
 ## 开发环境
 
 ### 前端开发
